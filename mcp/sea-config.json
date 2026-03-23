@@ -1,0 +1,4 @@
+{
+  "main": "./dist/8w-mcp.cjs",
+  "output": "./dist/sea-prep.blob"
+}

@@ -1,0 +1,53 @@
+{
+  "name": "8w-mcp",
+  "packageManager": "pnpm@10.8.1",
+  "engines": {
+    "node": "20.19.2"
+  },
+  "version": "1.0.0",
+  "type": "module",
+  "description": "MCP Server for 8th Wall",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --reporter=verbose",
+    "build": "tsc && chmod 755 build/index.js",
+    "bundle": "esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=dist/8w-mcp.cjs --format=cjs --banner:js=\"#!/usr/bin/env node\" && chmod +x dist/8w-mcp.cjs",
+    "sea": "./scripts/sea.sh",
+    "inspect": "export NODE_ENV=development && npx @modelcontextprotocol/inspector tsx src/index.ts",
+    "start": "export NODE_ENV=development && npx tsx src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@types/node": "^24.2.1",
+    "@types/ws": "^8.18.1",
+    "@vitest/coverage-v8": "^2.1.0",
+    "esbuild": "^0.25.9",
+    "postject": "1.0.0-alpha.6",
+    "tsx": "^4.19.3",
+    "typescript": "^5.9.2",
+    "vitest": "^2.1.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.864.0",
+    "@langchain/aws": "^0.1.14",
+    "@langchain/core": "^0.3.75",
+    "@langchain/langgraph": "^0.4.7",
+    "@modelcontextprotocol/sdk": "^1.17.2",
+    "dotenv": "^16.4.5",
+    "eventsource-client": "^1.2.0",
+    "eventsource-parser": "^3.0.6",
+    "jwt-decode": "^4.0.0",
+    "langchain": "^0.3.31",
+    "opik": "^1.8.33",
+    "pino": "^9.9.0",
+    "ts-essentials": "^10.1.1",
+    "ws": "^8.18.3",
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.24.6"
+  }
+}

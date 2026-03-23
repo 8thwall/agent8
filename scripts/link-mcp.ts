@@ -31,20 +31,17 @@ try {
   const args = process.argv.slice(2)
   const debug = args.includes('--debug')
   const platforms = debug ? NODE_PLATFORMS : PLATFORMS
-  const legacyMcpRepoPath = process.env.MCP_REPO_PATH || resolve(__dirname, '../../8w-mcp')
-  const newMcpRepoPath = process.env.MCP_REPO_PATH || resolve(__dirname, '../../mcp8')
+  const mcpPath = process.env.MCP_REPO_PATH || resolve(__dirname, '../mcp')
 
-  if (!existsSync(newMcpRepoPath) && !existsSync(legacyMcpRepoPath)) {
-    throw new Error(`MCP repository not found at: ${newMcpRepoPath} or ${legacyMcpRepoPath} ... Please ensure the mcp8 repository is cloned as a sibling of this repo, or that it's path is set in the MCP_REPO_PATH environment variable.`)
+  if (!existsSync(mcpPath)) {
+    throw new Error(`MCP repository not found at: ${mcpPath}...`)
   }
-
-  const mcpRepoPath = existsSync(newMcpRepoPath) ? newMcpRepoPath : legacyMcpRepoPath
 
   console.log('Building MCP executables...')
 
   const buildCmd = debug ? 'pnpm bundle' : 'pnpm sea'
   execSync(buildCmd, { 
-    cwd: mcpRepoPath, 
+    cwd: mcpPath, 
     stdio: 'inherit'
   })
 
@@ -54,7 +51,7 @@ try {
 
   platforms.forEach(platform => {
     const filename = getFileName(platform)
-    const sourceFile = resolve(mcpRepoPath, `dist/${filename}`)
+    const sourceFile = resolve(mcpPath, `dist/${filename}`)
     const targetFile = resolve(__dirname, `${TARGET_DIR}/${filename}`)
 
     if (existsSync(targetFile)) {
