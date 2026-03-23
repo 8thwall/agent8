@@ -1,6 +1,6 @@
 {
-	"extension.displayName": "Kilo Code AI Agent (Cline / Roo features combined)",
-	"extension.description": "Een compleet ontwikkelteam van AI-agents in je editor.",
+	"extension.displayName": "8th Wall Agent Eight",
+	"extension.description": "AI-assistent voor het bouwen en coderen van 8th Wall-projecten.",
 	"views.contextMenu.label": "Kilo Code",
 	"views.terminalMenu.label": "Kilo Code",
 	"views.sidebar.name": "Kilo Code",

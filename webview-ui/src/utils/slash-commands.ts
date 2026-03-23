@@ -5,6 +5,8 @@ import { getAllModes } from "@roo/modes"
 import { getBasename } from "./kilocode/path-webview"
 import { ClineRulesToggles } from "@roo/cline-rules"
 
+const WORKFLOWS_ENABLED = false // hidden8:workflows
+
 export interface SlashCommand {
 	name: string
 	description?: string
@@ -19,16 +21,16 @@ export function getSupportedSlashCommands(
 ): SlashCommand[] {
 	// Start with non-mode commands
 	const baseCommands: SlashCommand[] = [
-		{
-			name: "newtask",
-			description: "Create a new task with context from the current task",
-		},
-		{
-			name: "newrule",
-			description: "Create a new Kilo rule with context from your conversation",
-		},
-		{ name: "reportbug", description: "Create a KiloCode GitHub issue" },
-		{ name: "smol", description: "Condenses your current context window" },
+		// { hidden8:newtask
+		// 	name: "newtask",
+		// 	description: "Create a new task with context from the current task",
+		// },
+		// { hidden8:newrule
+		// 	name: "newrule",
+		// 	description: "Create a new 8th Wall Agent rule with context from your conversation",
+		// },
+		{ name: "reportbug", description: "Create an 8th Wall forum post" },
+		// { name: "smol", description: "Condenses your current context window" }, hidden8:smol
 	]
 
 	// Add mode-switching commands dynamically
@@ -38,7 +40,7 @@ export function getSupportedSlashCommands(
 	}))
 
 	// add workflow commands
-	const workflowCommands = getWorkflowCommands(localWorkflowToggles, globalWorkflowToggles)
+	const workflowCommands = WORKFLOWS_ENABLED ? getWorkflowCommands(localWorkflowToggles, globalWorkflowToggles) : []
 	return [...baseCommands, ...modeCommands, ...workflowCommands]
 }
 

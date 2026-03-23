@@ -86,7 +86,7 @@ describe("McpToolRow", () => {
 			serverName: "test-server",
 			toolName: "test-tool",
 			alwaysAllow: true,
-			source: "global",
+			mcpSource: "global",
 		})
 	})
 
@@ -182,7 +182,7 @@ describe("McpToolRow", () => {
 		expect(vscode.postMessage).toHaveBeenCalledWith({
 			type: "toggleToolEnabledForPrompt",
 			serverName: "test-server",
-			source: "global",
+			mcpSource: "global",
 			toolName: "test-tool",
 			isEnabled: false,
 		})

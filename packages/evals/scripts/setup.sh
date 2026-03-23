@@ -10,8 +10,8 @@ has_asdf_plugin() {
 
 build_extension() {
   echo "🔨 Building the Kilo Code extension..."
-  pnpm -w vsix -- --out ../bin/kilo-code-$(git rev-parse --short HEAD).vsix || exit 1
-  code --install-extension ../../bin/kilo-code-$(git rev-parse --short HEAD).vsix || exit 1
+  pnpm -w vsix -- --out ../bin/8th-wall-agent-$(git rev-parse --short HEAD).vsix || exit 1
+  code --install-extension ../../bin/8th-wall-agent-$(git rev-parse --short HEAD).vsix || exit 1
   cd evals
 }
 
@@ -328,8 +328,8 @@ code --install-extension redhat.java &>/dev/null || exit 1
 code --install-extension ms-python.python&>/dev/null || exit 1
 code --install-extension rust-lang.rust-analyzer &>/dev/null || exit 1
 
-if ! code --list-extensions 2>/dev/null | grep -q "kilocode.Kilo-Code"; then
-  code --install-extension kilocode.Kilo-Code &>/dev/null || exit 1
+if ! code --list-extensions 2>/dev/null | grep -q "8th-wall.8th-wall-agent"; then
+  code --install-extension 8th-wall.8th-wall-agent &>/dev/null || exit 1
 fi
 
 echo "✅ Done"

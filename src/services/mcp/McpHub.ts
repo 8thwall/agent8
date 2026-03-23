@@ -26,6 +26,7 @@ import {
 	McpResourceResponse,
 	McpResourceTemplate,
 	McpServer,
+	McpServerSource,
 	McpTool,
 	McpToolCallResponse,
 } from "../../shared/mcp"
@@ -33,6 +34,10 @@ import { fileExistsAtPath } from "../../utils/fs"
 import { arePathsEqual } from "../../utils/path"
 import { injectVariables } from "../../utils/config"
 import { NotificationService } from "./kilocode/NotificationService"
+import { spawnSync } from "child_process"
+import { DEBUG_MODE } from "../../integrations/studio-use/constants"
+
+const MCP_ENABLED = false // hidden8:mcp
 
 // Discriminated union for connection states
 export type ConnectedMcpConnection = {
@@ -161,6 +166,7 @@ export class McpHub {
 		this.setupWorkspaceFoldersWatcher()
 		this.initializeGlobalMcpServers()
 		this.initializeProjectMcpServers()
+		this.initializeBuiltinMcpServers()
 	}
 	/**
 	 * Registers a client (e.g., ClineProvider) using this hub.
@@ -277,7 +283,7 @@ export class McpHub {
 	/**
 	 * Debounced wrapper for handling config file changes
 	 */
-	private debounceConfigChange(filePath: string, source: "global" | "project"): void {
+	private debounceConfigChange(filePath: string, source: McpServerSource): void {
 		const key = `${source}-${filePath}`
 
 		// Clear existing timer if any
@@ -295,7 +301,9 @@ export class McpHub {
 		this.configChangeDebounceTimers.set(key, timer)
 	}
 
-	private async handleConfigFileChange(filePath: string, source: "global" | "project"): Promise<void> {
+	private async handleConfigFileChange(filePath: string, source: McpServerSource): Promise<void> {
+		if (!MCP_ENABLED) return
+
 		try {
 			const content = await fs.readFile(filePath, "utf-8")
 			let config: any
@@ -350,7 +358,7 @@ export class McpHub {
 		}
 
 		const workspaceFolder = vscode.workspace.workspaceFolders[0]
-		const projectMcpPattern = new vscode.RelativePattern(workspaceFolder, ".kilocode/mcp.json")
+		const projectMcpPattern = new vscode.RelativePattern(workspaceFolder, ".8thwallagent/mcp.json")
 
 		// Create a file system watcher for the project MCP file pattern
 		this.projectMcpWatcher = vscode.workspace.createFileSystemWatcher(projectMcpPattern)
@@ -379,6 +387,8 @@ export class McpHub {
 	}
 
 	private async updateProjectMcpServers(): Promise<void> {
+		if (!MCP_ENABLED) return
+
 		try {
 			const projectMcpPath = await this.getProjectMcpPath()
 			if (!projectMcpPath) return
@@ -503,6 +513,8 @@ export class McpHub {
 	}
 
 	private async initializeMcpServers(source: "global" | "project"): Promise<void> {
+		if (!MCP_ENABLED) return
+
 		try {
 			const configPath =
 				source === "global" ? await this.getMcpSettingsFilePath() : await this.getProjectMcpPath()
@@ -557,16 +569,16 @@ export class McpHub {
 
 		const workspaceFolder = vscode.workspace.workspaceFolders[0]
 		// kilocode_change
-		// First, we try the standard location: .kilocode/mcp.json
+		// First, we try the standard location: .8thwallagent/mcp.json
 		// If not found, fall back to .mcp.json in the project root
-		const projectMcpDir = path.join(workspaceFolder.uri.fsPath, ".kilocode")
+		const projectMcpDir = path.join(workspaceFolder.uri.fsPath, ".8thwallagent")
 		const projectMcpPath = path.join(projectMcpDir, "mcp.json")
 
 		try {
 			await fs.access(projectMcpPath)
 			return projectMcpPath
 		} catch {
-			// If not found in .kilocode/, fall back to .mcp.json in root directory
+			// If not found in .8thwallagent/, fall back to .mcp.json in root directory
 			const rootMcpPath = path.join(workspaceFolder.uri.fsPath, ".mcp.json")
 			try {
 				await fs.access(rootMcpPath)
@@ -582,6 +594,58 @@ export class McpHub {
 		await this.initializeMcpServers("project")
 	}
 
+	private nodeAvailable(): boolean {
+		return spawnSync("node", ["-v"]).status === 0
+	}
+
+	private async initializeBuiltinMcpServers(): Promise<void> {
+			const context = this.providerRef.deref()?.context
+			if (!context) return
+
+			let command
+			let args: string[] = []
+			if (process.env.VSCODE_DEBUG_MODE) {
+				command = "node"
+				args = ["8w-mcp.cjs"]
+			} else if (process.platform === "win32" && process.arch === "x64") {
+				command = "mcp8-win-x64-bin.exe"
+			} else if (process.platform === "darwin" && process.arch === "arm64") {
+				command = "./mcp8-darwin-arm64-bin"
+			} else if (process.platform === "darwin" && process.arch === "x64") {
+				command = "./mcp8-darwin-x64-bin"
+			} else if (this.nodeAvailable()) {
+				command = "node"
+				args = ["8w-mcp.cjs"]
+			} else {
+				vscode.window.showErrorMessage(
+					t("mcp:errors.unsupported_platform",
+					{platform: `${process.platform}-${process.arch}`})
+				)
+				return
+			}
+
+			const builtinServers = {
+				"studio-agent": {
+					type: "stdio",
+					disabledTools: [],
+					command,
+					args,
+					cwd: vscode.Uri.joinPath(context.extensionUri, "services", "mcp", "external")?.fsPath,
+					env: {
+						NODE_ENV: DEBUG_MODE ? "development" : "production",
+						AWS_DEFAULT_REGION: "us-west-2",
+						WS_NO_BUFFER_UTIL: "true",
+						WS_NO_UTF_8_VALIDATE: "true",
+					},
+					alwaysAllow: [],
+					disabled: false,
+					timeout: 900,
+				},
+			}
+			
+			await this.updateServerConnections(builtinServers, "builtin", false)
+	}
+
 	/**
 	 * Creates a placeholder connection for disabled servers or when MCP is globally disabled
 	 * @param name The server name
@@ -593,7 +657,7 @@ export class McpHub {
 	private createPlaceholderConnection(
 		name: string,
 		config: z.infer<typeof ServerConfigSchema>,
-		source: "global" | "project",
+		source: McpServerSource,
 		reason: DisableReason,
 	): DisconnectedMcpConnection {
 		return {
@@ -628,7 +692,7 @@ export class McpHub {
 	private async connectToServer(
 		name: string,
 		config: z.infer<typeof ServerConfigSchema>,
-		source: "global" | "project" = "global",
+		source: McpServerSource = "global",
 	): Promise<void> {
 		// Remove existing connection if it exists with the same source
 		await this.deleteConnection(name, source)
@@ -656,7 +720,7 @@ export class McpHub {
 		try {
 			const client = new Client(
 				{
-					name: "Kilo Code",
+					name: "8th Wall Agent",
 					version: this.providerRef.deref()?.context.extension?.packageJSON?.version ?? "1.0.0",
 				},
 				{
@@ -899,14 +963,19 @@ export class McpHub {
 	 * @param source Optional source to filter by (global or project)
 	 * @returns The matching connection or undefined if not found
 	 */
-	private findConnection(serverName: string, source?: "global" | "project"): McpConnection | undefined {
+	private findConnection(serverName: string, source?: McpServerSource): McpConnection | undefined {
 		// If source is specified, only find servers with that source
 		if (source !== undefined) {
 			return this.connections.find((conn) => conn.server.name === serverName && conn.server.source === source)
 		}
 
-		// If no source is specified, first look for project servers, then global servers
-		// This ensures that when servers have the same name, project servers are prioritized
+		// If no source is specified, first look for builtin servers, then project servers, then global servers
+		// This ensures that when servers have the same name, builtin or project servers are prioritized
+		const builtinConn = this.connections.find(
+			(conn) => conn.server.name === serverName && conn.server.source === "builtin",
+		)
+		if (builtinConn) return builtinConn
+
 		const projectConn = this.connections.find(
 			(conn) => conn.server.name === serverName && conn.server.source === "project",
 		)
@@ -918,7 +987,7 @@ export class McpHub {
 		)
 	}
 
-	private async fetchToolsList(serverName: string, source?: "global" | "project"): Promise<McpTool[]> {
+	private async fetchToolsList(serverName: string, source?: McpServerSource): Promise<McpTool[]> {
 		try {
 			// Use the helper method to find the connection
 			const connection = this.findConnection(serverName, source)
@@ -964,7 +1033,7 @@ export class McpHub {
 			// Mark tools as always allowed and enabled for prompt based on settings
 			const tools = (response?.tools || []).map((tool) => ({
 				...tool,
-				alwaysAllow: alwaysAllowConfig.includes(tool.name),
+				alwaysAllow: alwaysAllowConfig.includes(tool.name) || source === 'builtin',
 				enabledForPrompt: !disabledToolsList.includes(tool.name),
 			}))
 
@@ -975,7 +1044,7 @@ export class McpHub {
 		}
 	}
 
-	private async fetchResourcesList(serverName: string, source?: "global" | "project"): Promise<McpResource[]> {
+	private async fetchResourcesList(serverName: string, source?: McpServerSource): Promise<McpResource[]> {
 		try {
 			const connection = this.findConnection(serverName, source)
 			if (!connection || connection.type !== "connected") {
@@ -991,7 +1060,7 @@ export class McpHub {
 
 	private async fetchResourceTemplatesList(
 		serverName: string,
-		source?: "global" | "project",
+		source?: McpServerSource,
 	): Promise<McpResourceTemplate[]> {
 		try {
 			const connection = this.findConnection(serverName, source)
@@ -1009,7 +1078,7 @@ export class McpHub {
 		}
 	}
 
-	async deleteConnection(name: string, source?: "global" | "project"): Promise<void> {
+	async deleteConnection(name: string, source?: McpServerSource): Promise<void> {
 		// Clean up file watchers for this server
 		this.removeFileWatchersForServer(name)
 
@@ -1039,7 +1108,7 @@ export class McpHub {
 
 	async updateServerConnections(
 		newServers: Record<string, any>,
-		source: "global" | "project" = "global",
+		source: McpServerSource = "global",
 		manageConnectingState: boolean = true,
 	): Promise<void> {
 		if (manageConnectingState) {
@@ -1109,7 +1178,7 @@ export class McpHub {
 	private setupFileWatcher(
 		name: string,
 		config: z.infer<typeof ServerConfigSchema>,
-		source: "global" | "project" = "global",
+		source: McpServerSource = "global",
 	) {
 		// Initialize an empty array for this server if it doesn't exist
 		if (!this.fileWatchers.has(name)) {
@@ -1182,7 +1251,7 @@ export class McpHub {
 		}
 	}
 
-	async restartConnection(serverName: string, source?: "global" | "project"): Promise<void> {
+	async restartConnection(serverName: string, source?: McpServerSource): Promise<void> {
 		this.isConnecting = true
 
 		// Check if MCP is globally enabled
@@ -1242,6 +1311,7 @@ export class McpHub {
 			// Still initialize servers to track them, but they won't connect
 			await this.initializeMcpServers("global")
 			await this.initializeMcpServers("project")
+			await this.initializeBuiltinMcpServers()
 
 			await this.notifyWebviewOfServerChanges()
 			return
@@ -1312,7 +1382,7 @@ export class McpHub {
 		// Get global server order from settings file
 		const settingsPath = await this.getMcpSettingsFilePath()
 		const content = await fs.readFile(settingsPath, "utf-8")
-		const config = JSON.parse(content)
+		const config = JSON.parse(content || "{}")
 		const globalServerOrder = Object.keys(config.mcpServers || {})
 
 		// Get project server order if available
@@ -1375,7 +1445,7 @@ export class McpHub {
 	public async toggleServerDisabled(
 		serverName: string,
 		disabled: boolean,
-		source?: "global" | "project",
+		source?: McpServerSource,
 	): Promise<void> {
 		try {
 			// Find the connection to determine if it's a global or project server
@@ -1436,7 +1506,7 @@ export class McpHub {
 	private async updateServerConfig(
 		serverName: string,
 		configUpdate: Record<string, any>,
-		source: "global" | "project" = "global",
+		source: McpServerSource = "global",
 	): Promise<void> {
 		// Determine which config file to update
 		let configPath: string
@@ -1499,7 +1569,7 @@ export class McpHub {
 	public async updateServerTimeout(
 		serverName: string,
 		timeout: number,
-		source?: "global" | "project",
+		source?: McpServerSource,
 	): Promise<void> {
 		try {
 			// Find the connection to determine if it's a global or project server
@@ -1518,7 +1588,7 @@ export class McpHub {
 		}
 	}
 
-	public async deleteServer(serverName: string, source?: "global" | "project"): Promise<void> {
+	public async deleteServer(serverName: string, source?: McpServerSource): Promise<void> {
 		try {
 			// Find the connection to determine if it's a global or project server
 			const connection = this.findConnection(serverName, source)
@@ -1586,7 +1656,7 @@ export class McpHub {
 		}
 	}
 
-	async readResource(serverName: string, uri: string, source?: "global" | "project"): Promise<McpResourceResponse> {
+	async readResource(serverName: string, uri: string, source?: McpServerSource): Promise<McpResourceResponse> {
 		const connection = this.findConnection(serverName, source)
 		if (!connection || connection.type !== "connected") {
 			throw new Error(`No connection found for server: ${serverName}${source ? ` with source ${source}` : ""}`)
@@ -1609,7 +1679,7 @@ export class McpHub {
 		serverName: string,
 		toolName: string,
 		toolArguments?: Record<string, unknown>,
-		source?: "global" | "project",
+		source?: McpServerSource
 	): Promise<McpToolCallResponse> {
 		const connection = this.findConnection(serverName, source)
 		if (!connection || connection.type !== "connected") {
@@ -1657,7 +1727,7 @@ export class McpHub {
 	 */
 	private async updateServerToolList(
 		serverName: string,
-		source: "global" | "project",
+		source: McpServerSource,
 		toolName: string,
 		listName: "alwaysAllow" | "disabledTools",
 		addTool: boolean,
@@ -1726,7 +1796,7 @@ export class McpHub {
 
 	async toggleToolAlwaysAllow(
 		serverName: string,
-		source: "global" | "project",
+		source: McpServerSource,
 		toolName: string,
 		shouldAllow: boolean,
 	): Promise<void> {
@@ -1743,7 +1813,7 @@ export class McpHub {
 
 	async toggleToolEnabledForPrompt(
 		serverName: string,
-		source: "global" | "project",
+		source: McpServerSource,
 		toolName: string,
 		isEnabled: boolean,
 	): Promise<void> {

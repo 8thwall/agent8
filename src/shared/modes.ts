@@ -18,6 +18,8 @@ import { TOOL_GROUPS, ALWAYS_AVAILABLE_TOOLS } from "./tools"
 
 export type Mode = string
 
+export type ModeSource = "global" | "project"
+
 // Helper to extract group name regardless of format
 export function getGroupName(group: GroupEntry): ToolGroup {
 	if (typeof group === "string") {
@@ -28,7 +30,7 @@ export function getGroupName(group: GroupEntry): ToolGroup {
 }
 
 // Helper to get group options if they exist
-function getGroupOptions(group: GroupEntry): GroupOptions | undefined {
+export function getGroupOptions(group: GroupEntry): GroupOptions | undefined {
 	return Array.isArray(group) ? group[1] : undefined
 }
 

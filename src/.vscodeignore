@@ -34,3 +34,6 @@
 
 # Include .env file for telemetry
 !.env
+
+# Include built MCP server
+!services/mcp/external/**

@@ -84,7 +84,7 @@ async function testPowerShellCommand(
 			executeCommand: vi.fn(),
 			cwd: vscode.Uri.file("/test/path"),
 		},
-		name: "Kilo Code",
+		name: "8th Wall Agent",
 		processId: Promise.resolve(123),
 		creationOptions: {},
 		exitStatus: undefined,

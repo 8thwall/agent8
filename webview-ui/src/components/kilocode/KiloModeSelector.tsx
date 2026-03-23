@@ -45,37 +45,42 @@ export const KiloModeSelector = ({
 			title={title || t("chat:selectMode")}
 			disabled={disabled}
 			initiallyOpen={initiallyOpen}
+			disableSearch
 			options={[
+				...allModes.map((mode) => ({
+					value: mode.slug,
+					label: mode.name,
+					codicon: mode.iconName,
+					customIcon: mode.customIcon,
+					description: mode.description, // kilocode_change
+					type: DropdownOptionType.ITEM,
+				})),
+				// hidden8:customModes
+				// {
+				// 	value: "sep-1",
+				// 	label: t("chat:separator"),
+				// 	type: DropdownOptionType.SEPARATOR,
+				// },
+				// {
+				// 	value: "promptsButtonClicked",
+				// 	label: t("chat:edit"),
+				// 	type: DropdownOptionType.ACTION,
+				// },
 				{
 					value: "shortcut",
 					label: modeShortcutText,
 					disabled: true,
 					type: DropdownOptionType.SHORTCUT,
 				},
-				...allModes.map((mode) => ({
-					value: mode.slug,
-					label: mode.name,
-					codicon: mode.iconName,
-					description: mode.description, // kilocode_change
-					type: DropdownOptionType.ITEM,
-				})),
-				{
-					value: "sep-1",
-					label: t("chat:separator"),
-					type: DropdownOptionType.SEPARATOR,
-				},
-				{
-					value: "promptsButtonClicked",
-					label: t("chat:edit"),
-					type: DropdownOptionType.ACTION,
-				},
 			]}
 			onChange={handleChange}
 			shortcutText={modeShortcutText}
+			triggerIcon={false}
 			triggerClassName={cn(
 				"w-full bg-[var(--background)] border-[var(--vscode-input-border)] hover:bg-[var(--color-vscode-list-hoverBackground)]",
 				triggerClassName,
 			)}
+			contentMaxHeight={96}
 		/>
 	)
 }

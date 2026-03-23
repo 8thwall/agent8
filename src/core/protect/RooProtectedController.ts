@@ -13,18 +13,12 @@ export class RooProtectedController {
 
 	// Predefined list of protected Roo configuration patterns
 	private static readonly PROTECTED_PATTERNS = [
-		".kilocodeignore",
-		".kilocodemodes",
-		".kilocoderules",
-		".kilocode/**",
-		".kilocodeprotected",
-		".rooignore",
-		".roomodes",
-		".roorules*",
-		".clinerules*",
-		".roo/**",
+		".8thwallagentignore",
+		".8thwallagentmodes",
+		".8thwallagentrules",
+		".8thwallagent/**",
+		".8thwallagentprotected",
 		".vscode/**",
-		".rooprotected", // For future use
 		"AGENTS.md",
 	]
 
@@ -89,7 +83,7 @@ export class RooProtectedController {
 	 * Get display message for protected file operations
 	 */
 	getProtectionMessage(): string {
-		return "This is a Kilo Code configuration file and requires approval for modifications"
+		return "This is a 8th Wall Agent configuration file and requires approval for modifications"
 	}
 
 	/**
@@ -98,7 +92,7 @@ export class RooProtectedController {
 	 */
 	getInstructions(): string {
 		const patterns = RooProtectedController.PROTECTED_PATTERNS.join(", ")
-		return `# Protected Files\n\n(The following Kilo Code configuration file patterns are write-protected and always require approval for modifications, regardless of autoapproval settings. When using list_files, you'll notice a ${SHIELD_SYMBOL} next to files that are write-protected.)\n\nProtected patterns: ${patterns}`
+		return `# Protected Files\n\n(The following 8th Wall Agent configuration file patterns are write-protected and always require approval for modifications, regardless of autoapproval settings. When using list_files, you'll notice a ${SHIELD_SYMBOL} next to files that are write-protected.)\n\nProtected patterns: ${patterns}`
 	}
 
 	/**

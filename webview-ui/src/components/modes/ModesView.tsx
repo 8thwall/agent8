@@ -21,6 +21,7 @@ import {
 	getCustomInstructions,
 	getAllModes,
 	findModeBySlug as findCustomModeBySlug,
+	ModeSource,
 } from "@roo/modes"
 import { TOOL_GROUPS } from "@roo/tools"
 
@@ -52,9 +53,7 @@ import { DeleteModeDialog } from "@src/components/modes/DeleteModeDialog"
 import { useEscapeKey } from "@src/hooks/useEscapeKey"
 
 // Get all available groups that should show in prompts view
-const availableGroups = (Object.keys(TOOL_GROUPS) as ToolGroup[]).filter((group) => !TOOL_GROUPS[group].alwaysAvailable)
-
-type ModeSource = "global" | "project"
+const availableGroups = (Object.keys(TOOL_GROUPS) as ToolGroup[]).filter((group) => !TOOL_GROUPS[group].alwaysAvailable && !TOOL_GROUPS[group].disabled)
 
 type ModesViewProps = {
 	onDone: () => void
@@ -564,7 +563,7 @@ const ModesView = ({ onDone }: ModesViewProps) => {
 												e.preventDefault() // Prevent blur
 												vscode.postMessage({
 													type: "openFile",
-													text: "./.kilocodemodes",
+													text: "./.8thwallagentmodes",
 													values: {
 														create: true,
 														content: JSON.stringify({ customModes: [] }, null, 2),
@@ -1160,7 +1159,7 @@ const ModesView = ({ onDone }: ModesViewProps) => {
 												// Open or create an empty file
 												vscode.postMessage({
 													type: "openFile",
-													text: `./.kilocode/rules-${currentMode.slug}/rules.md`,
+													text: `./.8thwallagent/rules-${currentMode.slug}/rules.md`,
 													values: {
 														create: true,
 														content: "",
@@ -1279,7 +1278,7 @@ const ModesView = ({ onDone }: ModesViewProps) => {
 
 															vscode.postMessage({
 																type: "openFile",
-																text: `./.kilocode/system-prompt-${currentMode.slug}`, // kilocode_change
+																text: `./.8thwallagent/system-prompt-${currentMode.slug}`, // kilocode_change
 																values: {
 																	create: true,
 																	content: "",
@@ -1346,7 +1345,7 @@ const ModesView = ({ onDone }: ModesViewProps) => {
 										onClick={() =>
 											vscode.postMessage({
 												type: "openFile",
-												text: "./.kilocode/rules/rules.md",
+												text: "./.8thwallagent/rules/rules.md",
 												values: {
 													create: true,
 													content: "",
@@ -1627,11 +1626,11 @@ const ModesView = ({ onDone }: ModesViewProps) => {
 											document.querySelector(
 												'input[name="importLevel"]:checked',
 											) as HTMLInputElement
-										)?.value as "global" | "project"
+										)?.value as ModeSource
 										setIsImporting(true)
 										vscode.postMessage({
 											type: "importMode",
-											source: selectedLevel || "project",
+											modeSource: selectedLevel || "project",
 										})
 									}
 								}}

@@ -44,9 +44,10 @@ Mention regex:
 	- Mentions that are file or folder paths starting with '/' and containing any non-whitespace characters (including periods within the path).
 	- File paths can include spaces if they are escaped with a backslash (e.g., `@/path/to/file\ with\ spaces.txt`).
 	- URLs that start with a protocol (like 'http://') followed by any non-whitespace characters (including query parameters).
+	- Partial commit hashes (hex strings of length 7-40) hidden8:gitContext
 	- The exact word 'problems'.
-	- The exact word 'git-changes'.
-    - The exact word 'terminal'.
+	- The exact word 'git-changes'. hidden8:gitContext
+  - The exact word 'terminal'. hidden8:terminal
   - It ensures that any trailing punctuation marks (such as ',', '.', '!', etc.) are not included in the matched mention, allowing the punctuation to follow the mention naturally in the text.
 
 - **Global Regex**:
@@ -54,7 +55,7 @@ Mention regex:
 
 */
 export const mentionRegex =
-	/(?<!\\)@((?:\/|\w+:\/\/)(?:[^\s\\]|\\ )+?|[a-f0-9]{7,40}\b|problems\b|git-changes\b|terminal\b)(?=[.,;:!?]?(?=[\s\r\n]|$))/
+	/(?<!\\)@((?:\/|\w+:\/\/)(?:[^\s\\]|\\ )+?|problems\b)(?=[.,;:!?]?(?=[\s\r\n]|$))/
 export const mentionRegexGlobal = new RegExp(mentionRegex.source, "g")
 
 // Regex to match command mentions like /command-name anywhere in text

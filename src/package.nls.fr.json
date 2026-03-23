@@ -1,6 +1,6 @@
 {
-	"extension.displayName": "Agent IA Kilo Code (Cline/Roo fonctions unifiées)",
-	"extension.description": "Assistant de codage d'IA Open Source pour la planification, la création et la correction de code.",
+	"extension.displayName": "8th Wall Agent Eight",
+	"extension.description": "Assistant IA pour construire et coder des projets 8th Wall.",
 	"command.newTask.title": "Nouvelle Tâche",
 	"command.explainCode.title": "Expliquer le Code",
 	"command.fixCode.title": "Corriger le Code",

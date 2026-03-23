@@ -19,6 +19,7 @@ import { TaskActions } from "./TaskActions"
 import { ContextWindowProgress } from "./ContextWindowProgress"
 import { Mention } from "./Mention"
 import { TodoListDisplay } from "./TodoListDisplay"
+import CreditsIcon from "../kilocode/common/Credits"
 
 export interface TaskHeaderProps {
 	task: ClineMessage
@@ -259,7 +260,8 @@ const TaskHeader = ({
 												{t("chat:task.apiCost")}
 											</th>
 											<td className="align-top">
-												<span>${totalCost?.toFixed(2)}</span>
+												<CreditsIcon className="mr-1" />
+												<span>{totalCost?.toFixed(2)}</span>
 											</td>
 										</tr>
 									)}

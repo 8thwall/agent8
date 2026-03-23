@@ -170,7 +170,8 @@ export interface ExtensionStateContextType extends ExtensionState {
 	maxDiagnosticMessages?: number
 	setMaxDiagnosticMessages: (value: number) => void
 	includeTaskHistoryInEnhance?: boolean
-	setIncludeTaskHistoryInEnhance: (value: boolean) => void
+	setIncludeTaskHistoryInEnhance: (value: boolean) => void,
+	debugMode?: boolean
 }
 
 export const ExtensionStateContext = createContext<ExtensionStateContextType | undefined>(undefined)
@@ -243,7 +244,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		cwd: "",
 		browserToolEnabled: true,
 		telemetrySetting: "unset",
-		showRooIgnoredFiles: true, // Default to showing .rooignore'd files with lock symbol (current behavior).
+		showRooIgnoredFiles: true, // Default to showing .8thwallagentignore'd files with lock symbol (current behavior).
 		showAutoApproveMenu: false, // kilocode_change
 		renderContext: "sidebar",
 		maxReadFileLine: -1, // Default max read file line limit
@@ -267,7 +268,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		autoCondenseContextPercent: 100,
 		profileThresholds: {},
 		codebaseIndexConfig: {
-			codebaseIndexEnabled: true,
+			codebaseIndexEnabled: false, // hidden8:indexing
 			codebaseIndexQdrantUrl: "http://localhost:6333",
 			codebaseIndexEmbedderProvider: "openai",
 			codebaseIndexEmbedderBaseUrl: "",

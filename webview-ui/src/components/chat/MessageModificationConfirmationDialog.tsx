@@ -15,7 +15,29 @@ interface MessageModificationConfirmationDialogProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
 	onConfirm: () => void
-	type: "edit" | "delete"
+	type: "edit" | "delete" | "retry"
+}
+
+const getTitleKey = (type: MessageModificationConfirmationDialogProps["type"]) => {
+	switch (type) {
+		case "edit":
+			return "common:confirmation.editMessage"
+		case "delete":
+			return "common:confirmation.deleteMessage"
+		case "retry":
+			return "common:confirmation.retryMessage"
+	}
+}
+
+const getDescriptionKey = (type: MessageModificationConfirmationDialogProps["type"]) => {
+	switch (type) {
+		case "edit":
+			return "common:confirmation.editWarning"
+		case "delete":
+			return "common:confirmation.deleteWarning"
+		case "retry":
+			return "common:confirmation.retryWarning"
+	}
 }
 
 export const MessageModificationConfirmationDialog: React.FC<MessageModificationConfirmationDialogProps> = ({
@@ -26,9 +48,8 @@ export const MessageModificationConfirmationDialog: React.FC<MessageModification
 }) => {
 	const { t } = useAppTranslation()
 
-	const isEdit = type === "edit"
-	const title = isEdit ? t("common:confirmation.editMessage") : t("common:confirmation.deleteMessage")
-	const description = isEdit ? t("common:confirmation.editWarning") : t("common:confirmation.deleteWarning")
+	const title = t(getTitleKey(type))
+	const description = t(getDescriptionKey(type))
 
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -59,4 +80,8 @@ export const EditMessageDialog: React.FC<Omit<MessageModificationConfirmationDia
 
 export const DeleteMessageDialog: React.FC<Omit<MessageModificationConfirmationDialogProps, "type">> = (props) => (
 	<MessageModificationConfirmationDialog {...props} type="delete" />
+)
+
+export const RetryMessageDialog: React.FC<Omit<MessageModificationConfirmationDialogProps, "type">> = (props) => (
+	<MessageModificationConfirmationDialog {...props} type="retry" />
 )

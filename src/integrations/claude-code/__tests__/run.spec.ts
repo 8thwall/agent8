@@ -226,7 +226,7 @@ describe("runClaudeCode", () => {
 
 		// Verify that writeFile was called to create temp file
 		expect(mockWriteFile).toHaveBeenCalledWith(
-			expect.stringContaining("kilocode-system-prompt-"),
+			expect.stringContaining("8thwallagent-system-prompt-"),
 			systemPrompt,
 			"utf8",
 		)

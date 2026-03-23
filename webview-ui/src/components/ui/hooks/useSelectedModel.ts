@@ -53,6 +53,8 @@ import {
 	mainlandZAiModels,
 	fireworksModels,
 	fireworksDefaultModelId,
+	aiApiDefaultModelId,
+	aiApiModels,
 } from "@roo-code/types"
 
 import type { ModelRecord, RouterModels } from "@roo/api"
@@ -324,6 +326,21 @@ function getSelectedModel({
 		case "fireworks": {
 			const id = apiConfiguration.apiModelId ?? fireworksDefaultModelId
 			const info = fireworksModels[id as keyof typeof fireworksModels]
+			return { id, info }
+		}
+		// NOTE(kyle): Copied from the bedrock case.
+		case "ai-api": {
+			const id = apiConfiguration.apiModelId ?? aiApiDefaultModelId
+			const info = aiApiModels[id as keyof typeof aiApiModels]
+
+			// Special case for custom ARN.
+			if (id === "custom-arn") {
+				return {
+					id,
+					info: { maxTokens: 5000, contextWindow: 128_000, supportsPromptCache: false, supportsImages: true },
+				}
+			}
+
 			return { id, info }
 		}
 		case "virtual-quota-fallback": {

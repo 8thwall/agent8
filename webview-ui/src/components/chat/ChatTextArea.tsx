@@ -32,11 +32,11 @@ import {
 	Pin,
 	Check,
 	// Image, // kilocode_change
-	WandSparkles,
+	// WandSparkles, hidden8:enhance
 	SendHorizontal,
 	Paperclip, // kilocode_change
 } from "lucide-react"
-import { IndexingStatusBadge } from "./IndexingStatusBadge"
+// import { IndexingStatusBadge } from "./IndexingStatusBadge" hidden8:indexing
 import { cn } from "@/lib/utils"
 import { usePromptHistory } from "./hooks/usePromptHistory"
 import { EditModeControls } from "./EditModeControls"
@@ -245,7 +245,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 		const [justDeletedSpaceAfterMention, setJustDeletedSpaceAfterMention] = useState(false)
 		const [intendedCursorPosition, setIntendedCursorPosition] = useState<number | null>(null)
 		const contextMenuContainerRef = useRef<HTMLDivElement>(null)
-		const [isEnhancingPrompt, setIsEnhancingPrompt] = useState(false)
+		const [_isEnhancingPrompt, setIsEnhancingPrompt] = useState(false) // hidden8:enhance
 		const [isFocused, setIsFocused] = useState(false)
 
 		// Use custom hook for prompt history navigation
@@ -268,7 +268,8 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			}
 		}, [selectedType, searchQuery])
 
-		const handleEnhancePrompt = useCallback(() => {
+		// hidden8:enhance
+		const _handleEnhancePrompt = useCallback(() => {
 			const trimmedInput = inputValue.trim()
 
 			if (trimmedInput) {
@@ -1377,7 +1378,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				)}
 
 				{/* kilocode_change: position tweaked */}
-				<div className="absolute top-2 right-2 z-30">
+				{/* <div className="absolute top-2 right-2 z-30"> hidden8:enhance
 					<StandardTooltip content={t("chat:enhancePrompt")}>
 						<button
 							aria-label={t("chat:enhancePrompt")}
@@ -1397,12 +1398,12 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							<WandSparkles className={cn("w-4 h-4", isEnhancingPrompt && "animate-spin")} />
 						</button>
 					</StandardTooltip>
-				</div>
+				</div> */}
 
 				{/* kilocode_change: position tweaked, rtl support */}
 				<div className="absolute bottom-2 end-2 z-30">
 					{/* kilocode_change start */}
-					<IndexingStatusBadge className={cn({ hidden: containerWidth < 235 })} />
+					{/* <IndexingStatusBadge className={cn({ hidden: containerWidth < 235 })} /> hidden8:indexing */}
 					<StandardTooltip content="Add Context (@)">
 						<button
 							aria-label="Add Context (@)"

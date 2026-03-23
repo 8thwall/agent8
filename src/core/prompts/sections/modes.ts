@@ -6,7 +6,7 @@ import type { ModeConfig } from "@roo-code/types"
 
 import { getAllModesWithPrompts } from "../../../shared/modes"
 
-export async function getModesSection(context: vscode.ExtensionContext): Promise<string> {
+export async function getModesSection(context: vscode.ExtensionContext, enableModeCreation?: boolean): Promise<string> {
 	const settingsDir = path.join(context.globalStorageUri.fsPath, "settings")
 	await fs.mkdir(settingsDir, { recursive: true })
 
@@ -31,6 +31,10 @@ ${allModes
 		return `  * "${mode.name}" mode (${mode.slug}) - ${description}`
 	})
 	.join("\n")}`
+
+	if (!enableModeCreation) {
+		return modesContent
+	}
 
 	modesContent += `
 If the user asks you to create or edit a new mode for this project, you should read the instructions by using the fetch_instructions tool, like this:

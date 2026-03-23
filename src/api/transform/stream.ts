@@ -1,6 +1,9 @@
+import { CreditGrant } from "../../shared/ExtensionMessage"
+import { AiApiStop } from "../providers/ai-api"
+
 export type ApiStream = AsyncGenerator<ApiStreamChunk>
 
-export type ApiStreamChunk = ApiStreamTextChunk | ApiStreamUsageChunk | ApiStreamReasoningChunk | ApiStreamError
+export type ApiStreamChunk = ApiStreamTextChunk | ApiStreamUsageChunk | ApiStreamReasoningChunk | ApiStreamError | ApiStreamCreditsChunk
 
 export interface ApiStreamError {
 	type: "error"
@@ -26,4 +29,8 @@ export interface ApiStreamUsageChunk {
 	cacheReadTokens?: number
 	reasoningTokens?: number
 	totalCost?: number
+}
+
+export interface ApiStreamCreditsChunk extends AiApiStop {
+	type: "credits"
 }

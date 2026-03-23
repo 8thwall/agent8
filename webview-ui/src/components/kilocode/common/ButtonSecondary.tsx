@@ -2,7 +2,8 @@ import { PropsWithChildren } from "react"
 import styled from "styled-components"
 
 type ButtonProps = PropsWithChildren<{
-	onClick: () => void
+  onClick: () => void
+  disabled?: boolean
 }>
 
 const StyledButton = styled.button`
@@ -35,15 +36,19 @@ const StyledButton = styled.button`
 		border: 1px solid #9f9ea1;
 		background: #fff;
 		color: #8e9196;
-
 		&:active {
 			transform: scale(0.98);
 		}
 	}
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 `
 
-export const ButtonSecondary = ({ onClick, children }: ButtonProps) => (
-	<StyledButton onClick={onClick} className="flex flex-col gap-1 text-center">
+export const ButtonSecondary = ({ onClick, children, disabled }: ButtonProps) => (
+	<StyledButton onClick={onClick} disabled={disabled}className="flex flex-col gap-1 text-center">
 		{children}
 	</StyledButton>
 )

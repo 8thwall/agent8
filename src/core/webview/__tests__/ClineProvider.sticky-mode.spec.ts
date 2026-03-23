@@ -175,6 +175,15 @@ vi.mock("@roo-code/telemetry", () => ({
 		},
 	},
 }))
+vi.mock("../../../integrations/studio-use/websocket-manager-factory", () => ({
+	WsManager: {
+		send: vi.fn(),
+		getConnectedStatus: vi.fn().mockReturnValue(true),
+		onAction: vi.fn(),
+		offAction: vi.fn(),
+		onAnyAction: vi.fn(),
+	},
+}))
 
 describe("ClineProvider - Sticky Mode", () => {
 	let provider: ClineProvider
@@ -724,7 +733,7 @@ describe("ClineProvider - Sticky Mode", () => {
 
 			// Verify that the API configuration was also restored
 			expect(state.currentApiConfigName).toBe("architect-config")
-			expect(state.apiConfiguration.apiProvider).toBe("openai")
+			// expect(state.apiConfiguration.apiProvider).toBe("openai")  // hidden8:providers
 		})
 
 		it("should handle mode deletion between sessions", async () => {

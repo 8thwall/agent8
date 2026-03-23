@@ -24,7 +24,7 @@ describe("TerminalProcess", () => {
 			shellIntegration: {
 				executeCommand: vi.fn(),
 			},
-			name: "Kilo Code",
+			name: "8th Wall Agent",
 			processId: Promise.resolve(123),
 			creationOptions: {},
 			exitStatus: undefined,

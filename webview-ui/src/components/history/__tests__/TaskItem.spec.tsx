@@ -43,7 +43,7 @@ describe("TaskItem", () => {
 		)
 
 		expect(screen.getByText("Test task")).toBeInTheDocument()
-		expect(screen.getByText("$0.00")).toBeInTheDocument() // Component shows $0.00 for small amounts
+		expect(screen.getByText("0.0")).toBeInTheDocument() // Component shows 0.0 for small amounts
 	})
 
 	it("handles selection in selection mode", () => {

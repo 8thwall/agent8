@@ -16,13 +16,14 @@ import HistoryView from "./components/history/HistoryView"
 import SettingsView, { SettingsViewRef } from "./components/settings/SettingsView"
 import WelcomeView from "./components/kilocode/Welcome/WelcomeView" // kilocode_change
 import ProfileView from "./components/kilocode/profile/ProfileView" // kilocode_change
+import AuthView from "./components/kilocode/auth/AuthView"
 import McpView from "./components/mcp/McpView"
 // import { MarketplaceView } from "./components/marketplace/MarketplaceView" // kilocode_change: rendered in settings
 import ModesView from "./components/modes/ModesView"
 import { HumanRelayDialog } from "./components/human-relay/HumanRelayDialog"
 import BottomControls from "./components/kilocode/BottomControls" // kilocode_change
 import { MemoryService } from "./services/MemoryService" // kilocode_change
-import { DeleteMessageDialog, EditMessageDialog } from "./components/chat/MessageModificationConfirmationDialog"
+import { DeleteMessageDialog, EditMessageDialog, RetryMessageDialog } from "./components/chat/MessageModificationConfirmationDialog"
 import ErrorBoundary from "./components/ErrorBoundary"
 // import { AccountView } from "./components/account/AccountView" // kilocode_change: we have our own profile view
 import { useAddNonInteractiveClickListener } from "./components/ui/hooks/useNonInteractiveClick"
@@ -30,7 +31,7 @@ import { TooltipProvider } from "./components/ui/tooltip"
 import { STANDARD_TOOLTIP_DELAY } from "./components/ui/standard-tooltip"
 import { useKiloIdentity } from "./utils/kilocode/useKiloIdentity"
 
-type Tab = "settings" | "history" | "mcp" | "modes" | "chat" | "marketplace" | "account" | "profile" // kilocode_change: add "profile"
+type Tab = "settings" | "history" | "mcp" | "modes" | "chat" | "marketplace" | "account" | "profile" | "auth"
 
 interface HumanRelayDialogState {
 	isOpen: boolean
@@ -52,6 +53,7 @@ interface EditMessageDialogState {
 
 // Memoize dialog components to prevent unnecessary re-renders
 const MemoizedDeleteMessageDialog = React.memo(DeleteMessageDialog)
+const MemoizedRetryMessageDialog = React.memo(RetryMessageDialog)
 const MemoizedEditMessageDialog = React.memo(EditMessageDialog)
 const MemoizedHumanRelayDialog = React.memo(HumanRelayDialog)
 
@@ -64,6 +66,7 @@ const tabsByMessageAction: Partial<Record<NonNullable<ExtensionMessage["action"]
 	profileButtonClicked: "profile",
 	marketplaceButtonClicked: "marketplace",
 	accountButtonClicked: "account",
+	authButtonClicked: "auth",
 }
 
 const App = () => {
@@ -96,6 +99,13 @@ const App = () => {
 	const [deleteMessageDialogState, setDeleteMessageDialogState] = useState<DeleteMessageDialogState>({
 		isOpen: false,
 		messageTs: 0,
+	})
+
+	const [retryMessageDialogState, setRetryMessageDialogState] = useState<EditMessageDialogState>({
+		isOpen: false,
+		messageTs: 0,
+		text: "",
+		images: [],
 	})
 
 	const [editMessageDialogState, setEditMessageDialogState] = useState<EditMessageDialogState>({
@@ -172,6 +182,15 @@ const App = () => {
 
 			if (message.type === "showDeleteMessageDialog" && message.messageTs) {
 				setDeleteMessageDialogState({ isOpen: true, messageTs: message.messageTs })
+			}
+
+			if (message.type === "showRetryMessageDialog" && message.messageTs && message.text) {
+				setRetryMessageDialogState({
+					isOpen: true,
+					messageTs: message.messageTs,
+					text: message.text,
+					images: message.images || [],
+				})
 			}
 
 			if (message.type === "showEditMessageDialog" && message.messageTs && message.text) {
@@ -266,6 +285,7 @@ const App = () => {
 			)}
 			{/* kilocode_change: add profileview */}
 			{tab === "profile" && <ProfileView onDone={() => switchTab("chat")} />}
+			{tab === "auth" && <AuthView onDone={() => switchTab("chat")} />}
 			{/* kilocode_change: rendered in settings */}
 			{/* {tab === "marketplace" && (
 				<MarketplaceView stateManager={marketplaceStateManager} onDone={() => switchTab("chat")} />
@@ -297,6 +317,22 @@ const App = () => {
 						messageTs: deleteMessageDialogState.messageTs,
 					})
 					setDeleteMessageDialogState((prev) => ({ ...prev, isOpen: false }))
+				}}
+			/>
+			<MemoizedRetryMessageDialog
+				open={retryMessageDialogState.isOpen}
+				onOpenChange={(open) => setRetryMessageDialogState((prev) => ({ ...prev, isOpen: open }))}
+				onConfirm={() => {
+					vscode.postMessage({
+						type: "editMessage",
+						values: {
+							ts: retryMessageDialogState.messageTs,
+							text: retryMessageDialogState.text,
+							images: retryMessageDialogState.images,
+							revert: true,
+						}
+					})
+					setRetryMessageDialogState((prev) => ({ ...prev, isOpen: false }))
 				}}
 			/>
 			<MemoizedEditMessageDialog

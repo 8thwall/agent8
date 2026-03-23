@@ -3,7 +3,7 @@ import { useDeepCompareEffect, useEvent, useMount } from "react-use"
 import debounce from "debounce"
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso"
 import removeMd from "remove-markdown"
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
+import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import useSound from "use-sound"
 import { LRUCache } from "lru-cache"
 
@@ -41,7 +41,7 @@ import { StandardTooltip } from "@src/components/ui"
 import { useAutoApprovalState } from "@src/hooks/useAutoApprovalState"
 import { useAutoApprovalToggles } from "@src/hooks/useAutoApprovalToggles"
 
-import TelemetryBanner from "../common/TelemetryBanner" // kilocode_change: deactivated for now
+// import TelemetryBanner from "../common/TelemetryBanner" // hidden8:telemetry
 // import VersionIndicator from "../common/VersionIndicator" // kilocode_change: unused
 import { useTaskSearch } from "../history/useTaskSearch"
 import HistoryPreview from "../history/HistoryPreview"
@@ -57,12 +57,14 @@ import SystemPromptWarning from "./SystemPromptWarning"
 import { showSystemNotification } from "@/kilocode/helpers" // kilocode_change
 // import ProfileViolationWarning from "./ProfileViolationWarning" kilocode_change: unused
 import { CheckpointWarning } from "./CheckpointWarning"
-import { IdeaSuggestionsBox } from "../kilocode/chat/IdeaSuggestionsBox" // kilocode_change
 import { KilocodeNotifications } from "../kilocode/KilocodeNotifications" // kilocode_change
 import QueuedMessages from "./QueuedMessages"
 import { getLatestTodo } from "@roo/todo"
 import { QueuedMessage } from "@roo-code/types"
-import { buildDocLink } from "@/utils/docLinks"
+import { TOOL_GROUPS } from "@roo/tools"
+import Logo from "../kilocode/common/Logo"
+import { filterVisibleMessages } from "@roo/filterVisibleMessages"
+import { CreditsTracker } from "./CreditsTracker"
 
 export interface ChatViewProps {
 	isHidden: boolean
@@ -960,63 +962,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	useMount(() => textAreaRef.current?.focus())
 
 	const visibleMessages = useMemo(() => {
-		const currentMessageCount = modifiedMessages.length
-		const startIndex = Math.max(0, currentMessageCount - 500)
-		const recentMessages = modifiedMessages.slice(startIndex)
-
-		const newVisibleMessages = recentMessages.filter((message: ClineMessage) => {
-			if (everVisibleMessagesTsRef.current.has(message.ts)) {
-				const alwaysHiddenOnceProcessedAsk: ClineAsk[] = [
-					"api_req_failed",
-					"resume_task",
-					"resume_completed_task",
-				]
-				const alwaysHiddenOnceProcessedSay = [
-					"api_req_finished",
-					"api_req_retried",
-					"api_req_deleted",
-					"mcp_server_request_started",
-				]
-				if (message.ask && alwaysHiddenOnceProcessedAsk.includes(message.ask)) return false
-				if (message.say && alwaysHiddenOnceProcessedSay.includes(message.say)) return false
-				if (message.say === "text" && (message.text ?? "") === "" && (message.images?.length ?? 0) === 0) {
-					return false
-				}
-				return true
-			}
-
-			switch (message.ask) {
-				case "completion_result":
-					if (message.text === "") return false
-					break
-				case "api_req_failed":
-				case "resume_task":
-				case "resume_completed_task":
-					return false
-			}
-			switch (message.say) {
-				case "api_req_finished":
-				case "api_req_retried":
-				case "api_req_deleted":
-					return false
-				case "api_req_retry_delayed":
-					const last1 = modifiedMessages.at(-1)
-					const last2 = modifiedMessages.at(-2)
-					if (last1?.ask === "resume_task" && last2 === message) {
-						return true
-					} else if (message !== last1) {
-						return false
-					}
-					break
-				case "text":
-					if ((message.text ?? "") === "" && (message.images?.length ?? 0) === 0) return false
-					break
-				case "mcp_server_request_started":
-					return false
-			}
-			return true
-		})
-
+		const newVisibleMessages = filterVisibleMessages(modifiedMessages, ts => everVisibleMessagesTsRef.current.has(ts))
 		const viewportStart = Math.max(0, newVisibleMessages.length - 100)
 		newVisibleMessages
 			.slice(viewportStart)
@@ -1093,6 +1039,23 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
 		return false
 	}, [])
+
+	const isMcpServerAlwaysAllowed = useCallback(
+		(message: ClineMessage | undefined) => {
+			if (message?.type === "ask" && message.ask === "use_mcp_server" && message.text) {
+
+				const mcpServerUse = JSON.parse(message.text) as { type: string; serverName: string; toolName: string }
+
+				if (mcpServerUse.type === "use_mcp_tool") {
+					const server = mcpServers?.find((s: McpServer) => s.name === mcpServerUse.serverName)
+					return server?.source === 'builtin'
+				}
+			}
+
+			return false
+		},
+		[mcpServers],
+	)
 
 	const isMcpToolAlwaysAllowed = useCallback(
 		(message: ClineMessage | undefined) => {
@@ -1193,7 +1156,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			}
 
 			if (message.ask === "use_mcp_server") {
-				return alwaysAllowMcp && isMcpToolAlwaysAllowed(message)
+				return (isMcpServerAlwaysAllowed(message) || alwaysAllowMcp) && isMcpToolAlwaysAllowed(message)
 			}
 
 			if (message.ask === "command") {
@@ -1269,6 +1232,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			alwaysAllowExecute,
 			isAllowedCommand,
 			alwaysAllowMcp,
+			isMcpServerAlwaysAllowed,
 			isMcpToolAlwaysAllowed,
 			alwaysAllowModeSwitch,
 			alwaysAllowFollowupQuestions,
@@ -1582,7 +1546,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			}
 
 			// Check if we need to switch modes
-			if (suggestion.mode) {
+			if (suggestion.mode && !TOOL_GROUPS.modes.disabled) {
 				// Only switch modes if it's a manual click (event exists) or auto-approval is allowed
 				const isManualClick = !!event
 				if (isManualClick || alwaysAllowModeSwitch) {
@@ -1639,7 +1603,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			// regular message
 			return (
 				<ChatRow
-					key={messageOrGroup.ts}
+					key={`${index}-${messageOrGroup.ts}`}
 					message={messageOrGroup}
 					isExpanded={expandedRows[messageOrGroup.ts] || false}
 					onToggleExpand={toggleRowExpansion} // This was already stabilized
@@ -2000,27 +1964,26 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 						/>
 
 						<RooHero /> */}
-						{telemetrySetting === "unset" && <TelemetryBanner />}
+						{/* {telemetrySetting === "unset" && <TelemetryBanner />} hidden8:telemetry */}
 						{/* kilocode_change start: KilocodeNotifications + Layout fixes */}
 						{telemetrySetting !== "unset" && <KilocodeNotifications />}
-						<div className="flex flex-grow flex-col justify-center gap-4">
+						<div className="flex flex-grow flex-col justify-center items-center gap-4">
 							{/* kilocode_change end */}
+							<Logo />
 							<p className="text-vscode-editor-foreground leading-tight font-vscode-font-family text-center text-balance max-w-[380px] mx-auto my-0">
 								<Trans
 									i18nKey="chat:about"
 									components={{
 										DocsLink: (
-											<a
-												href={buildDocLink("", "welcome")}
+											<VSCodeLink
+												href={"http://8th.io/agentdocs"}
 												target="_blank"
-												rel="noopener noreferrer">
-												the docs
-											</a>
+												rel="noopener noreferrer"/>
 										),
 									}}
 								/>
 							</p>
-							{taskHistory.length === 0 && <IdeaSuggestionsBox />} {/* kilocode_change */}
+							{/* taskHistory.length === 0 && <IdeaSuggestionsBox /> hidden8:ideas*/}
 							{/*<div className="mb-2.5">
 								{cloudIsAuthenticated || taskHistory.length < 4 ? <RooTips /> : <RooCloudCTA />}
 							</div> kilocode_change: do not show */}
@@ -2050,8 +2013,9 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			*/}
 			{/* kilocode_change: added settings toggle for this */}
 			{!task && showAutoApproveMenu && (
-				<div className="mb-1 flex-initial min-h-0">
+				<div className="mb-1 flex-initial min-h-0 flex justify-between mr-4">
 					<AutoApproveMenu />
+					<CreditsTracker />
 				</div>
 			)}
 
@@ -2077,9 +2041,10 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 							initialTopMostItemIndex={groupedMessages.length - 1}
 						/>
 					</div>
-					<div className={`flex-initial min-h-0 ${!areButtonsVisible ? "mb-1" : ""}`}>
+					<div className={`flex-initial min-h-0 ${!areButtonsVisible ? "mb-1" : ""} flex justify-between mr-4`}>
 						{/* kilocode_change: added settings toggle for this */}
 						{showAutoApproveMenu && <AutoApproveMenu />}
+						<CreditsTracker />
 					</div>
 					{areButtonsVisible && (
 						<div

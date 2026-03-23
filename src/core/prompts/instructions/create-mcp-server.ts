@@ -1,5 +1,5 @@
 import { McpHub } from "../../../services/mcp/McpHub"
-import { DiffStrategy } from "../../../shared/tools"
+import { DiffStrategy, TOOL_GROUPS } from "../../../shared/tools"
 
 export async function createMCPServerInstructions(
 	mcpHub: McpHub | undefined,
@@ -7,9 +7,10 @@ export async function createMCPServerInstructions(
 ): Promise<string> {
 	if (!diffStrategy || !mcpHub) throw new Error("Missing MCP Hub or Diff Strategy")
 
+  // hidden8:terminal
 	return `You have the ability to create an MCP server and add it to a configuration file that will then expose the tools and resources for you to use with \`use_mcp_tool\` and \`access_mcp_resource\`.
 
-When creating MCP servers, it's important to understand that they operate in a non-interactive environment. The server cannot initiate OAuth flows, open browser windows, or prompt for user input during runtime. All credentials and authentication tokens must be provided upfront through environment variables in the MCP settings configuration. For example, Spotify's API uses OAuth to get a refresh token for the user, but the MCP server cannot initiate this flow. While you can walk the user through obtaining an application client ID and secret, you may have to create a separate one-time setup script (like get-refresh-token.js) that captures and logs the final piece of the puzzle: the user's refresh token (i.e. you might run the script using execute_command which would open a browser for authentication, and then log the refresh token so that you can see it in the command output for you to use in the MCP settings configuration).
+When creating MCP servers, it's important to understand that they operate in a non-interactive environment. The server cannot initiate OAuth flows, open browser windows, or prompt for user input during runtime. All credentials and authentication tokens must be provided upfront through environment variables in the MCP settings configuration. For example, Spotify's API uses OAuth to get a refresh token for the user, but the MCP server cannot initiate this flow. While you can walk the user through obtaining an application client ID and secret, you may have to create a separate one-time setup script (like get-refresh-token.js) that captures and logs the final piece of the puzzle: the user's refresh token (i.e. you might ${TOOL_GROUPS.command.disabled ? "ask the user to execute a command" : "run the script using execute_command"} which would open a browser for authentication, and then log the refresh token so that you can see it in the command output for you to use in the MCP settings configuration).
 
 Unless the user specifies otherwise, new local MCP servers should be created in: ${await mcpHub.getMcpServersPath()}
 

@@ -170,7 +170,7 @@ describe("MdmService", () => {
 
 			await MdmService.createInstance()
 
-			expect(mockFs.existsSync).toHaveBeenCalledWith(path.join("C:\\ProgramData", "RooCode", "mdm.json"))
+			expect(mockFs.existsSync).toHaveBeenCalledWith(path.join("C:\\ProgramData", "8thWallAgent", "mdm.json"))
 		})
 
 		it("should use correct path for Windows in development", async () => {
@@ -182,7 +182,7 @@ describe("MdmService", () => {
 
 			await MdmService.createInstance()
 
-			expect(mockFs.existsSync).toHaveBeenCalledWith(path.join("C:\\ProgramData", "RooCode", "mdm.dev.json"))
+			expect(mockFs.existsSync).toHaveBeenCalledWith(path.join("C:\\ProgramData", "8thWallAgent", "mdm.dev.json"))
 		})
 
 		it("should use correct path for macOS in production", async () => {
@@ -193,7 +193,7 @@ describe("MdmService", () => {
 
 			await MdmService.createInstance()
 
-			expect(mockFs.existsSync).toHaveBeenCalledWith("/Library/Application Support/RooCode/mdm.json")
+			expect(mockFs.existsSync).toHaveBeenCalledWith("/Library/Application Support/8thWallAgent/mdm.json")
 		})
 
 		it("should use correct path for macOS in development", async () => {
@@ -204,7 +204,7 @@ describe("MdmService", () => {
 
 			await MdmService.createInstance()
 
-			expect(mockFs.existsSync).toHaveBeenCalledWith("/Library/Application Support/RooCode/mdm.dev.json")
+			expect(mockFs.existsSync).toHaveBeenCalledWith("/Library/Application Support/8thWallAgent/mdm.dev.json")
 		})
 
 		it("should use correct path for Linux in production", async () => {
@@ -215,7 +215,7 @@ describe("MdmService", () => {
 
 			await MdmService.createInstance()
 
-			expect(mockFs.existsSync).toHaveBeenCalledWith("/etc/roo-code/mdm.json")
+			expect(mockFs.existsSync).toHaveBeenCalledWith("/etc/8th-wall-agent/mdm.json")
 		})
 
 		it("should use correct path for Linux in development", async () => {
@@ -226,7 +226,7 @@ describe("MdmService", () => {
 
 			await MdmService.createInstance()
 
-			expect(mockFs.existsSync).toHaveBeenCalledWith("/etc/roo-code/mdm.dev.json")
+			expect(mockFs.existsSync).toHaveBeenCalledWith("/etc/8th-wall-agent/mdm.dev.json")
 		})
 
 		it("should default to dev config when NODE_ENV is not set", async () => {
@@ -237,7 +237,7 @@ describe("MdmService", () => {
 
 			await MdmService.createInstance()
 
-			expect(mockFs.existsSync).toHaveBeenCalledWith("/Library/Application Support/RooCode/mdm.dev.json")
+			expect(mockFs.existsSync).toHaveBeenCalledWith("/Library/Application Support/8thWallAgent/mdm.dev.json")
 		})
 	})
 

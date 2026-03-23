@@ -75,6 +75,7 @@ export const ModelSelector = ({ currentApiConfigName, apiConfiguration, fallback
 			)}
 			triggerIcon={false}
 			itemClassName="group"
+			disableSearch
 		/>
 	)
 }

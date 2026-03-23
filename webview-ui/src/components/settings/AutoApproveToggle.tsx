@@ -18,6 +18,9 @@ type AutoApproveToggles = Pick<
 	| "alwaysAllowUpdateTodoList"
 >
 
+// hidden8:browser hidden8:terminal hidden8:modes
+const hiddenToggles: (keyof AutoApproveToggles)[] = ["alwaysAllowBrowser", "alwaysAllowExecute", "alwaysAllowModeSwitch", "alwaysAllowSubtasks"] as const
+
 export type AutoApproveSetting = keyof AutoApproveToggles
 
 type AutoApproveConfig = {
@@ -28,7 +31,7 @@ type AutoApproveConfig = {
 	testId: string
 }
 
-export const autoApproveSettingsConfig: Record<AutoApproveSetting, AutoApproveConfig> = {
+const allAutoApproveSettingsConfig: Record<AutoApproveSetting, AutoApproveConfig> = {
 	alwaysAllowReadOnly: {
 		key: "alwaysAllowReadOnly",
 		labelKey: "settings:autoApprove.readOnly.label",
@@ -100,6 +103,10 @@ export const autoApproveSettingsConfig: Record<AutoApproveSetting, AutoApproveCo
 		testId: "always-allow-update-todo-list-toggle",
 	},
 }
+
+export const autoApproveSettingsConfig = Object.fromEntries(
+	Object.entries(allAutoApproveSettingsConfig).filter(([key]) => !hiddenToggles.includes(key as AutoApproveSetting)),
+) as Record<AutoApproveSetting, AutoApproveConfig>
 
 type AutoApproveToggleProps = AutoApproveToggles & {
 	onToggle: (key: AutoApproveSetting, value: boolean) => void

@@ -38,6 +38,7 @@ import { codebaseSearchTool } from "../tools/codebaseSearchTool"
 import { experiments, EXPERIMENT_IDS } from "../../shared/experiments"
 import { applyDiffToolLegacy } from "../tools/applyDiffTool"
 import { reportExcessiveRecursion, yieldPromise } from "../kilocode"
+import { track } from "opik"
 
 /**
  * Processes and presents assistant message content to the user interface.
@@ -271,6 +272,11 @@ export async function presentAssistantMessage(cline: Task, recursionDepth: numbe
 				} else {
 					cline.userMessageContent.push(...content)
 				}
+
+				track({ name: `tool${block.name}`, type: "tool" }, () => ({
+					params: block.params,
+					toolDescription: toolDescription(),
+				}))()
 
 				// Once a tool result has been collected, ignore all other tool
 				// uses since we should only ever present one tool result per
@@ -510,6 +516,7 @@ export async function presentAssistantMessage(cline: Task, recursionDepth: numbe
 					await executeCommandTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "use_mcp_tool":
+					await checkpointSaveAndMark(cline)
 					await useMcpToolTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "access_mcp_resource":
@@ -627,13 +634,15 @@ export async function presentAssistantMessage(cline: Task, recursionDepth: numbe
  * @param task The Task instance to checkpoint save and mark.
  * @returns
  */
-async function checkpointSaveAndMark(task: Task) {
+export async function checkpointSaveAndMark(task: Task) {
 	if (task.currentStreamingDidCheckpoint) {
 		return
 	}
 	try {
 		await task.checkpointSave(true)
 		task.currentStreamingDidCheckpoint = true
+		// wait 2 ms to prevent timestamp collisions
+		await new Promise(resolve => setTimeout(resolve, 2))
 	} catch (error) {
 		console.error(`[Task#presentAssistantMessage] Error saving checkpoint: ${error.message}`, error)
 	}

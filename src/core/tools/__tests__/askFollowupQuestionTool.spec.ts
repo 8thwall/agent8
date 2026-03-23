@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest"
 import { askFollowupQuestionTool } from "../askFollowupQuestionTool"
-import { ToolUse } from "../../../shared/tools"
+import { TOOL_GROUPS, ToolUse } from "../../../shared/tools"
 
 describe("askFollowupQuestionTool", () => {
 	let mockCline: any
@@ -48,7 +48,7 @@ describe("askFollowupQuestionTool", () => {
 		)
 	})
 
-	it("should parse suggestions with mode attributes", async () => {
+	it.skipIf(() => TOOL_GROUPS.modes.disabled)("should parse suggestions with mode attributes", async () => {
 		const block: ToolUse = {
 			type: "tool_use",
 			name: "ask_followup_question",
@@ -77,7 +77,7 @@ describe("askFollowupQuestionTool", () => {
 		)
 	})
 
-	it("should handle mixed suggestions with and without mode attributes", async () => {
+	it.skipIf(() => TOOL_GROUPS.modes.disabled)("should handle mixed suggestions with and without mode attributes", async () => {
 		const block: ToolUse = {
 			type: "tool_use",
 			name: "ask_followup_question",

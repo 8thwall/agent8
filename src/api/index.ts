@@ -38,6 +38,7 @@ import {
 	DoubaoHandler,
 	ZAiHandler,
 	FireworksHandler,
+	AiApiHandler,
 } from "./providers"
 // kilocode_change start
 import { KilocodeOpenrouterHandler } from "./providers/kilocode-openrouter"
@@ -149,6 +150,8 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			return new ZAiHandler(options)
 		case "fireworks":
 			return new FireworksHandler(options)
+		case "ai-api":
+			return new AiApiHandler(options)
 		default:
 			apiProvider satisfies "gemini-cli" | undefined
 			return new AnthropicHandler(options)

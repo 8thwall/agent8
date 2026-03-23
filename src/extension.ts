@@ -28,7 +28,7 @@ import { McpServerManager } from "./services/mcp/McpServerManager"
 import { CodeIndexManager } from "./services/code-index/manager"
 import { registerCommitMessageProvider } from "./services/commit-message"
 import { MdmService } from "./services/mdm/MdmService"
-import { migrateSettings } from "./utils/migrateSettings"
+// import { migrateSettings } from "./utils/migrateSettings"
 import { checkAndRunAutoLaunchingTask as checkAndRunAutoLaunchingTask } from "./utils/autoLaunchingTask"
 import { autoImportSettings } from "./utils/autoImportSettings"
 import { API } from "./extension/api"
@@ -55,25 +55,28 @@ import { TerminalWelcomeService } from "./services/terminal-welcome/TerminalWelc
 let outputChannel: vscode.OutputChannel
 let extensionContext: vscode.ExtensionContext
 
+const WALKTHROUGH_ENABLED = true
+
 // This method is called when your extension is activated.
 // Your extension is activated the very first time the command is executed.
 export async function activate(context: vscode.ExtensionContext) {
 	extensionContext = context
-	outputChannel = vscode.window.createOutputChannel("Kilo-Code")
+	outputChannel = vscode.window.createOutputChannel("8th-wall-agent")
 	context.subscriptions.push(outputChannel)
 	outputChannel.appendLine(`${Package.name} extension activated - ${JSON.stringify(Package)}`)
 
 	// Migrate old settings to new
-	await migrateSettings(context, outputChannel)
+	// await migrateSettings(context, outputChannel) hidden8:migrate
 
-	// Initialize telemetry service.
-	const telemetryService = TelemetryService.createInstance()
+	// Initialize telemetry service. hidden8:telemetry
+	const _telemetryService = TelemetryService.createInstance()
 
-	try {
-		telemetryService.register(new PostHogTelemetryClient())
-	} catch (error) {
-		console.warn("Failed to register PostHogTelemetryClient:", error)
-	}
+	// hidden8:telemetry
+	// try {
+	// 	telemetryService.register(new PostHogTelemetryClient())
+	// } catch (error) {
+	// 	console.warn("Failed to register PostHogTelemetryClient:", error)
+	// }
 
 	// Create logger for cloud services
 	const cloudLogger = createDualLogger(createOutputChannelLogger(outputChannel))
@@ -143,18 +146,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	)
 
 	// kilocode_change start
-	if (!context.globalState.get("firstInstallCompleted")) {
-		outputChannel.appendLine("First installation detected, opening Kilo Code sidebar!")
+	if (WALKTHROUGH_ENABLED && !context.globalState.get("firstInstallCompleted")) {
+		outputChannel.appendLine("First installation detected, opening 8th Wall Agent sidebar!")
 		try {
-			await vscode.commands.executeCommand("kilo-code.SidebarProvider.focus")
+			await vscode.commands.executeCommand("8th-wall-agent.SidebarProvider.focus")
 
-			outputChannel.appendLine("Opening Kilo Code walkthrough")
+			outputChannel.appendLine("Opening 8th Wall Agent walkthrough")
 
 			// this can crash, see:
 			// https://discord.com/channels/1349288496988160052/1395865796026040470
 			await vscode.commands.executeCommand(
 				"workbench.action.openWalkthrough",
-				"kilocode.kilo-code#kiloCodeWalkthrough",
+				"8th-wall.8th-wall-agent#8thWallAgentWalkthrough",
 				false,
 			)
 		} catch (error) {
@@ -218,7 +221,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	registerGhostProvider(context, provider) // kilocode_change
 	registerCommitMessageProvider(context, outputChannel) // kilocode_change
 	registerCodeActions(context)
-	registerTerminalActions(context)
+	// registerTerminalActions(context) hidden8:terminal
 
 	// Allows other extensions to activate once Kilo Code is ready.
 	vscode.commands.executeCommand(`${Package.name}.activationCompleted`)

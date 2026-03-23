@@ -21,6 +21,7 @@ export const generateSystemPrompt = async (provider: ClineProvider, message: Web
 		fuzzyMatchThreshold,
 		experiments,
 		enableMcpServerCreation,
+		enableModeCreation,
 		browserToolEnabled,
 		language,
 		maxReadFileLine,
@@ -87,6 +88,8 @@ export const generateSystemPrompt = async (provider: ClineProvider, message: Web
 			todoListEnabled: apiConfiguration?.todoListEnabled ?? true,
 			useAgentRules: vscode.workspace.getConfiguration("roo-cline").get<boolean>("useAgentRules") ?? true,
 		},
+		undefined, // todoList
+		enableModeCreation
 	)
 
 	return systemPrompt

@@ -136,10 +136,10 @@ export async function parseMentions(
 			return `Workspace Problems (see below for diagnostics)`
 		} else if (mention === "git-changes") {
 			return `Working directory changes (see below for details)`
-		} else if (/^[a-f0-9]{7,40}$/.test(mention)) {
-			return `Git commit '${mention}' (see below for commit info)`
-		} else if (mention === "terminal") {
-			return `Terminal Output (see below for output)`
+		// } else if (/^[a-f0-9]{7,40}$/.test(mention)) { hidden8:gitContext
+		// 	return `Git commit '${mention}' (see below for commit info)`
+		// } else if (mention === "terminal") { hidden8:terminal
+		// 	return `Terminal Output (see below for output)`
 		}
 		return match
 	})
@@ -224,20 +224,20 @@ export async function parseMentions(
 			} catch (error) {
 				parsedText += `\n\n<git_working_state>\nError fetching working state: ${error.message}\n</git_working_state>`
 			}
-		} else if (/^[a-f0-9]{7,40}$/.test(mention)) {
-			try {
-				const commitInfo = await getCommitInfo(mention, cwd)
-				parsedText += `\n\n<git_commit hash="${mention}">\n${commitInfo}\n</git_commit>`
-			} catch (error) {
-				parsedText += `\n\n<git_commit hash="${mention}">\nError fetching commit info: ${error.message}\n</git_commit>`
-			}
-		} else if (mention === "terminal") {
-			try {
-				const terminalOutput = await getLatestTerminalOutput()
-				parsedText += `\n\n<terminal_output>\n${terminalOutput}\n</terminal_output>`
-			} catch (error) {
-				parsedText += `\n\n<terminal_output>\nError fetching terminal output: ${error.message}\n</terminal_output>`
-			}
+		// } else if (/^[a-f0-9]{7,40}$/.test(mention)) { hidden8:gitContext
+		// 	try {
+		// 		const commitInfo = await getCommitInfo(mention, cwd)
+		// 		parsedText += `\n\n<git_commit hash="${mention}">\n${commitInfo}\n</git_commit>`
+		// 	} catch (error) {
+		// 		parsedText += `\n\n<git_commit hash="${mention}">\nError fetching commit info: ${error.message}\n</git_commit>`
+		// 	}
+		// } else if (mention === "terminal") { hidden8:terminal
+		// 	try {
+		// 		const terminalOutput = await getLatestTerminalOutput()
+		// 		parsedText += `\n\n<terminal_output>\n${terminalOutput}\n</terminal_output>`
+		// 	} catch (error) {
+		// 		parsedText += `\n\n<terminal_output>\nError fetching terminal output: ${error.message}\n</terminal_output>`
+		// 	}
 		}
 	}
 
@@ -281,7 +281,7 @@ async function getFileOrFolderContent(
 
 		if (stats.isFile()) {
 			if (rooIgnoreController && !rooIgnoreController.validateAccess(absPath)) {
-				return `(File ${mentionPath} is ignored by .kilocodeignore)`
+				return `(File ${mentionPath} is ignored by .8thwallagentignore)`
 			}
 			try {
 				const content = await extractTextFromFile(absPath, maxReadFileLine)

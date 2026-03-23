@@ -1,7 +1,7 @@
 /**
- * github-url-utils.ts
+ * url-utils.ts
  *
- * Portable utility functions for creating and opening GitHub issue URLs
+ * Portable utility functions for creating and opening parameter URLs
  * with proper URL encoding that bypasses VS Code's URI handling issues.
  *
  * This utility addresses a longstanding issue in VS Code's URI handling:
@@ -9,7 +9,7 @@
  *
  * The issue causes URLs with special characters in query parameters to be incorrectly
  * encoded when opened through VS Code's standard APIs (vscode.Uri.parse followed by
- * vscode.env.openExternal). This particularly affects GitHub issue URLs with pre-filled
+ * vscode.env.openExternal). This particularly affects forum URLs with pre-filled
  * fields containing special characters.
  */
 
@@ -19,7 +19,7 @@ import * as os from "os"
 import * as util from "util"
 
 /**
- * Creates a properly encoded GitHub issue URL.
+ * Creates a properly encoded URL with parameters.
  *
  * This function manually encodes each parameter value using encodeURIComponent()
  * to ensure consistent and correct encoding of all special characters. This is
@@ -32,11 +32,11 @@ import * as util from "util"
  * - Inconsistently handles other characters like & (ampersand) and + (plus)
  * - Can corrupt query parameters containing special characters
  *
- * @param baseUrl The base GitHub repository URL (e.g., 'https://github.com/owner/repo/issues/new')
+ * @param baseUrl The base URL (e.g., 'https://github.com/owner/repo/issues/new')
  * @param params Map of parameter names to values for the issue form
  * @returns The properly encoded full URL
  */
-export function createGitHubIssueUrl(baseUrl: string, params: Map<string, string>): string {
+export function createUrlWithParams(baseUrl: string, params: Map<string, string>): string {
 	// Build query string manually with proper encoding
 	const queryParts: string[] = []
 
@@ -203,6 +203,14 @@ export async function createAndOpenGitHubIssue(
 	}
 
 	// Create the URL and open it
-	const issueUrl = createGitHubIssueUrl(baseUrl, params)
+	const issueUrl = createUrlWithParams(baseUrl, params)
 	await openUrlInBrowser(issueUrl)
+}
+
+export async function createAndOpen8thWallForumPost(
+  params: Map<string, string>,
+): Promise<void> {
+  let baseUrl = `https://forum.8thwall.com/new-topic`
+  const issueUrl = createUrlWithParams(baseUrl, params)
+  await openUrlInBrowser(issueUrl)
 }

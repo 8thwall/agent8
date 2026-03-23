@@ -5,7 +5,7 @@
 	"tasks": [
 		{
 			"label": "watch",
-			"dependsOn": ["watch:pnpm", "watch:webview", "watch:bundle", "watch:tsc"],
+			"dependsOn": ["watch:pnpm", "watch:webview", "watch:bundle", "watch:tsc", "build:mcp"],
 			"presentation": {
 				"reveal": "never"
 			},
@@ -87,12 +87,46 @@
 			"type": "shell",
 			"command": "npx turbo watch:tsc",
 			"group": "none",
-			"problemMatcher": "$tsc-watch",
+			"problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "applyTo": "closedDocuments",
+        "fileLocation": [
+          "relative",
+          "${cwd}"
+        ],
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "^\\s*(?:[a-zA-Z0-9-]+:watch:tsc:)(?:message TS6032:|\\[?\\D*.{1,2}[:.].{1,2}[:.].{1,2}\\D*(├\\D*\\d{1,2}\\D+┤)?(?:\\]| -)) (Starting compilation in watch mode|File change detected\\. Starting incremental compilation)\\.\\.\\."
+          },
+          "endsPattern": {
+            "regexp": "^\\s*(?:[a-zA-Z0-9-]+:watch:tsc:)(?:message TS6042:|\\[?\\D*.{1,2}[:.].{1,2}[:.].{1,2}\\D*(├\\D*\\d{1,2}\\D+┤)?(?:\\]| -)) (?:Compilation complete\\.|Found \\d+ errors?\\.) Watching for file changes\\."
+          }
+        }
+      },
 			"isBackground": true,
 			"presentation": {
 				"group": "none",
 				"reveal": "always"
 			}
+		},
+		{
+			"label": "build:mcp",
+			"type": "shell",
+			"command": "pnpm prebuild --debug",
+			"group": "none",
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": {
+				"pattern": {
+					"regexp": "^ERROR:",
+					"severity": 3,
+				}
+			},
+			"isBackground": false
 		},
 		{
 			"label": "storybook",
@@ -119,7 +153,7 @@
 		{
 			"label": "install-dev-extension",
 			"type": "shell",
-			"command": "pnpm i && npm run build && code --install-extension \"$(ls -1v bin/kilo-code-*.vsix | tail -n1)\"",
+			"command": "pnpm i && npm run build && code --install-extension \"$(ls -1v bin/8th-wall-agent-*.vsix | tail -n1)\"",
 			"group": "build",
 			"presentation": {
 				"echo": true,

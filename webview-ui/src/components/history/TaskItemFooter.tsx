@@ -5,6 +5,9 @@ import { CopyButton } from "./CopyButton"
 import { ExportButton } from "./ExportButton"
 import { DeleteButton } from "./DeleteButton"
 import { StandardTooltip } from "../ui/standard-tooltip"
+import { IdButton } from "./IdButton"
+import CreditsIcon from "../kilocode/common/Credits"
+import { convertBipsToCredits } from "@roo/cost"
 
 export interface TaskItemFooterProps {
 	item: HistoryItem
@@ -25,7 +28,8 @@ const TaskItemFooter: React.FC<TaskItemFooterProps> = ({ item, variant, isSelect
 				{/* Cost */}
 				{!!item.totalCost && (
 					<span className="flex items-center" data-testid="cost-footer-compact">
-						{"$" + item.totalCost.toFixed(2)}
+						<CreditsIcon className="mr-1" />
+						{convertBipsToCredits(item.totalCost).toFixed(1)}
 					</span>
 				)}
 			</div>
@@ -33,6 +37,7 @@ const TaskItemFooter: React.FC<TaskItemFooterProps> = ({ item, variant, isSelect
 			{/* Action Buttons for non-compact view */}
 			{!isSelectionMode && (
 				<div className="flex flex-row gap-0 items-center text-vscode-descriptionForeground/60 hover:text-vscode-descriptionForeground">
+					<IdButton taskId={item.id} />
 					<CopyButton itemTask={item.task} />
 					{variant === "full" && <ExportButton itemId={item.id} />}
 					{onDelete && <DeleteButton itemId={item.id} onDelete={onDelete} />}

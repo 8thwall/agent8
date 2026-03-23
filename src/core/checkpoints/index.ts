@@ -131,10 +131,10 @@ async function checkGitInstallation(
 			// Show user-friendly notification
 			const selection = await vscode.window.showWarningMessage(
 				t("common:errors.git_not_installed"),
-				t("common:buttons.learn_more"),
+				t("common:buttons.download"),
 			)
 
-			if (selection === t("common:buttons.learn_more")) {
+			if (selection === t("common:buttons.download")) {
 				await vscode.env.openExternal(vscode.Uri.parse("https://git-scm.com/downloads"))
 			}
 

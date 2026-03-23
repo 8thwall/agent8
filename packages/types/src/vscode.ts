@@ -61,6 +61,7 @@ export const commandIds = [
 	"exportSettings", // kilocode_change
 	"generateTerminalCommand", // kilocode_change
 	"focusPanel",
+	"authButtonClicked",
 ] as const
 
 export type CommandId = (typeof commandIds)[number]

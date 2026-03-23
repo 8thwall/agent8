@@ -3,6 +3,7 @@
 	"extends": ["//"],
 	"tasks": {
 		"build": {
+			"inputs": ["../src/package.json"],
 			"outputs": ["../src/webview-ui/**"]
 		},
 		"build:nightly": {

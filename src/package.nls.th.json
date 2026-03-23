@@ -1,6 +1,6 @@
 {
-	"extension.displayName": "Kilo Code AI Agent (รวมฟีเจอร์ Cline / Roo)",
-	"extension.description": "ผู้ช่วยเขียนโค้ด AI แบบ Open Source สำหรับการวางแผน สร้าง และแก้ไขโค้ด",
+	"extension.displayName": "8th Wall Agent Eight",
+	"extension.description": "ผู้ช่วย AI สำหรับการสร้างและเขียนโค้ดโปรเจกต์ 8th Wall",
 	"views.contextMenu.label": "Kilo Code",
 	"views.terminalMenu.label": "Kilo Code",
 	"views.activitybar.title": "Kilo Code",

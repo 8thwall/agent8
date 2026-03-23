@@ -21,6 +21,7 @@ export interface DropdownOption {
 	value: string
 	label: string
 	codicon?: string // kilocode_change
+	customIcon?: string
 	description?: string // kilocode_change
 	disabled?: boolean
 	type?: DropdownOptionType
@@ -44,6 +45,7 @@ export interface SelectDropdownProps {
 	renderItem?: (option: DropdownOption) => React.ReactNode
 	disableSearch?: boolean
 	triggerIcon?: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>> | boolean | undefined // kilocode_change
+	contentMaxHeight?: number
 }
 
 export const SelectDropdown = React.memo(
@@ -66,6 +68,7 @@ export const SelectDropdown = React.memo(
 				renderItem,
 				disableSearch = false,
 				triggerIcon = CaretUpIcon, // kilocode_change
+				contentMaxHeight = 60,
 			},
 			ref,
 		) => {
@@ -223,6 +226,17 @@ export const SelectDropdown = React.memo(
 							className={cn("codicon opacity-80 mr", selectedOption?.codicon)}
 						/>
 					)}
+					{selectedOption?.customIcon && (
+						<svg
+							width={12}
+							height={12}
+							className="opacity-80 mr"
+							viewBox="0 0 45 83"
+							fill="currentColor"
+							xmlns="http://www.w3.org/2000/svg">
+							<path d={selectedOption.customIcon} />
+						</svg>
+					)}
 					{/* kilocode_change end */}
 					<span className="truncate">{displayText}</span>
 				</PopoverTrigger>
@@ -261,7 +275,7 @@ export const SelectDropdown = React.memo(
 
 							{/* Dropdown items - Use windowing for large lists */}
 							{/* kilocode_change: different max height: max-h-60 */}
-							<div className="max-h-60 overflow-y-auto">
+							<div className={`max-h-${contentMaxHeight} overflow-y-auto`}>
 								{groupedOptions.length === 0 && searchValue ? (
 									<div className="py-2 px-3 text-sm text-vscode-foreground/70">No results found</div>
 								) : (
@@ -315,14 +329,27 @@ export const SelectDropdown = React.memo(
 														<>
 															{/* kilocode_change start */}
 															<div className="flex items-center flex-1 py-1.5 px-3 hover:bg-vscode-list-hoverBackground">
-																<span
-																	slot="start"
-																	style={{ fontSize: "14px" }}
-																	className={cn(
-																		"codicon opacity-80 mr-2",
-																		option.codicon,
-																	)}
-																/>
+																{option.codicon && (
+																	<span
+																		slot="start"
+																		style={{ fontSize: "14px" }}
+																		className={cn(
+																			"codicon opacity-80 mr-2",
+																			option.codicon,
+																		)}
+																	/>
+																)}
+																{option.customIcon && (
+																	<svg
+																		width={14}
+																		height={14}
+																		className="codicon opacity-80 mr-2"
+																		viewBox="0 0 45 83"
+																		fill="currentColor"
+																		xmlns="http://www.w3.org/2000/svg">
+																		<path d={option.customIcon} />
+																	</svg>
+																)}
 																<div className="flex-1">
 																	<div>{option.label}</div>
 																	{option.description && (

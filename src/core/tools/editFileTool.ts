@@ -206,7 +206,7 @@ async function applyMorphEdit(
 			apiKey: morphConfig.apiKey,
 			baseURL: morphConfig.baseUrl,
 			defaultHeaders: {
-				"X-KiloCode-TaskId": cline.taskId,
+				"X-8thWallAgent-TaskId": cline.taskId,
 				...DEFAULT_HEADERS,
 			},
 		})

@@ -4,6 +4,7 @@
 	"tasks": {
 		"bundle": {
 			"dependsOn": ["^build", "@roo-code/vscode-webview#build"],
+			"inputs": ["package.json"],
 			"outputs": ["dist/**"]
 		},
 		"vsix": {

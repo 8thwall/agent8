@@ -8,7 +8,7 @@ import { TOOL_GROUPS } from "../../../shared/tools"
 import { validateToolUse } from "../validateToolUse"
 
 const codeMode = modes.find((m) => m.slug === "code")?.slug || "code"
-const architectMode = modes.find((m) => m.slug === "architect")?.slug || "architect"
+const agentMode = modes.find((m) => m.slug === "agent")?.slug || "agent"
 const askMode = modes.find((m) => m.slug === "ask")?.slug || "ask"
 
 describe("mode-validator", () => {
@@ -18,7 +18,7 @@ describe("mode-validator", () => {
 				// Code mode has all groups
 				Object.entries(TOOL_GROUPS).forEach(([_, config]) => {
 					config.tools.forEach((tool: string) => {
-						expect(isToolAllowedForMode(tool, codeMode, [])).toBe(true)
+						expect(isToolAllowedForMode(tool, codeMode, [])).toBe(!config.disabled)
 					})
 				})
 			})
@@ -28,16 +28,16 @@ describe("mode-validator", () => {
 			})
 		})
 
-		describe("architect mode", () => {
+		describe("agent mode", () => {
 			it("allows configured tools", () => {
-				// Architect mode has read, browser, and mcp groups
-				const architectTools = [
+				// Agent mode has read, browser, and mcp groups
+				const agentTools = [
 					...TOOL_GROUPS.read.tools,
-					...TOOL_GROUPS.browser.tools,
+					// ...TOOL_GROUPS.browser.tools, hidden8:browser
 					...TOOL_GROUPS.mcp.tools,
 				]
-				architectTools.forEach((tool) => {
-					expect(isToolAllowedForMode(tool, architectMode, [])).toBe(true)
+				agentTools.forEach((tool) => {
+					expect(isToolAllowedForMode(tool, agentMode, [])).toBe(true)
 				})
 			})
 		})
@@ -45,7 +45,11 @@ describe("mode-validator", () => {
 		describe("ask mode", () => {
 			it("allows configured tools", () => {
 				// Ask mode has read, browser, and mcp groups
-				const askTools = [...TOOL_GROUPS.read.tools, ...TOOL_GROUPS.browser.tools, ...TOOL_GROUPS.mcp.tools]
+				const askTools = [
+					...TOOL_GROUPS.read.tools,
+					// ...TOOL_GROUPS.browser.tools, hidden8:browser
+					...TOOL_GROUPS.mcp.tools
+				]
 				askTools.forEach((tool) => {
 					expect(isToolAllowedForMode(tool, askMode, [])).toBe(true)
 				})
@@ -131,14 +135,14 @@ describe("mode-validator", () => {
 	})
 
 	describe("validateToolUse", () => {
-		it("throws error for disallowed tools in architect mode", () => {
-			expect(() => validateToolUse("unknown_tool" as any, "architect", [])).toThrow(
-				'Tool "unknown_tool" is not allowed in architect mode.',
+		it("throws error for disallowed tools in agent mode", () => {
+			expect(() => validateToolUse("unknown_tool" as any, "agent", [])).toThrow(
+				'Tool "unknown_tool" is not allowed in agent mode.',
 			)
 		})
 
-		it("does not throw for allowed tools in architect mode", () => {
-			expect(() => validateToolUse("read_file", "architect", [])).not.toThrow()
+		it("does not throw for allowed tools in agent mode", () => {
+			expect(() => validateToolUse("read_file", "agent", [])).not.toThrow()
 		})
 
 		it("throws error when tool requirement is not met", () => {

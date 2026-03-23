@@ -84,7 +84,8 @@ describe("AutoApproveMenu", () => {
 	})
 
 	describe("Master checkbox behavior", () => {
-		it("should show 'None selected' when no sub-options are selected", () => {
+		// hidden8:autoApprove
+		it.skip("should show 'None selected' when no sub-options are selected", () => {
 			;(useExtensionState as ReturnType<typeof vi.fn>).mockReturnValue({
 				...defaultExtensionState,
 				autoApprovalEnabled: false,
@@ -101,7 +102,8 @@ describe("AutoApproveMenu", () => {
 			expect(screen.getByText("None selected")).toBeInTheDocument()
 		})
 
-		it("should show enabled options when sub-options are selected", () => {
+		// hidden8:autoApprove
+		it.skip("should show enabled options when sub-options are selected", () => {
 			;(useExtensionState as ReturnType<typeof vi.fn>).mockReturnValue({
 				...defaultExtensionState,
 				autoApprovalEnabled: true,
@@ -153,7 +155,8 @@ describe("AutoApproveMenu", () => {
 		})
 	})
 
-	describe("Sub-option toggles", () => {
+	// hidden8:autoApprove
+	describe.skip("Sub-option toggles", () => {
 		it("should toggle read-only operations", async () => {
 			const mockSetAlwaysAllowReadOnly = vi.fn()
 
@@ -210,20 +213,21 @@ describe("AutoApproveMenu", () => {
 		})
 	})
 
-	describe("Complex scenarios", () => {
+	// hidden8:autoApprove
+	describe.skip("Complex scenarios", () => {
 		it("should display multiple enabled options in summary text", () => {
 			;(useExtensionState as ReturnType<typeof vi.fn>).mockReturnValue({
 				...defaultExtensionState,
 				autoApprovalEnabled: true,
 				alwaysAllowReadOnly: true,
 				alwaysAllowWrite: true,
-				alwaysAllowExecute: true,
+				// alwaysAllowExecute: true, hidden8:terminal
 			})
 
 			render(<AutoApproveMenu />)
 
-			// Should show all enabled options in the summary
-			expect(screen.getByText("Read-only operations, Write operations, Execute operations")).toBeInTheDocument()
+			// Should show all enabled options in the summary hidden8:terminal
+			expect(screen.getByText("Read-only operations, Write operations")).toBeInTheDocument()
 		})
 
 		it("should handle enabling first option when none selected", async () => {

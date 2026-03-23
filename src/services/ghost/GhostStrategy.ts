@@ -47,7 +47,7 @@ When you see incomplete code, be creative and helpful - infer the user's intent 
       \`\`\`json
       [
         {
-          "path": "file:///Users/catrielmuller/Dev/KiloOrg/example/projects/react/src/App.tsx",
+          "path": "file:///Users/wally/Dev/8thWall/example/projects/react/src/App.tsx",
           "content": "import React from 'react';\\n\\nfunction App() {\\n  return <div>Hello World</div>;\\n}\\n\\nexport default App;"
         }
       ]

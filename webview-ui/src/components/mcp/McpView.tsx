@@ -33,6 +33,7 @@ import McpToolRow from "./McpToolRow"
 import McpResourceRow from "./McpResourceRow"
 // import McpEnabledToggle from "./McpEnabledToggle" // kilocode_change not used
 import { McpErrorRow } from "./McpErrorRow"
+import { getVisibleMcpErrors } from "@/utils/kilocode/mcp"
 
 type McpViewProps = {
 	onDone: () => void
@@ -181,11 +182,11 @@ const McpView = ({ onDone, hideHeader = false }: McpViewProps) => {
 							</StandardTooltip>
 							*/}
 						</div>
-						{/* kilocode_change start */}
+						{/* hidden8:marketplace
 						<div className="mt-5">
 							You can find the MCP Marketplace under Settings &gt; MCP Servers &gt; Marketplace
 						</div>
-						{/* kilocode_change end */}
+						*/}
 						<div
 							style={{
 								marginTop: "15px",
@@ -216,6 +217,9 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 		const configTimeout = JSON.parse(server.config)?.timeout
 		return configTimeout ?? 60 // Default 1 minute (60 seconds)
 	})
+
+	const {debugMode} = useExtensionState()
+	const visibleErrors = getVisibleMcpErrors(server, debugMode)
 
 	// Computed property to check if server is expandable
 	const isExpandable = server.status === "connected" && !server.disabled
@@ -258,7 +262,7 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 		vscode.postMessage({
 			type: "restartMcpServer",
 			text: server.name,
-			source: server.source || "global",
+			mcpSource: server.source || "global",
 		})
 	}
 
@@ -268,7 +272,7 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 		vscode.postMessage({
 			type: "updateMcpTimeout",
 			serverName: server.name,
-			source: server.source || "global",
+			mcpSource: server.source || "global",
 			timeout: seconds,
 		})
 	}
@@ -277,7 +281,7 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 		vscode.postMessage({
 			type: "deleteMcpServer",
 			serverName: server.name,
-			source: server.source || "global",
+			mcpSource: server.source || "global",
 		})
 		setShowDeleteConfirm(false)
 	}
@@ -320,13 +324,15 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 				<div
 					style={{ display: "flex", alignItems: "center", marginRight: "8px" }}
 					onClick={(e) => e.stopPropagation()}>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => setShowDeleteConfirm(true)}
-						style={{ marginRight: "8px" }}>
-						<span className="codicon codicon-trash" style={{ fontSize: "14px" }}></span>
-					</Button>
+					{server.source !== 'builtin' && (
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={() => setShowDeleteConfirm(true)}
+							style={{ marginRight: "8px" }}>
+							<span className="codicon codicon-trash" style={{ fontSize: "14px" }}></span>
+						</Button>
+					)}
 					<Button
 						variant="ghost"
 						size="icon"
@@ -345,21 +351,23 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 						marginLeft: "8px",
 					}}
 				/>
-				<div style={{ marginLeft: "8px" }}>
-					<ToggleSwitch
-						checked={!server.disabled}
-						onChange={() => {
-							vscode.postMessage({
-								type: "toggleMcpServer",
-								serverName: server.name,
-								source: server.source || "global",
-								disabled: !server.disabled,
-							})
-						}}
-						size="medium"
-						aria-label={`Toggle ${server.name} server`}
-					/>
-				</div>
+				{server.source !== 'builtin' && (
+					<div style={{ marginLeft: "8px" }}>
+						<ToggleSwitch
+							checked={!server.disabled}
+							onChange={() => {
+								vscode.postMessage({
+									type: "toggleMcpServer",
+									serverName: server.name,
+									mcpSource: server.source || "global",
+									disabled: !server.disabled,
+								})
+							}}
+							size="medium"
+							aria-label={`Toggle ${server.name} server`}
+						/>
+					</div>
+				)}
 			</div>
 
 			{isExpandable
@@ -383,7 +391,7 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 									<VSCodePanelTab id="instructions">{t("mcp:instructions")}</VSCodePanelTab>
 								)}
 								<VSCodePanelTab id="errors">
-									{t("mcp:tabs.errors")} ({server.errorHistory?.length || 0})
+									{t("mcp:tabs.errors")} ({visibleErrors?.length || 0})
 								</VSCodePanelTab>
 
 								<VSCodePanelView id="tools-view">
@@ -451,7 +459,7 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 								)}
 
 								<VSCodePanelView id="errors-view">
-									{server.errorHistory && server.errorHistory.length > 0 ? (
+									{visibleErrors && visibleErrors.length > 0 ? (
 										<div
 											style={{
 												display: "flex",
@@ -459,7 +467,7 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 												gap: "8px",
 												width: "100%",
 											}}>
-											{[...server.errorHistory]
+											{[...visibleErrors]
 												.sort((a, b) => b.timestamp - a.timestamp)
 												.map((error, index) => (
 													<McpErrorRow key={`${error.timestamp}-${index}`} error={error} />
@@ -475,44 +483,46 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 							</VSCodePanels>
 
 							{/* Network Timeout */}
-							<div style={{ padding: "10px 7px" }}>
-								<div
-									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "10px",
-										marginBottom: "8px",
-									}}>
-									<span>{t("mcp:networkTimeout.label")}</span>
-									<select
-										value={timeoutValue}
-										onChange={handleTimeoutChange}
+							{server.source !== 'builtin' && (
+								<div style={{ padding: "10px 7px" }}>
+									<div
 										style={{
-											flex: 1,
-											padding: "4px",
-											background: "var(--vscode-dropdown-background)",
-											color: "var(--vscode-dropdown-foreground)",
-											border: "1px solid var(--vscode-dropdown-border)",
-											borderRadius: "2px",
-											outline: "none",
-											cursor: "pointer",
+											display: "flex",
+											alignItems: "center",
+											gap: "10px",
+											marginBottom: "8px",
 										}}>
-										{timeoutOptions.map((option) => (
-											<option key={option.value} value={option.value}>
-												{option.label}
-											</option>
-										))}
-									</select>
+										<span>{t("mcp:networkTimeout.label")}</span>
+										<select
+											value={timeoutValue}
+											onChange={handleTimeoutChange}
+											style={{
+												flex: 1,
+												padding: "4px",
+												background: "var(--vscode-dropdown-background)",
+												color: "var(--vscode-dropdown-foreground)",
+												border: "1px solid var(--vscode-dropdown-border)",
+												borderRadius: "2px",
+												outline: "none",
+												cursor: "pointer",
+											}}>
+											{timeoutOptions.map((option) => (
+												<option key={option.value} value={option.value}>
+													{option.label}
+												</option>
+											))}
+										</select>
+									</div>
+									<span
+										style={{
+											fontSize: "12px",
+											color: "var(--vscode-descriptionForeground)",
+											display: "block",
+										}}>
+										{t("mcp:networkTimeout.description")}
+									</span>
 								</div>
-								<span
-									style={{
-										fontSize: "12px",
-										color: "var(--vscode-descriptionForeground)",
-										display: "block",
-									}}>
-									{t("mcp:networkTimeout.description")}
-								</span>
-							</div>
+							)}
 						</div>
 					)
 				: // Only show error UI for non-disabled servers

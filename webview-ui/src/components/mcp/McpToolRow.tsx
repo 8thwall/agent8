@@ -1,6 +1,6 @@
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
 
-import { McpTool } from "@roo/mcp"
+import { McpServerSource, McpTool } from "@roo/mcp"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { vscode } from "@src/utils/vscode"
@@ -9,7 +9,7 @@ import { StandardTooltip, ToggleSwitch } from "@/components/ui"
 type McpToolRowProps = {
 	tool: McpTool
 	serverName?: string
-	serverSource?: "global" | "project"
+	serverSource?: McpServerSource
 	alwaysAllowMcp?: boolean
 	isInChatContext?: boolean
 }
@@ -23,7 +23,7 @@ const McpToolRow = ({ tool, serverName, serverSource, alwaysAllowMcp, isInChatCo
 		vscode.postMessage({
 			type: "toggleToolAlwaysAllow",
 			serverName,
-			source: serverSource || "global",
+			mcpSource: serverSource || "global",
 			toolName: tool.name,
 			alwaysAllow: !tool.alwaysAllow,
 		})
@@ -34,7 +34,7 @@ const McpToolRow = ({ tool, serverName, serverSource, alwaysAllowMcp, isInChatCo
 		vscode.postMessage({
 			type: "toggleToolEnabledForPrompt",
 			serverName,
-			source: serverSource || "global",
+			mcpSource: serverSource || "global",
 			toolName: tool.name,
 			isEnabled: !tool.enabledForPrompt,
 		})
@@ -70,7 +70,7 @@ const McpToolRow = ({ tool, serverName, serverSource, alwaysAllowMcp, isInChatCo
 				{serverName && (
 					<div className="flex items-center gap-4 flex-shrink-0">
 						{/* Always Allow checkbox - only show when tool is enabled */}
-						{alwaysAllowMcp && isToolEnabled && (
+						{alwaysAllowMcp && isToolEnabled && serverSource !== 'builtin' && (
 							<VSCodeCheckbox
 								checked={tool.alwaysAllow}
 								onChange={handleAlwaysAllowChange}
@@ -83,7 +83,7 @@ const McpToolRow = ({ tool, serverName, serverSource, alwaysAllowMcp, isInChatCo
 						)}
 
 						{/* Enabled toggle switch - only show in settings context */}
-						{!isInChatContext && (
+						{!isInChatContext && serverSource !== 'builtin' && (
 							<StandardTooltip content={t("mcp:tool.togglePromptInclusion")}>
 								<ToggleSwitch
 									checked={isToolEnabled}

@@ -36,8 +36,8 @@ describe("TaskItemFooter", () => {
 	it("renders cost information", () => {
 		render(<TaskItemFooter item={mockItem} variant="full" />)
 
-		// The component shows $0.00 for small amounts, not the exact value
-		expect(screen.getByText("$0.00")).toBeInTheDocument()
+		// The component shows 0.0 for small amounts, not the exact value
+		expect(screen.getByText("0.0")).toBeInTheDocument()
 	})
 
 	it("shows action buttons", () => {

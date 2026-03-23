@@ -59,6 +59,25 @@ export interface LanguageModelChatSelector {
 	id?: string
 }
 
+export type CreditGrantCategory = "PAID_PLAN" | "PAID_TOPUP" | "FREE_STANDARD" | "FREE_PROMOTION"
+export type CreditGrantStatus = "GRANTED" | "VOIDED"
+
+export type CreditGrant = {
+	uuid: NonNullable<string>
+	AccountUuid: NonNullable<string>
+	category: NonNullable<CreditGrantCategory>
+	remainingQuantity: NonNullable<number>
+	expiresAt: NonNullable<string>
+}
+
+export type StringifiedCreditGrant = {
+	[K in keyof CreditGrant]: string
+}
+
+export type CreditsData = {
+	activeCreditGrants: CreditGrant[]
+}
+
 // Represents JSON data that is sent from extension to webview, called
 // ExtensionMessage and has 'type' enum which can be 'plusButtonClicked' or
 // 'settingsButtonClicked' or 'hello'. Webview will hold state.
@@ -132,6 +151,7 @@ export interface ExtensionMessage {
 		| "codeIndexSettingsSaved"
 		| "codeIndexSecretStatus"
 		| "showDeleteMessageDialog"
+		| "showRetryMessageDialog"
 		| "showEditMessageDialog"
 		| "kilocodeNotificationsResponse" // kilocode_change
 		| "usageDataResponse" // kilocode_change
@@ -152,6 +172,7 @@ export interface ExtensionMessage {
 		| "focusInput"
 		| "switchTab"
 		| "focusChatInput" // kilocode_change
+		| "authButtonClicked"
 	invoke?: "newChat" | "sendMessage" | "primaryButtonClick" | "secondaryButtonClick" | "setChatBoxMessage"
 	state?: ExtensionState
 	images?: string[]
@@ -342,7 +363,7 @@ export type ExtensionState = Pick<
 	enableCheckpoints: boolean
 	maxOpenTabsContext: number // Maximum number of VSCode open tabs to include in context (0-500)
 	maxWorkspaceFiles: number // Maximum number of files to include in current working directory details (0-500)
-	showRooIgnoredFiles: boolean // Whether to show .kilocodeignore'd files in listings
+	showRooIgnoredFiles: boolean // Whether to show .8thwallagentignore'd files in listings
 	maxReadFileLine: number // Maximum number of lines to read from a file before truncating
 	showAutoApproveMenu: boolean // kilocode_change: Whether to show the auto-approve menu in the chat view
 	maxImageFileSize: number // Maximum size of image files to process in MB
@@ -380,6 +401,14 @@ export type ExtensionState = Pick<
 	marketplaceInstalledMetadata?: { project: Record<string, any>; global: Record<string, any> }
 	profileThresholds: Record<string, number>
 	hasOpenedModeSelector: boolean
+
+	websocketConnected?: boolean | null
+	authenticatedStatus?: "authenticated" | "unauthenticated" | "authenticating" 
+	workspacePath?: string | null
+	projectAppKey?: string | null
+	accountData?: { workspace: string, givenName: string, familyName: string, email: string } | null
+	is8thWallInstalled?: boolean | null
+	creditsData?: CreditsData | null
 }
 
 export interface ClineSayTool {
@@ -472,6 +501,7 @@ export interface ClineAskUseMcpServer {
 	arguments?: string
 	uri?: string
 	response?: string
+	cost?: number
 }
 
 export interface ClineApiReqInfo {

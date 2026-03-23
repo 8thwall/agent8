@@ -1,6 +1,6 @@
 {
-	"extension.displayName": "Kilo Code AI Agent (kombinované funkce Cline / Roo)",
-	"extension.description": "Open Source AI asistent pro kódování pro plánování, vytváření a opravy kódu.",
+	"extension.displayName": "8th Wall Agent Eight",
+	"extension.description": "AI asistent pro vytváření a kódování 8th Wall projektů.",
 	"views.contextMenu.label": "Kilo Code",
 	"views.terminalMenu.label": "Kilo Code",
 	"views.activitybar.title": "Kilo Code",

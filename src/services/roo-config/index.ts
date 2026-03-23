@@ -4,50 +4,50 @@ import fs from "fs/promises"
 import fsSync from "fs" // kilocode_change
 
 /**
- * Gets the global .roo directory path based on the current platform
+ * Gets the global .8thwallagent directory path based on the current platform
  *
- * @returns The absolute path to the global .roo directory
+ * @returns The absolute path to the global .8thwallagent directory
  *
  * @example Platform-specific paths:
  * ```
- * // macOS/Linux: ~/.roo/
- * // Example: /Users/john/.roo
+ * // macOS/Linux: ~/.8thwallagent/
+ * // Example: /Users/john/.8thwallagent
  *
- * // Windows: %USERPROFILE%\.roo\
- * // Example: C:\Users\john\.roo
+ * // Windows: %USERPROFILE%\.8thwallagent\
+ * // Example: C:\Users\john\.8thwallagent
  * ```
  *
  * @example Usage:
  * ```typescript
  * const globalDir = getGlobalRooDirectory()
- * // Returns: "/Users/john/.roo" (on macOS/Linux)
- * // Returns: "C:\\Users\\john\\.roo" (on Windows)
+ * // Returns: "/Users/john/.8thwallagent" (on macOS/Linux)
+ * // Returns: "C:\\Users\\john\\.8thwallagent" (on Windows)
  * ```
  */
 export function getGlobalRooDirectory(): string {
 	const homeDir = os.homedir()
-	return path.join(homeDir, ".kilocode") // kilocode_change
+	return path.join(homeDir, ".8thwallagent") // kilocode_change
 }
 
 /**
- * Gets the project-local .roo directory path for a given cwd
+ * Gets the project-local .8thwallagent directory path for a given cwd
  *
  * @param cwd - Current working directory (project path)
- * @returns The absolute path to the project-local .roo directory
+ * @returns The absolute path to the project-local .8thwallagent directory
  *
  * @example
  * ```typescript
  * const projectDir = getProjectRooDirectoryForCwd('/Users/john/my-project')
- * // Returns: "/Users/john/my-project/.roo"
+ * // Returns: "/Users/john/my-project/.8thwallagent"
  *
  * const windowsProjectDir = getProjectRooDirectoryForCwd('C:\\Users\\john\\my-project')
- * // Returns: "C:\\Users\\john\\my-project\\.roo"
+ * // Returns: "C:\\Users\\john\\my-project\\.8thwallagent"
  * ```
  *
  * @example Directory structure:
  * ```
  * /Users/john/my-project/
- * ├── .roo/                    # Project-local configuration directory
+ * ├── .8thwallagent/                    # Project-local configuration directory
  * │   ├── rules/
  * │   │   └── rules.md
  * │   ├── custom-instructions.md
@@ -60,12 +60,7 @@ export function getGlobalRooDirectory(): string {
  */
 export function getProjectRooDirectoryForCwd(cwd: string): string {
 	// kilocode_change start
-	const kiloDir = path.join(cwd, ".kilocode")
-	const rooDir = path.join(cwd, ".roo")
-	if (fsSync.existsSync(rooDir) && !fsSync.existsSync(kiloDir)) {
-		return rooDir
-	}
-	return kiloDir
+	return path.join(cwd, ".8thwallagent")
 	// kilocode_change end
 }
 
@@ -120,7 +115,7 @@ export async function readFileIfExists(filePath: string): Promise<string | null>
 }
 
 /**
- * Gets the ordered list of .roo directories to check (global first, then project-local)
+ * Gets the ordered list of .8thwallagent directories to check (global first, then project-local)
  *
  * @param cwd - Current working directory (project path)
  * @returns Array of directory paths to check in order [global, project-local]
@@ -131,20 +126,20 @@ export async function readFileIfExists(filePath: string): Promise<string | null>
  * const directories = getRooDirectoriesForCwd('/Users/john/my-project')
  * // Returns:
  * // [
- * //   '/Users/john/.roo',           // Global directory
- * //   '/Users/john/my-project/.roo' // Project-local directory
+ * //   '/Users/john/.8thwallagent',           // Global directory
+ * //   '/Users/john/my-project/.8thwallagent' // Project-local directory
  * // ]
  * ```
  *
  * @example Directory structure:
  * ```
  * /Users/john/
- * ├── .roo/                    # Global configuration
+ * ├── .8thwallagent/                    # Global configuration
  * │   ├── rules/
  * │   │   └── rules.md
  * │   └── custom-instructions.md
  * └── my-project/
- *     ├── .roo/                # Project-specific configuration
+ *     ├── .8thwallagent/                # Project-specific configuration
  *     │   ├── rules/
  *     │   │   └── rules.md     # Overrides global rules
  *     │   └── project-notes.md
@@ -165,9 +160,9 @@ export function getRooDirectoriesForCwd(cwd: string): string[] {
 }
 
 /**
- * Loads configuration from multiple .roo directories with project overriding global
+ * Loads configuration from multiple .8thwallagent directories with project overriding global
  *
- * @param relativePath - The relative path within each .roo directory (e.g., 'rules/rules.md')
+ * @param relativePath - The relative path within each .8thwallagent directory (e.g., 'rules/rules.md')
  * @param cwd - Current working directory (project path)
  * @returns Object with global and project content, plus merged content
  *
@@ -178,8 +173,8 @@ export function getRooDirectoriesForCwd(cwd: string): string[] {
  *
  * // Returns:
  * // {
- * //   global: "Global rules content...",     // From ~/.roo/rules/rules.md
- * //   project: "Project rules content...",   // From /Users/john/my-project/.roo/rules/rules.md
+ * //   global: "Global rules content...",     // From ~/.8thwallagent/rules/rules.md
+ * //   project: "Project rules content...",   // From /Users/john/my-project/.8thwallagent/rules/rules.md
  * //   merged: "Global rules content...\n\n# Project-specific rules (override global):\n\nProject rules content..."
  * // }
  * ```
@@ -190,8 +185,8 @@ export function getRooDirectoriesForCwd(cwd: string): string[] {
  * cwd: '/Users/john/my-project'
  *
  * Reads from:
- * - Global: /Users/john/.roo/rules/rules.md
- * - Project: /Users/john/my-project/.roo/rules/rules.md
+ * - Global: /Users/john/.8thwallagent/rules/rules.md
+ * - Project: /Users/john/my-project/.8thwallagent/rules/rules.md
  *
  * Other common relativePath examples:
  * - 'custom-instructions.md'

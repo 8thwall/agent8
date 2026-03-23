@@ -4,6 +4,9 @@ export type McpErrorEntry = {
 	level: "error" | "warn" | "info"
 }
 
+
+export type McpServerSource = "global" | "project" | "builtin"
+
 export type McpServer = {
 	name: string
 	config: string
@@ -15,7 +18,7 @@ export type McpServer = {
 	resourceTemplates?: McpResourceTemplate[]
 	disabled?: boolean
 	timeout?: number
-	source?: "global" | "project"
+	source?: McpServerSource
 	projectPath?: string
 	instructions?: string
 }

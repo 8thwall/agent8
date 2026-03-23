@@ -32,10 +32,10 @@ suite("Kilo Code Extension", function () {
 			"terminalExplainCommand",
 		]
 
-		const commands = new Set((await vscode.commands.getCommands(true)).filter((cmd) => cmd.startsWith("kilo-code")))
+		const commands = new Set((await vscode.commands.getCommands(true)).filter((cmd) => cmd.startsWith("8th-wall-agent")))
 
 		for (const command of expectedCommands) {
-			assert.ok(commands.has(`kilo-code.${command}`), `Command ${command} should be registered`)
+			assert.ok(commands.has(`8th-wall-agent.${command}`), `Command ${command} should be registered`)
 		}
 	})
 })

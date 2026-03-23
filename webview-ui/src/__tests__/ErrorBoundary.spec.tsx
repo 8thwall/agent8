@@ -68,10 +68,10 @@ describe("ErrorBoundary", () => {
 		// Verify error boundary elements are displayed - using partial matchers to account for version info
 		expect(screen.getByText(/errorBoundary.title/)).toBeInTheDocument()
 
-		// Check for the GitHub link
-		const githubLink = screen.getByRole("link", { name: /errorBoundary.githubText/ })
-		expect(githubLink).toBeInTheDocument()
-		expect(githubLink).toHaveAttribute("href", "https://github.com/Kilo-Org/kilocode/issues")
+		// Check for the Forum link
+		const forumLink = screen.getByRole("link", { name: /errorBoundary.forumText/ })
+		expect(forumLink).toBeInTheDocument()
+		expect(forumLink).toHaveAttribute("href", "https://8th.io/agentforum")
 
 		// Check for other error boundary elements
 		expect(screen.getByText(/errorBoundary.copyInstructions/)).toBeInTheDocument()

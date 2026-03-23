@@ -36,6 +36,7 @@ import {
 	internationalZAiDefaultModelId,
 	mainlandZAiDefaultModelId,
 	fireworksDefaultModelId,
+	aiApiDefaultModelId,
 } from "@roo-code/types"
 
 import { vscode } from "@src/utils/vscode"
@@ -350,6 +351,7 @@ const ApiOptions = ({
 							: internationalZAiDefaultModelId,
 				},
 				fireworks: { field: "apiModelId", default: fireworksDefaultModelId },
+				"ai-api": { field: "apiModelId", default: aiApiDefaultModelId },
 				openai: { field: "openAiModelId" },
 				ollama: { field: "ollamaModelId" },
 				lmstudio: { field: "lmStudioModelId" },
@@ -524,6 +526,14 @@ const ApiOptions = ({
 			)}
 
 			{selectedProvider === "bedrock" && (
+				<Bedrock
+					apiConfiguration={apiConfiguration}
+					setApiConfigurationField={setApiConfigurationField}
+					selectedModelInfo={selectedModelInfo}
+				/>
+			)}
+
+			{selectedProvider === "ai-api" && (
 				<Bedrock
 					apiConfiguration={apiConfiguration}
 					setApiConfigurationField={setApiConfigurationField}

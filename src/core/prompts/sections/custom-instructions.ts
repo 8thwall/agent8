@@ -3,6 +3,8 @@ import path from "path"
 
 import { hasAnyToggles, loadEnabledRules } from "./kilo"
 
+const CUSTOM_RULES_ENABLED = false // hidden8:rules
+
 // kilocode_change start
 let vscodeAPI: typeof import("vscode") | undefined
 try {
@@ -212,7 +214,7 @@ export async function loadRuleFiles(cwd: string): Promise<string> {
 	const rules: string[] = []
 	const rooDirectories = getRooDirectoriesForCwd(cwd)
 
-	// Check for .roo/rules/ directories in order (global first, then project-local)
+	// Check for .8thwallagent/rules/ directories in order (global first, then project-local)
 	for (const rooDir of rooDirectories) {
 		const rulesDir = path.join(rooDir, "rules")
 		if (await directoryExists(rulesDir)) {
@@ -224,21 +226,20 @@ export async function loadRuleFiles(cwd: string): Promise<string> {
 		}
 	}
 
-	// If we found rules in .roo/rules/ directories, return them
+	// If we found rules in .8thwallagent/rules/ directories, return them
 	if (rules.length > 0) {
 		return "\n" + rules.join("\n\n")
 	}
 
-	// Fall back to existing behavior for legacy .roorules/.clinerules files
-	const ruleFiles = [".kilocoderules", ".roorules", ".clinerules"]
+	const ruleFiles = [".8thwallagentrules"]
 
 	for (const file of ruleFiles) {
 		const content = await safeReadFile(path.join(cwd, file))
 		if (content) {
-			if (file !== ".kilocoderules" && vscodeAPI && !hasShownNonKilocodeRulesMessage) {
-				// kilocode_change: show message to move to .kilocode/rules/
+			if (file !== ".8thwallagentrules" && vscodeAPI && !hasShownNonKilocodeRulesMessage) {
+				// kilocode_change: show message to move to .8thwallagentrules/rules/
 				vscodeAPI.window.showWarningMessage(
-					`Loading non-Kilocode rules from ${file}, consider moving to .kilocode/rules/`,
+					`Loading legacy rules from ${file}, consider moving to .8thwallagentrules/rules/`,
 				)
 				hasShownNonKilocodeRulesMessage = true
 			} // kilocode_change end
@@ -313,10 +314,10 @@ export async function addCustomInstructions(
 		const modeRules: string[] = []
 		const rooDirectories = getRooDirectoriesForCwd(cwd)
 
-		// Check for .roo/rules-${mode}/ directories in order (global first, then project-local)
+		// Check for .8thwallagent/rules-${mode}/ directories in order (global first, then project-local)
 		for (const rooDir of rooDirectories) {
 			const modeRulesDir = path.join(rooDir, `rules-${mode}`)
-			if (await directoryExists(modeRulesDir)) {
+			if (await directoryExists(modeRulesDir) && CUSTOM_RULES_ENABLED) {
 				const files = await readTextFilesFromDirectory(modeRulesDir)
 				if (files.length > 0) {
 					const content = formatDirectoryContent(modeRulesDir, files)
@@ -325,13 +326,13 @@ export async function addCustomInstructions(
 			}
 		}
 
-		// If we found mode-specific rules in .roo/rules-${mode}/ directories, use them
+		// If we found mode-specific rules in .8thwallagent/rules-${mode}/ directories, use them
 		if (modeRules.length > 0) {
 			modeRuleContent = "\n" + modeRules.join("\n\n")
 			usedRuleFile = `rules-${mode} directories`
 		} else {
 			// Fall back to existing behavior for legacy files
-			const rooModeRuleFile = `.kilocoderules-${mode}`
+			const rooModeRuleFile = `.8thwallagentrules-${mode}`
 			modeRuleContent = await safeReadFile(path.join(cwd, rooModeRuleFile))
 			if (modeRuleContent) {
 				usedRuleFile = rooModeRuleFile
@@ -349,6 +350,7 @@ export async function addCustomInstructions(
 
 	// Add global instructions first
 	if (typeof globalCustomInstructions === "string" && globalCustomInstructions.trim()) {
+		console.log('GLOBAL 88888 : ', globalCustomInstructions)
 		sections.push(`Global Instructions:\n${globalCustomInstructions.trim()}`)
 	}
 
@@ -361,8 +363,8 @@ export async function addCustomInstructions(
 	const rules = []
 
 	// Add mode-specific rules first if they exist
-	if (modeRuleContent && modeRuleContent.trim()) {
-		if (usedRuleFile.includes(path.join(".kilocode", `rules-${mode}`))) {
+	if (modeRuleContent && modeRuleContent.trim() && CUSTOM_RULES_ENABLED) {
+		if (usedRuleFile.includes(path.join(".8thwallagent", `rules-${mode}`))) {
 			rules.push(modeRuleContent.trim())
 		} else {
 			rules.push(`# Rules from ${usedRuleFile}:\n${modeRuleContent}`)
@@ -393,17 +395,19 @@ export async function addCustomInstructions(
 					readTextFilesFromDirectory,
 				)
 			)?.trim() ?? ""
-		if (genericRuleContent) {
+		if (genericRuleContent && CUSTOM_RULES_ENABLED) {
 			rules.push(genericRuleContent)
 		}
 	} else {
 		// Fallback to legacy function if no toggle states provided
 		const genericRuleContent = (await loadRuleFiles(cwd))?.trim() ?? ""
-		if (genericRuleContent) {
+		if (genericRuleContent && CUSTOM_RULES_ENABLED) {
 			rules.push(genericRuleContent)
 		}
 	}
 	// kilocode_change end
+
+	console.log(rules, '8888', sections)
 
 	if (rules.length > 0) {
 		sections.push(`Rules:\n\n${rules.join("\n\n")}`)

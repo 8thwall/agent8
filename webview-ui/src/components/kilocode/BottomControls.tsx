@@ -1,9 +1,10 @@
 import React from "react"
 import { vscode } from "../../utils/vscode"
 import { useAppTranslation } from "@/i18n/TranslationContext"
-import KiloRulesToggleModal from "./rules/KiloRulesToggleModal"
+//import KiloRulesToggleModal from "./rules/KiloRulesToggleModal" hidden8:rules
 import BottomButton from "./BottomButton"
 import { BottomApiConfig } from "./BottomApiConfig" // kilocode_change
+import { BottomReasoningToggle } from "./BottomReasoningToggle"
 
 interface BottomControlsProps {
 	showApiConfig?: boolean
@@ -23,7 +24,8 @@ const BottomControls: React.FC<BottomControlsProps> = ({ showApiConfig = false }
 			</div>
 			<div className="flex flex-row justify-end w-auto">
 				<div className="flex items-center gap-1">
-					<KiloRulesToggleModal />
+					{showApiConfig && <BottomReasoningToggle />}
+					{/* <KiloRulesToggleModal /> hidden8:rules */}
 					<BottomButton
 						iconClass="codicon-feedback"
 						title={t("common:feedback.title")}

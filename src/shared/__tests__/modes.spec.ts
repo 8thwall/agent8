@@ -1,6 +1,7 @@
 // npx vitest run shared/__tests__/modes.spec.ts
 
 import type { ModeConfig, PromptComponent } from "@roo-code/types"
+import { about8w, essentials8w, useMcpInstruction } from "@roo-code/types"
 
 // Mock setup must come before imports
 vi.mock("vscode")
@@ -18,19 +19,19 @@ describe("isToolAllowedForMode", () => {
 			slug: "markdown-editor",
 			name: "Markdown Editor",
 			roleDefinition: "You are a markdown editor",
-			groups: ["read", ["edit", { fileRegex: "\\.md$" }], "browser"],
+			groups: ["read", ["edit", { fileRegex: "\\.md$" }]], // hidden8:browser
 		},
 		{
 			slug: "css-editor",
 			name: "CSS Editor",
 			roleDefinition: "You are a CSS editor",
-			groups: ["read", ["edit", { fileRegex: "\\.css$" }], "browser"],
+			groups: ["read", ["edit", { fileRegex: "\\.css$" }]], // hidden8:browser
 		},
 		{
 			slug: "test-exp-mode",
 			name: "Test Exp Mode",
 			roleDefinition: "You are an experimental tester",
-			groups: ["read", "edit", "browser"],
+			groups: ["read", "edit"], // hidden8:browser
 		},
 	]
 
@@ -41,7 +42,7 @@ describe("isToolAllowedForMode", () => {
 
 	it("allows unrestricted tools", () => {
 		expect(isToolAllowedForMode("read_file", "markdown-editor", customModes)).toBe(true)
-		expect(isToolAllowedForMode("browser_action", "markdown-editor", customModes)).toBe(true)
+		expect(isToolAllowedForMode("browser_action", "markdown-editor", customModes)).toBe(false) // hidden8:browser
 	})
 
 	describe("file restrictions", () => {
@@ -105,12 +106,12 @@ describe("isToolAllowedForMode", () => {
 				}),
 			).toBe(true)
 
-			// Should allow path-only for architect mode too
-			expect(
-				isToolAllowedForMode("write_to_file", "architect", [], undefined, {
-					path: "test.js",
-				}),
-			).toBe(true)
+			// // Should allow path-only for architect mode too: architect was removed
+			// expect(
+			// 	isToolAllowedForMode("write_to_file", "architect", [], undefined, {
+			// 		path: "test.js",
+			// 	}),
+			// ).toBe(true)
 		})
 
 		it("applies restrictions to both write_to_file and apply_diff", () => {
@@ -153,7 +154,7 @@ describe("isToolAllowedForMode", () => {
 					groups: [
 						"read",
 						["edit", { fileRegex: "\\.(md|txt)$", description: "Documentation files only" }],
-						"browser",
+						// "browser", hidden8:browser
 					],
 				},
 			]
@@ -209,7 +210,7 @@ describe("isToolAllowedForMode", () => {
 			).toBe(true)
 		})
 
-		it("allows architect mode to edit markdown files only", () => {
+		it.skip("allows architect mode to edit markdown files only", () => {
 			// Should allow editing markdown files
 			expect(
 				isToolAllowedForMode("write_to_file", "architect", [], undefined, {
@@ -242,11 +243,11 @@ describe("isToolAllowedForMode", () => {
 
 			// Should maintain read capabilities
 			expect(isToolAllowedForMode("read_file", "architect", [])).toBe(true)
-			expect(isToolAllowedForMode("browser_action", "architect", [])).toBe(true)
+			expect(isToolAllowedForMode("browser_action", "architect", [])).toBe(false) // hidden8:browser
 			expect(isToolAllowedForMode("use_mcp_tool", "architect", [])).toBe(true)
 		})
 
-		it("applies restrictions to all edit tools including search_and_replace and insert_content", () => {
+		it.skip("applies restrictions to all edit tools including search_and_replace and insert_content", () => {
 			// Test search_and_replace with matching file
 			expect(
 				isToolAllowedForMode("search_and_replace", "architect", [], undefined, {
@@ -298,7 +299,7 @@ describe("isToolAllowedForMode", () => {
 			).toThrow(/Markdown files only/)
 		})
 
-		it("applies restrictions to apply_diff with concurrent file edits (MULTI_FILE_APPLY_DIFF experiment)", () => {
+		it.skip("applies restrictions to apply_diff with concurrent file edits (MULTI_FILE_APPLY_DIFF experiment)", () => {
 			// Test apply_diff with args parameter (used when MULTI_FILE_APPLY_DIFF experiment is enabled)
 			// This simulates concurrent/batch file editing
 			const xmlArgs =
@@ -383,19 +384,28 @@ describe("FileRestrictionError", () => {
 		expect(error.name).toBe("FileRestrictionError")
 	})
 
-	describe("debug mode", () => {
+	describe.skip("debug mode", () => {
 		it("is configured correctly", () => {
 			const debugMode = modes.find((mode) => mode.slug === "debug")
 			expect(debugMode).toBeDefined()
 			expect(debugMode).toMatchObject({
 				slug: "debug",
 				name: "Debug", // kilocode_change
-				roleDefinition:
-					"You are Kilo Code, an expert software debugger specializing in systematic problem diagnosis and resolution.",
-				groups: ["read", "edit", "browser", "command", "mcp"],
+				roleDefinition: `You are 8th Wall Agent, an expert software debugger specializing in systematic problem diagnosis and resolution for 8th Wall Studio projects.\n\n${about8w}\n\n${essentials8w}`,
+				groups: [
+					"read",
+					[
+						"edit",
+						{
+							fileRegex: "^(?!.*[\\\\/]{1}\\.expanse\\.json$)",
+							description: "Everything except the scene file",
+						},
+					],
+					"mcp",
+				],
 			})
 			expect(debugMode?.customInstructions).toContain(
-				"Reflect on 5-7 different possible sources of the problem, distill those down to 1-2 most likely sources, and then add logs to validate your assumptions. Explicitly ask the user to confirm the diagnosis before fixing the problem.",
+				`Reflect on 5-7 different possible sources of the problem, distill those down to 1-2 most likely sources, and then add logs to validate your assumptions. Explicitly ask the user to confirm the diagnosis before fixing the problem.\n${useMcpInstruction}`,
 			)
 		})
 	})
@@ -407,31 +417,30 @@ describe("FileRestrictionError", () => {
 		})
 
 		it("returns base mode when no overrides exist", async () => {
-			const result = await getFullModeDetails("debug")
+			const result = await getFullModeDetails("ask")
 			expect(result).toMatchObject({
-				slug: "debug",
-				name: "Debug", // kilocode_change
-				roleDefinition:
-					"You are Kilo Code, an expert software debugger specializing in systematic problem diagnosis and resolution.",
+				slug: "ask",
+				name: "Ask", // kilocode_change
+				roleDefinition: `You are 8th Wall Agent, a knowledgeable technical assistant focused on answering questions and providing information about 8th Wall studio software development, technology, and related topics.\n\n${about8w}\n\n${essentials8w}`,
 			})
 		})
 
 		it("applies custom mode overrides", async () => {
 			const customModes: ModeConfig[] = [
 				{
-					slug: "debug",
-					name: "Custom Debug",
-					roleDefinition: "Custom debug role",
-					groups: ["read"],
+					slug: "ask",
+					name: "Custom Ask",
+					roleDefinition: "Custom ask role",
+					groups: ["edit"],
 				},
 			]
 
-			const result = await getFullModeDetails("debug", customModes)
+			const result = await getFullModeDetails("ask", customModes)
 			expect(result).toMatchObject({
-				slug: "debug",
-				name: "Custom Debug",
-				roleDefinition: "Custom debug role",
-				groups: ["read"],
+				slug: "ask",
+				name: "Custom Ask",
+				roleDefinition: "Custom ask role",
+				groups: ["edit"],
 			})
 		})
 

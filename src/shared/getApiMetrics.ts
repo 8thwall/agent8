@@ -9,6 +9,10 @@ export type ParsedApiReqStartedTextType = {
 	apiProtocol?: "anthropic" | "openai"
 }
 
+export type ParsedMcpUseTextType = {
+	cost?: number
+}
+
 /**
  * Calculates API metrics from an array of ClineMessages.
  *
@@ -63,6 +67,16 @@ export function getApiMetrics(messages: ClineMessage[]) {
 			}
 		} else if (message.type === "say" && message.say === "condense_context") {
 			result.totalCost += message.contextCondense?.cost ?? 0
+		} else if (message.type === "ask" && message.ask === "use_mcp_server" && message.text) {
+			try {
+				const parsedText: ParsedMcpUseTextType = JSON.parse(message.text)
+				const { cost } = parsedText
+				if (typeof cost === "number") {
+					result.totalCost += cost
+				}
+			} catch (error) {
+				console.error("Error parsing JSON:", error)
+			}
 		}
 	})
 

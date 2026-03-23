@@ -1,15 +1,12 @@
-# Code mode
+# Available for macOS or Windows
+Download from our site: [8thwall.com/download](https://www.8thwall.com/download)
 
-Describe what you want to build in the text area and press ⮐ Enter.
+# Sign in or create a free 8th Wall account.
+You will be redirected to the web to do so.
 
-<img src="images/hn-nextjs.png" width='200' alt="Prompting Kilo Code to Build a Hacker News clone in Next.js" />
+<img src="images/login.png" alt="8th Wall login" />
 
-The more context you give, the better the result. Include things like your tech stack, key features, or file names.
+# Set VS Code as your Default Editor 
+When prompted (this can be changed in settings at any time).
 
-_Example: Create a Hacker News clone in Next.js_
-
-Kilo Code will write the code, generate the files, and run the project for you.
-
-## Kilo Code has many Modes ...
-
-<img src="images/modes.gif" width='200' alt="Kilo Code modes" />
+<img src="images/select-editor.png" alt="Select an editor" />

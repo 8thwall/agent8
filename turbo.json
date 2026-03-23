@@ -30,6 +30,12 @@
 		},
 		"playwright": {
 			"cache": false
-		}
+		},
+		"check-translations": {
+      "inputs": [
+        "src/i18n/locales/**/*.json",
+        "webview-ui/src/i18n/locales/**/*.json"
+      ]
+    }
 	}
 }

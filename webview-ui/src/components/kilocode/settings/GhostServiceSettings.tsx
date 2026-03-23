@@ -166,7 +166,7 @@ export const GhostServiceSettingsView = ({
 										<a
 											href="#"
 											onClick={() =>
-												openGlobalKeybindings("kilo-code.ghost.promptCodeSuggestion")
+												openGlobalKeybindings("8th-wall-agent.ghost.promptCodeSuggestion")
 											}
 											className="text-vscode-textLink hover:text-vscode-textLinkActive cursor-pointer"></a>
 									),
@@ -189,7 +189,7 @@ export const GhostServiceSettingsView = ({
 									DocsLink: (
 										<a
 											href="#"
-											onClick={() => openGlobalKeybindings("kilo-code.ghost.generateSuggestions")}
+											onClick={() => openGlobalKeybindings("8th-wall-agent.ghost.generateSuggestions")}
 											className="text-vscode-textLink hover:text-vscode-textLinkActive cursor-pointer"></a>
 									),
 								}}

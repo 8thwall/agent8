@@ -4,27 +4,27 @@ import type { PromptComponent } from "@roo-code/types"
 
 describe("getModeSelection with empty promptComponent", () => {
 	it("should use built-in mode instructions when promptComponent is undefined", () => {
-		const architectMode = modes.find((m) => m.slug === "architect")!
+		const agentMode = modes.find((m) => m.slug === "agent")!
 
 		// Test with undefined promptComponent (which is what getPromptComponent returns for empty objects)
-		const result = getModeSelection("architect", undefined, [])
+		const result = getModeSelection("agent", undefined, [])
 
 		// Should use built-in mode values
-		expect(result.roleDefinition).toBe(architectMode.roleDefinition)
-		expect(result.baseInstructions).toBe(architectMode.customInstructions)
-		expect(result.baseInstructions).toContain("Do some information gathering")
+		expect(result.roleDefinition).toBe(agentMode.roleDefinition)
+		expect(result.baseInstructions).toBe(agentMode.customInstructions)
+		expect(result.baseInstructions).toContain("Analyze the task at hand comprehensively, identifying specific requirements to be achieved and come up with a plan to complete this task.")
 	})
 
 	it("should use built-in mode instructions when promptComponent is null", () => {
-		const debugMode = modes.find((m) => m.slug === "debug")!
+		const agentMode = modes.find((m) => m.slug === "agent")!
 
 		// Test with null promptComponent
-		const result = getModeSelection("debug", null as any, [])
+		const result = getModeSelection("agent", null as any, [])
 
 		// Should use built-in mode values
-		expect(result.roleDefinition).toBe(debugMode.roleDefinition)
-		expect(result.baseInstructions).toBe(debugMode.customInstructions)
-		expect(result.baseInstructions).toContain("Reflect on 5-7 different possible sources")
+		expect(result.roleDefinition).toBe(agentMode.roleDefinition)
+		expect(result.baseInstructions).toBe(agentMode.customInstructions)
+		expect(result.baseInstructions).toContain("Analyze the task at hand comprehensively, identifying specific requirements to be achieved and come up with a plan to complete this task.")
 	})
 
 	it("should use promptComponent when it has actual content", () => {
@@ -41,31 +41,31 @@ describe("getModeSelection with empty promptComponent", () => {
 	})
 
 	it("should merge promptComponent with built-in mode when it has partial content", () => {
-		const architectMode = modes.find((m) => m.slug === "architect")!
+		const agentMode = modes.find((m) => m.slug === "agent")!
 
 		// Test with promptComponent that only has customInstructions
 		const partialPromptComponent: PromptComponent = {
 			customInstructions: "Only custom instructions",
 		}
-		const result = getModeSelection("architect", partialPromptComponent, [])
+		const result = getModeSelection("agent", partialPromptComponent, [])
 
 		// Should merge: use promptComponent's customInstructions but fall back to built-in roleDefinition
-		expect(result.roleDefinition).toBe(architectMode.roleDefinition) // Falls back to built-in
+		expect(result.roleDefinition).toBe(agentMode.roleDefinition) // Falls back to built-in
 		expect(result.baseInstructions).toBe("Only custom instructions") // Uses promptComponent
 	})
 
 	it("should merge promptComponent with built-in mode when it only has roleDefinition", () => {
-		const debugMode = modes.find((m) => m.slug === "debug")!
+		const agentMode = modes.find((m) => m.slug === "agent")!
 
 		// Test with promptComponent that only has roleDefinition
 		const partialPromptComponent: PromptComponent = {
-			roleDefinition: "Custom debug role",
+			roleDefinition: "Custom agent role",
 		}
-		const result = getModeSelection("debug", partialPromptComponent, [])
+		const result = getModeSelection("agent", partialPromptComponent, [])
 
 		// Should merge: use promptComponent's roleDefinition but fall back to built-in customInstructions
-		expect(result.roleDefinition).toBe("Custom debug role") // Uses promptComponent
-		expect(result.baseInstructions).toBe(debugMode.customInstructions) // Falls back to built-in
+		expect(result.roleDefinition).toBe("Custom agent role") // Uses promptComponent
+		expect(result.baseInstructions).toBe(agentMode.customInstructions) // Falls back to built-in
 	})
 
 	it("should handle promptComponent with both roleDefinition and customInstructions", () => {

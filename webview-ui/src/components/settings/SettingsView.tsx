@@ -1,4 +1,4 @@
-import React, {
+import {
 	forwardRef,
 	memo,
 	useCallback,
@@ -48,14 +48,10 @@ import {
 	AlertDialogHeader,
 	AlertDialogFooter,
 	Button,
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
 	StandardTooltip,
 } from "@src/components/ui"
 
-import { Tab, TabContent, TabHeader, TabList, TabTrigger } from "../common/Tab"
+import { Tab, TabContent, TabHeader } from "../common/Tab"
 import { SetCachedStateField, SetExperimentEnabled } from "./types"
 import { SectionHeader } from "./SectionHeader"
 import ApiConfigManager from "./ApiConfigManager"
@@ -69,13 +65,13 @@ import { ContextManagementSettings } from "./ContextManagementSettings"
 import { TerminalSettings } from "./TerminalSettings"
 import { ExperimentalSettings } from "./ExperimentalSettings"
 import { LanguageSettings } from "./LanguageSettings"
-import { About } from "./About"
 import { Section } from "./Section"
 import PromptsSettings from "./PromptsSettings"
 import { cn } from "@/lib/utils"
-import McpView from "../kilocodeMcp/McpView" // kilocode_change
+import McpView from "../../components/mcp/McpView"
 import deepEqual from "fast-deep-equal" // kilocode_change
 import { GhostServiceSettingsView } from "../kilocode/settings/GhostServiceSettings" // kilocode_change
+import { AgentEightSettings } from "../kilocode/common/AgentEightSettings"
 
 export const settingsTabsContainer = "flex flex-1 overflow-hidden [&.narrow_.tab-label]:hidden"
 export const settingsTabList =
@@ -87,7 +83,7 @@ export const settingsTabTriggerActive = "opacity-100 border-vscode-focusBorder b
 export interface SettingsViewRef {
 	checkUnsaveChanges: (then: () => void) => void
 }
-const sectionNames = [
+const allSectionNames = [
 	"providers",
 	"autoApprove",
 	"browser",
@@ -104,7 +100,24 @@ const sectionNames = [
 	"about",
 ] as const
 
-type SectionName = (typeof sectionNames)[number] // kilocode_change
+type SectionName = (typeof allSectionNames)[number]
+
+const hiddenSections: SectionName[] = [
+	"browser", // hidden8:browser
+	"language", // hidden8:language
+	"terminal", // hidden8:terminal
+	"prompts", // hidden8:prompts
+	"checkpoints", // hidden8:checkpoints
+	"display", // hidden8:display
+	"experimental", // hidden8:experimental
+	"notifications", // hidden8:notifications
+	"contextManagement", // hidden8:context
+	"autoApprove", // hidden8:autoApprove
+	"mcp", // hidden8:mcp
+	"providers", // hidden8:providers
+] as const
+
+const sectionNames = allSectionNames.filter((section) => !hiddenSections.includes(section))
 
 type SettingsViewProps = {
 	onDone: () => void
@@ -122,9 +135,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	const [isChangeDetected, setChangeDetected] = useState(false)
 	const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 	const [activeTab, setActiveTab] = useState<SectionName>(
-		targetSection && sectionNames.includes(targetSection as SectionName)
-			? (targetSection as SectionName)
-			: "providers",
+		targetSection && sectionNames.includes(targetSection as SectionName) ? (targetSection as SectionName) : "about",
 	)
 
 	const prevApiConfigName = useRef(currentApiConfigName)
@@ -334,7 +345,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 
 	const isSettingValid = !errorMessage
 
-	const handleSubmit = () => {
+	const _handleSubmit = () => {
 		if (isSettingValid) {
 			vscode.postMessage({ type: "language", text: language })
 			vscode.postMessage({ type: "alwaysAllowReadOnly", bool: alwaysAllowReadOnly })
@@ -465,7 +476,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	// kilocode_change end
 
 	// Handle tab changes with unsaved changes check
-	const handleTabChange = useCallback(
+	const _handleTabChange = useCallback(
 		(newTab: SectionName) => {
 			// Directly switch tab without checking for unsaved changes
 			setActiveTab(newTab)
@@ -500,23 +511,27 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		}
 	}, [])
 
-	const sections: { id: SectionName; icon: LucideIcon }[] = useMemo(
-		() => [
-			{ id: "providers", icon: Webhook },
-			{ id: "autoApprove", icon: CheckCheck },
-			{ id: "browser", icon: SquareMousePointer },
-			{ id: "checkpoints", icon: GitBranch },
-			{ id: "display", icon: Monitor }, // kilocode_change
-			...(extensionState.experiments?.inlineAssist ? [{ id: "ghost" as const, icon: Bot }] : []), // kilocode_change
-			{ id: "notifications", icon: Bell },
-			{ id: "contextManagement", icon: Database },
-			{ id: "terminal", icon: SquareTerminal },
-			{ id: "prompts", icon: MessageSquare },
-			{ id: "experimental", icon: FlaskConical },
-			{ id: "language", icon: Globe },
-			{ id: "mcp", icon: Server },
-			{ id: "about", icon: Info },
-		],
+	const _sections: { id: SectionName; icon: LucideIcon }[] = useMemo(
+		() =>
+			[
+				{ id: "providers", icon: Webhook },
+				{ id: "autoApprove", icon: CheckCheck },
+				{ id: "browser", icon: SquareMousePointer },
+				{ id: "checkpoints", icon: GitBranch },
+				{ id: "display", icon: Monitor }, // kilocode_change
+				...(extensionState.experiments?.inlineAssist ? [{ id: "ghost" as const, icon: Bot }] : []), // kilocode_change
+				{ id: "notifications", icon: Bell },
+				{ id: "contextManagement", icon: Database },
+				{ id: "terminal", icon: SquareTerminal },
+				{ id: "prompts", icon: MessageSquare },
+				{ id: "experimental", icon: FlaskConical },
+				{ id: "language", icon: Globe },
+				{ id: "mcp", icon: Server },
+				{ id: "about", icon: Info },
+			].filter((section) => sectionNames.includes(section.id as SectionName)) as {
+				id: SectionName
+				icon: LucideIcon
+			}[],
 		[extensionState.experiments?.inlineAssist], // kilocode_change
 	)
 
@@ -567,7 +582,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					<h3 className="text-vscode-foreground m-0">{t("settings:header.title")}</h3>
 				</div>
 				<div className="flex gap-2">
-					<StandardTooltip
+					{/* <StandardTooltip
 						content={
 							!isSettingValid
 								? errorMessage
@@ -583,7 +598,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 							data-testid="save-button">
 							{t("settings:common.save")}
 						</Button>
-					</StandardTooltip>
+					</StandardTooltip> */}
 					<StandardTooltip content={t("settings:header.doneButtonTooltip")}>
 						<Button variant="secondary" onClick={() => checkUnsaveChanges(onDone)}>
 							{t("settings:common.done")}
@@ -595,7 +610,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			{/* Vertical tabs layout */}
 			<div ref={containerRef} className={cn(settingsTabsContainer, isCompactMode && "narrow")}>
 				{/* Tab sidebar */}
-				<TabList
+				{/* <TabList
 					value={activeTab}
 					onValueChange={(value) => handleTabChange(value as SectionName)}
 					className={cn(settingsTabList)}
@@ -639,7 +654,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 								<TooltipProvider key={id} delayDuration={300}>
 									<Tooltip>
 										<TooltipTrigger asChild onClick={onSelect}>
-											{/* Clone to avoid ref issues if triggerComponent itself had a key */}
+											{/* Clone to avoid ref issues if triggerComponent itself had a key }
 											{React.cloneElement(triggerComponent)}
 										</TooltipTrigger>
 										<TooltipContent side="right" className="text-base">
@@ -660,7 +675,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 							return React.cloneElement(triggerComponent, { key: id })
 						}
 					})}
-				</TabList>
+				</TabList> */}
 
 				{/* Content area */}
 				<TabContent className="p-0 flex-1 overflow-auto">
@@ -858,12 +873,12 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					)}
 
 					{/* kilocode_change */}
-					{/* MCP Section */}
-					{activeTab === "mcp" && <McpView />}
+					{/* MCP Section hidden8:marketplace */}
+					{activeTab === "mcp" && <McpView hideHeader onDone={() => {}} />}
 
 					{/* About Section */}
 					{activeTab === "about" && (
-						<About telemetrySetting={telemetrySetting} setTelemetrySetting={setTelemetrySetting} />
+						<AgentEightSettings telemetrySetting={telemetrySetting} setTelemetrySetting={setTelemetrySetting} />
 					)}
 				</TabContent>
 			</div>

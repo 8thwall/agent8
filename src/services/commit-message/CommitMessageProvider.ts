@@ -35,6 +35,7 @@ export class CommitMessageProvider {
 	 * Activates the commit message provider by setting up Git integration.
 	 */
 	public async activate(): Promise<void> {
+		return // hidden8:generateCommitMessage
 		this.outputChannel.appendLine(t("kilocode:commitMessage.activated"))
 
 		try {
@@ -45,7 +46,7 @@ export class CommitMessageProvider {
 
 		// Register the command
 		const disposable = vscode.commands.registerCommand(
-			"kilo-code.generateCommitMessage",
+			"8th-wall-agent.generateCommitMessage",
 			(commitContext?: GitRepository) => this.generateCommitMessage(commitContext),
 		)
 		this.context.subscriptions.push(disposable)

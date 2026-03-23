@@ -11,6 +11,7 @@ import { Button } from "@src/components/ui"
 import CodeBlock from "../common/CodeBlock"
 import McpToolRow from "../mcp/McpToolRow"
 import { Markdown } from "./Markdown"
+import { McpServerSource } from "@roo/mcp"
 
 interface McpExecutionProps {
 	executionId: string
@@ -24,7 +25,7 @@ interface McpExecutionProps {
 			description?: string
 			alwaysAllow?: boolean
 		}>
-		source?: "global" | "project"
+		source?: McpServerSource
 	}
 	useMcpServer?: ClineAskUseMcpServer
 	alwaysAllowMcp?: boolean

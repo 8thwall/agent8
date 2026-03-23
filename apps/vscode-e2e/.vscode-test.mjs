@@ -12,5 +12,5 @@ export default defineConfig({
 		ui: "tdd",
 		timeout: 60000,
 	},
-	launchArgs: ["--enable-proposed-api=kilocode.Kilo-Code", "--disable-extensions"],
+	launchArgs: ["--enable-proposed-api=8th-wall.8th-wall-agent", "--disable-extensions"],
 })

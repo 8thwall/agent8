@@ -50,6 +50,7 @@ describe("useMcpToolTool", () => {
 		}
 
 		mockTask = {
+			clineMessages: [],
 			consecutiveMistakeCount: 0,
 			recordToolError: vi.fn(),
 			sayAndCreateMissingParamError: vi.fn(),
@@ -67,6 +68,7 @@ describe("useMcpToolTool", () => {
 				countTokens: vi.fn().mockResolvedValue(100),
 				createMessage: vi.fn().mockResolvedValue({ text: "mock response" }),
 			},
+			getTaskMode: vi.fn().mockReturnValue("agent"),
 		}
 	})
 

@@ -2,10 +2,13 @@ import { Task } from "../task/Task"
 import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../shared/tools"
 import { formatResponse } from "../prompts/responses"
 import { ClineAskUseMcpServer } from "../../shared/ExtensionMessage"
-import { McpExecutionStatus } from "@roo-code/types"
+import { DEFAULT_MODES, McpExecutionStatus } from "@roo-code/types"
 import { t } from "../../i18n"
 import { McpToolCallResponse } from "../../shared/mcp" // kilocode_change
 import { summarizeSuccessfulMcpOutputWhenTooLong } from "./kilocode" // kilocode_change
+import { getGroupName, getGroupOptions, getModeConfig, isToolAllowedForMode } from "../../shared/modes"
+import { findLastIndex } from "../../shared/array"
+import { AiApiStop } from "../../api/providers/ai-api"
 
 interface McpToolParams {
 	server_name?: string
@@ -133,7 +136,37 @@ async function executeToolAndProcessResult(
 		toolName,
 	})
 
-	const toolResult = await cline.providerRef.deref()?.getMcpHub()?.callTool(serverName, toolName, parsedArguments)
+	const provider = await cline.providerRef.deref()
+	const mode = getModeConfig(await cline.getTaskMode(), (await provider?.getState())?.customModes ?? [])
+	const mcpGroup = mode.groups.find(g => getGroupName(g) === "mcp")
+	const mcpOptions = getGroupOptions(mcpGroup!)
+
+	// Added agent8 task ID to MCP tool arguments for end-to-end tracing
+	// This allows MCP servers to know which agent8 conversation triggered the tool call
+	const enhancedArguments = {
+		...parsedArguments,
+		threadId: cline.taskId,
+		requestUuid: cline.currentRequestId,
+		sceneReadonly: mcpOptions?.sceneReadonly ?? false,
+	}
+	console.log('MCP Tool Call:', { server: serverName, tool: toolName, taskId: cline.taskId, requestUuid: cline.currentRequestId, arguments: enhancedArguments })
+
+	const toolResult = await provider?.getMcpHub()?.callTool(serverName, toolName, enhancedArguments)
+	const aiApiStop = toolResult?._meta?.aiApiStop as AiApiStop | undefined
+
+	if (aiApiStop?.activeCreditGrants) {
+		provider?.creditsManager.updateCreditsGrants(aiApiStop.activeCreditGrants)
+	}
+
+	const lastMcpUseIndex = findLastIndex(cline.clineMessages, (m) => m.ask === "use_mcp_server")
+	if (lastMcpUseIndex >= 0 && cline.clineMessages[lastMcpUseIndex] && aiApiStop?.totalActionQuantityBips !== undefined) {
+		const existingData = JSON.parse(cline.clineMessages[lastMcpUseIndex].text || "{}")
+		cline.clineMessages[lastMcpUseIndex].text = JSON.stringify({
+			...existingData,
+			cost: aiApiStop.totalActionQuantityBips,
+		})
+		await cline.saveClineMessages()
+	}
 
 	let toolResultPretty = "(No response)"
 

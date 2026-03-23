@@ -5,7 +5,7 @@ import * as path from "path"
 describe("Command Integration Tests", () => {
 	const testWorkspaceDir = path.join(__dirname, "../../")
 
-	it("should discover command files in .roo/commands/", async () => {
+	it("should discover command files in .8thwallagent/commands/", async () => {
 		const commands = await getCommands(testWorkspaceDir)
 
 		// Should be able to discover commands (may be empty in test environment)

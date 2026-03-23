@@ -35,7 +35,7 @@ export class KilocodeOpenrouterHandler extends OpenRouterHandler {
 		return metadata
 			? {
 					headers: {
-						"X-KiloCode-TaskId": metadata.taskId,
+						"X-8thWallAgent-TaskId": metadata.taskId,
 					},
 				}
 			: undefined

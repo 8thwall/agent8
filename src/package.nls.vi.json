@@ -1,6 +1,6 @@
 {
-	"extension.displayName": "Kilo Code AI Agent (Cline / Roo features combined)",
-	"extension.description": "Trợ lý mã hóa AI nguồn mở để lập kế hoạch, xây dựng và sửa mã.",
+	"extension.displayName": "8th Wall Agent Eight",
+	"extension.description": "Trợ lý AI để xây dựng và lập trình các dự án 8th Wall.",
 	"command.newTask.title": "Tác Vụ Mới",
 	"command.explainCode.title": "Giải Thích Mã",
 	"command.fixCode.title": "Sửa Mã",

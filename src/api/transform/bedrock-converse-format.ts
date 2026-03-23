@@ -56,6 +56,19 @@ export function convertToBedrockConverseMessages(anthropicMessages: Anthropic.Me
 				} as ContentBlock
 			}
 
+			if (messageBlock.type === "image" && messageBlock.s3Location) {
+				return {
+					image: {
+						format: messageBlock.format as "png" | "jpeg" | "gif" | "webp" | "jpeg",
+						source: {
+							s3Location: {
+								uri: messageBlock.s3Location.uri,
+							},
+						},
+					},
+				} as ContentBlock
+			}
+
 			if (messageBlock.type === "image" && messageBlock.source) {
 				// Convert base64 string to byte array if needed
 				let byteArray: Uint8Array

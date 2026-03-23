@@ -127,6 +127,10 @@ vi.mock("vscode", () => {
 			from: vi.fn(),
 		},
 		TabInputText: vi.fn(),
+		Uri: {
+			joinPath: vi.fn(),
+			file: vi.fn(),
+		},
 	}
 })
 
@@ -162,6 +166,23 @@ vi.mock("../../../utils/fs", () => ({
 	fileExistsAtPath: vi.fn().mockImplementation((filePath) => {
 		return filePath.includes("ui_messages.json") || filePath.includes("api_conversation_history.json")
 	}),
+}))
+
+vi.mock("../../../integrations/studio-use/websocket-manager-factory", () => ({
+	WsManager: {
+		send: vi.fn(),
+		getConnectedStatus: vi.fn().mockReturnValue(true),
+		onAction: vi.fn(),
+		offAction: vi.fn(),
+		onAnyAction: vi.fn(),
+	},
+}))
+
+vi.mock("../../../integrations/studio-use/auth", () => ({
+	auth: {
+    getToken: vi.fn(),
+		isAuthenticated: vi.fn().mockReturnValue(true),
+	},
 }))
 
 const mockMessages = [

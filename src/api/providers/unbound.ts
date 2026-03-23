@@ -14,10 +14,10 @@ import { addCacheBreakpoints as addVertexCacheBreakpoints } from "../transform/c
 import type { SingleCompletionHandler, ApiHandlerCreateMessageMetadata } from "../index"
 import { RouterProvider } from "./router-provider"
 
-const ORIGIN_APP = "roo-code"
+const ORIGIN_APP = "8th-wall-agent"
 
 const DEFAULT_HEADERS = {
-	"X-Unbound-Metadata": JSON.stringify({ labels: [{ key: "app", value: "kilo-code" }] }),
+	"X-Unbound-Metadata": JSON.stringify({ labels: [{ key: "app", value: "8th-wall-agent" }] }),
 }
 
 interface UnboundUsage extends OpenAI.CompletionUsage {

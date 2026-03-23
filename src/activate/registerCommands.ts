@@ -24,7 +24,7 @@ import { generateTerminalCommand } from "../utils/terminalCommandGenerator" // k
 export function getVisibleProviderOrLog(outputChannel: vscode.OutputChannel): ClineProvider | undefined {
 	const visibleProvider = ClineProvider.getVisibleInstance()
 	if (!visibleProvider) {
-		outputChannel.appendLine("Cannot find any visible Kilo Code instances.")
+		outputChannel.appendLine("Cannot find any visible 8th Wall Agent instances.")
 		return undefined
 	}
 	return visibleProvider
@@ -161,8 +161,19 @@ const getCommandsMap = ({ context, outputChannel }: RegisterCommandOptions): Rec
 
 		visibleProvider.postMessageToWebview({ type: "action", action: "profileButtonClicked" })
 	},
+	authButtonClicked: () => {
+		const visibleProvider = getVisibleProviderOrLog(outputChannel)
+
+		if (!visibleProvider) {
+			return
+		}
+
+		TelemetryService.instance.captureTitleButtonClicked("auth")
+
+		visibleProvider.postMessageToWebview({ type: "action", action: "authButtonClicked" })
+	},
 	helpButtonClicked: () => {
-		vscode.env.openExternal(vscode.Uri.parse("https://kilocode.ai"))
+		vscode.env.openExternal(vscode.Uri.parse("https://8th.io/agentforum"))
 	},
 	// kilocode_change end
 	marketplaceButtonClicked: () => {
@@ -223,7 +234,7 @@ const getCommandsMap = ({ context, outputChannel }: RegisterCommandOptions): Rec
 	}, // kilocode_change begin
 	focusChatInput: async () => {
 		try {
-			await vscode.commands.executeCommand("kilo-code.SidebarProvider.focus")
+			await vscode.commands.executeCommand("8th-wall-agent.SidebarProvider.focus")
 			await delay(100)
 
 			let visibleProvider = getVisibleProviderOrLog(outputChannel)
@@ -286,7 +297,7 @@ export const openClineInNewTab = async ({ context, outputChannel }: Omit<Registe
 
 	const targetCol = hasVisibleEditors ? Math.max(lastCol + 1, 1) : vscode.ViewColumn.Two
 
-	const newPanel = vscode.window.createWebviewPanel(ClineProvider.tabPanelId, "Kilo Code", targetCol, {
+	const newPanel = vscode.window.createWebviewPanel(ClineProvider.tabPanelId, "8th Wall Agent", targetCol, {
 		enableScripts: true,
 		retainContextWhenHidden: true,
 		localResourceRoots: [context.extensionUri],
@@ -296,8 +307,8 @@ export const openClineInNewTab = async ({ context, outputChannel }: Omit<Registe
 	setPanel(newPanel, "tab")
 
 	newPanel.iconPath = {
-		light: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "kilo.png"),
-		dark: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "kilo-dark.png"),
+		light: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "infin8-black.png"),
+		dark: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "infin8-white.png"),
 	}
 
 	await tabProvider.resolveWebviewView(newPanel)

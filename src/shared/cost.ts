@@ -1,5 +1,11 @@
 import type { ModelInfo } from "@roo-code/types"
 
+const CREDIT_TO_BIPS_CONVERSION = 10000
+
+export const convertBipsToCredits = (bipsAmount: number): number => (
+  bipsAmount / CREDIT_TO_BIPS_CONVERSION
+)
+
 function calculateApiCostInternal(
 	modelInfo: ModelInfo,
 	inputTokens: number,

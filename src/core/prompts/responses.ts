@@ -3,6 +3,7 @@ import * as path from "path"
 import * as diff from "diff"
 import { RooIgnoreController, LOCK_TEXT_SYMBOL } from "../ignore/RooIgnoreController"
 import { RooProtectedController } from "../protect/RooProtectedController"
+import { aiApiClient } from "../../api/providers/ai-api-client"
 
 export const formatResponse = {
 	duplicateFileReadNotice: () =>
@@ -25,7 +26,7 @@ export const formatResponse = {
 	toolError: (error?: string) => `The tool execution failed with the following error:\n<error>\n${error}\n</error>`,
 
 	rooIgnoreError: (path: string) =>
-		`Access to ${path} is blocked by the .kilocodeignore file settings. You must try to continue in the task without using this file, or ask the user to update the .kilocodeignore file.`,
+		`Access to ${path} is blocked by the .8thwallagentignore file settings. You must try to continue in the task without using this file, or ask the user to update the .8thwallagentignore file.`,
 
 	noToolsUsed: () =>
 		`[ERROR] You did not use a tool in your previous response! Please retry with a tool use.
@@ -97,6 +98,10 @@ Otherwise, if you have not completed the task and do not need additional informa
 
 	imageBlocks: (images?: string[]): Anthropic.ImageBlockParam[] => {
 		return formatImagesIntoBlocks(images)
+	},
+
+	s3ImageBlocks: async (images?: string[]): Promise<Anthropic.ImageBlockParam[]> => {
+		return formatAndUploadImages(images)
 	},
 
 	formatFilesList: (
@@ -182,6 +187,32 @@ Otherwise, if you have not completed the task and do not need additional informa
 		const prettyPatchLines = lines.slice(4)
 		return prettyPatchLines.join("\n")
 	},
+}
+
+const uploadToS3 = async (base64: string, contentType: string): Promise<string> => {
+	const byteArray = Uint8Array.from(atob(base64), c => c.charCodeAt(0))
+	const blob = new Blob([byteArray], {type: contentType})
+	const s3Uri = await aiApiClient.upload(blob, contentType)
+	return s3Uri
+}
+
+const formatAndUploadImages = async (images?: string[]): Promise<Anthropic.ImageBlockParam[]> => {
+	if (!images || images.length === 0) {
+		return []
+	}
+	const uploadPromises = images.map(async (dataUrl) => {
+		// data:image/png;base64,base64string
+		const [rest, base64] = dataUrl.split(",")
+		const mimeType = rest.split(":")[1].split(";")[0]
+		const s3Uri = await uploadToS3(base64, mimeType)
+		return {
+			type: "image",
+			source: { type: "base64", media_type: mimeType, data: base64 },
+			format: mimeType.split("/")[1] as "png" | "jpeg" | "gif" | "webp",
+			s3Location: { uri: s3Uri },
+		} as Anthropic.ImageBlockParam
+	})
+	return Promise.all(uploadPromises)
 }
 
 // to avoid circular dependency

@@ -144,6 +144,19 @@ export const webviewMessageHandler = async (
 	}
 
 	/**
+	 * Handles message retry operations with user confirmation
+	 */
+	const handleRetryOperation = async (messageTs: number, text: string, images?: string[]): Promise<void> => {
+		// Send message to webview to show delete confirmation dialog
+		await provider.postMessageToWebview({
+			type: "showRetryMessageDialog",
+			messageTs,
+			text,
+			images,
+		})
+	}
+
+	/**
 	 * Handles message editing operations with user confirmation
 	 */
 	const handleEditOperation = async (messageTs: number, editedContent: string, images?: string[]): Promise<void> => {
@@ -206,14 +219,16 @@ export const webviewMessageHandler = async (
 	 */
 	const handleMessageModificationsOperation = async (
 		messageTs: number,
-		operation: "delete" | "edit",
-		editedContent?: string,
+		operation: "delete" | "edit" | "retry",
+		content?: string,
 		images?: string[],
 	): Promise<void> => {
 		if (operation === "delete") {
 			await handleDeleteOperation(messageTs)
-		} else if (operation === "edit" && editedContent) {
-			await handleEditOperation(messageTs, editedContent, images)
+		} else if (operation === "retry" && content) {
+			await handleRetryOperation(messageTs, content, images)
+		} else if (operation === "edit" && content) {
+			await handleEditOperation(messageTs, content, images)
 		}
 	}
 
@@ -834,7 +849,7 @@ export const webviewMessageHandler = async (
 			}
 
 			const workspaceFolder = vscode.workspace.workspaceFolders[0]
-			const rooDir = path.join(workspaceFolder.uri.fsPath, ".kilocode")
+			const rooDir = path.join(workspaceFolder.uri.fsPath, ".8thwallagent")
 			const mcpPath = path.join(rooDir, "mcp.json")
 
 			try {
@@ -859,7 +874,7 @@ export const webviewMessageHandler = async (
 
 			try {
 				provider.log(`Attempting to delete MCP server: ${message.serverName}`)
-				await provider.getMcpHub()?.deleteServer(message.serverName, message.source as "global" | "project")
+				await provider.getMcpHub()?.deleteServer(message.serverName, message.mcpSource)
 				provider.log(`Successfully deleted MCP server: ${message.serverName}`)
 
 				// Refresh the webview state
@@ -873,7 +888,7 @@ export const webviewMessageHandler = async (
 		}
 		case "restartMcpServer": {
 			try {
-				await provider.getMcpHub()?.restartConnection(message.text!, message.source as "global" | "project")
+				await provider.getMcpHub()?.restartConnection(message.text!, message.mcpSource)
 			} catch (error) {
 				provider.log(
 					`Failed to retry connection for ${message.text}: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
@@ -887,7 +902,7 @@ export const webviewMessageHandler = async (
 					.getMcpHub()
 					?.toggleToolAlwaysAllow(
 						message.serverName!,
-						message.source as "global" | "project",
+						message.mcpSource || "global",
 						message.toolName!,
 						Boolean(message.alwaysAllow),
 					)
@@ -904,7 +919,7 @@ export const webviewMessageHandler = async (
 					.getMcpHub()
 					?.toggleToolEnabledForPrompt(
 						message.serverName!,
-						message.source as "global" | "project",
+						message.mcpSource || "global",
 						message.toolName!,
 						Boolean(message.isEnabled),
 					)
@@ -922,7 +937,7 @@ export const webviewMessageHandler = async (
 					?.toggleServerDisabled(
 						message.serverName!,
 						message.disabled!,
-						message.source as "global" | "project",
+						message.mcpSource,
 					)
 			} catch (error) {
 				provider.log(
@@ -956,10 +971,10 @@ export const webviewMessageHandler = async (
 			break
 		// kilocode_change begin
 		case "openGlobalKeybindings":
-			vscode.commands.executeCommand("workbench.action.openGlobalKeybindings", message.text ?? "kilo-code.")
+			vscode.commands.executeCommand("workbench.action.openGlobalKeybindings", message.text ?? "8th-wall-agent.")
 			break
 		case "showSystemNotification":
-			const isSystemNotificationsEnabled = getGlobalState("systemNotificationsEnabled") ?? true
+			const isSystemNotificationsEnabled = getGlobalState("systemNotificationsEnabled") ?? false // hidden8:notifications
 			if (!isSystemNotificationsEnabled) {
 				break
 			}
@@ -968,7 +983,7 @@ export const webviewMessageHandler = async (
 			}
 			break
 		case "systemNotificationsEnabled":
-			const systemNotificationsEnabled = message.bool ?? true
+			const systemNotificationsEnabled = message.bool ?? false // hidden8:notifications
 			await updateGlobalState("systemNotificationsEnabled", systemNotificationsEnabled)
 			await provider.postStateToWebview()
 			break
@@ -1282,6 +1297,22 @@ export const webviewMessageHandler = async (
 			}
 			break
 		}
+		case "retryMessage": {
+			if (
+				provider.getCurrentCline() &&
+				typeof message.value === "number" &&
+				message.value &&
+				message.text
+			) {
+				await handleMessageModificationsOperation(
+					message.value,
+					"retry",
+					message.text,
+					message.images,
+				)
+			}
+			break
+		}
 		case "submitEditedMessage": {
 			if (
 				provider.getCurrentCline() &&
@@ -1321,7 +1352,7 @@ export const webviewMessageHandler = async (
 			await provider.postStateToWebview()
 			break
 		case "browserToolEnabled":
-			await updateGlobalState("browserToolEnabled", message.bool ?? true)
+			await updateGlobalState("browserToolEnabled", message.bool ?? false) // hidden8:browser
 			await provider.postStateToWebview()
 			break
 		case "language":
@@ -1422,7 +1453,7 @@ export const webviewMessageHandler = async (
 			const ghostServiceSettings = ghostServiceSettingsSchema.parse(message.values)
 			await updateGlobalState("ghostServiceSettings", ghostServiceSettings)
 			await provider.postStateToWebview()
-			vscode.commands.executeCommand("kilo-code.ghost.reload")
+			vscode.commands.executeCommand("8th-wall-agent.ghost.reload")
 			break
 		// kilocode_change end
 		case "includeTaskHistoryInEnhance":
@@ -1541,24 +1572,20 @@ export const webviewMessageHandler = async (
 		}
 		// kilocode_change start
 		case "showFeedbackOptions": {
-			const githubIssuesText = t("common:feedback.githubIssues")
+			const forumText = t("common:feedback.forum")
 			const discordText = t("common:feedback.discord")
-			const customerSupport = t("common:feedback.customerSupport")
 
 			const answer = await vscode.window.showInformationMessage(
 				t("common:feedback.description"),
 				{ modal: true },
-				githubIssuesText,
+				forumText,
 				discordText,
-				customerSupport,
 			)
 
-			if (answer === githubIssuesText) {
-				await vscode.env.openExternal(vscode.Uri.parse("https://github.com/Kilo-Org/kilocode/issues"))
+			if (answer === forumText) {
+				await vscode.env.openExternal(vscode.Uri.parse("https://8th.io/agentforum"))
 			} else if (answer === discordText) {
-				await vscode.env.openExternal(vscode.Uri.parse("https://discord.gg/fxrhCFGhkP"))
-			} else if (answer === customerSupport) {
-				await vscode.env.openExternal(vscode.Uri.parse("https://kilocode.ai/support"))
+				await vscode.env.openExternal(vscode.Uri.parse("http://8th.io/discord"))
 			}
 			break
 		}
@@ -1764,7 +1791,7 @@ export const webviewMessageHandler = async (
 						?.updateServerTimeout(
 							message.serverName,
 							message.timeout,
-							message.source as "global" | "project",
+							message.mcpSource,
 						)
 				} catch (error) {
 					provider.log(
@@ -1831,14 +1858,14 @@ export const webviewMessageHandler = async (
 				if (scope === "project") {
 					const workspacePath = getWorkspacePath()
 					if (workspacePath) {
-						rulesFolderPath = path.join(workspacePath, ".roo", `rules-${message.slug}`)
+						rulesFolderPath = path.join(workspacePath, ".8thwallagent", `rules-${message.slug}`)
 					} else {
-						rulesFolderPath = path.join(".roo", `rules-${message.slug}`)
+						rulesFolderPath = path.join(".8thwallagent", `rules-${message.slug}`)
 					}
 				} else {
 					// Global scope - use OS home directory
 					const homeDir = os.homedir()
-					rulesFolderPath = path.join(homeDir, ".roo", `rules-${message.slug}`)
+					rulesFolderPath = path.join(homeDir, ".8thwallagent", `rules-${message.slug}`)
 				}
 
 				// Check if the rules folder exists
@@ -2008,7 +2035,7 @@ export const webviewMessageHandler = async (
 					// Import the mode with the specified source level
 					const result = await provider.customModesManager.importModeWithRules(
 						yamlContent,
-						message.source || "project", // Default to project if not specified
+						message.modeSource || "project", // Default to project if not specified
 					)
 
 					if (result.success) {
@@ -2901,7 +2928,7 @@ export const webviewMessageHandler = async (
 				// Determine the commands directory based on source
 				let commandsDir: string
 				if (source === "global") {
-					const globalConfigDir = path.join(os.homedir(), ".roo")
+					const globalConfigDir = path.join(os.homedir(), ".8thwallagent")
 					commandsDir = path.join(globalConfigDir, "commands")
 				} else {
 					// Project commands
@@ -2910,7 +2937,7 @@ export const webviewMessageHandler = async (
 						vscode.window.showErrorMessage(t("common:errors.no_workspace_for_project_command"))
 						break
 					}
-					commandsDir = path.join(workspaceRoot, ".roo", "commands")
+					commandsDir = path.join(workspaceRoot, ".8thwallagent", "commands")
 				}
 
 				// Ensure the commands directory exists
@@ -3011,6 +3038,31 @@ export const webviewMessageHandler = async (
 					type: "insertTextIntoTextarea",
 					text: text,
 				})
+			}
+			break
+		}
+
+		case "websocketMessageEvent": {
+			if (message.studioUsePayload) {
+				provider.studioUseManager.sendWebsocketMessage(message.studioUsePayload)
+			}
+			break
+		}
+
+		case "openStudioApp": {
+			provider.studioUseManager.openStudioApp()
+			break
+		}
+
+		case "openFolder": {
+			const result = await vscode.window.showOpenDialog({
+				canSelectFolders: true,
+				canSelectFiles: false,
+				openLabel: 'Open Folder'
+			})
+			
+			if (result?.[0]) {
+				await vscode.commands.executeCommand('vscode.openFolder', result[0])
 			}
 			break
 		}

@@ -33,6 +33,8 @@ import {
 	unboundDefaultModelId,
 	litellmDefaultModelId,
 	kilocodeDefaultModelId,
+	aiApiModels,
+	aiApiDefaultModelId,
 } from "@roo-code/types"
 import { cerebrasModels, cerebrasDefaultModelId } from "@roo/api"
 import type { ModelRecord, RouterModels } from "@roo/api"
@@ -178,6 +180,12 @@ const getModelsByProvider = ({
 			return {
 				models: routerModels["kilocode-openrouter"],
 				defaultModel: kilocodeDefaultModelId,
+			}
+		}
+		case "ai-api": {
+			return {
+				models: aiApiModels,
+				defaultModel: aiApiDefaultModelId,
 			}
 		}
 		default: {

@@ -3,6 +3,7 @@
 		"title": "Something went wrong",
 		"reportText": "Please help us improve by reporting this error on",
 		"githubText": "our GitHub Issues page",
+		"forumText": "the 8th Wall forum",
 		"copyInstructions": "Copy and paste the following error message to include it as part of your submission:",
 		"errorStack": "Error Stack:",
 		"componentStack": "Component Stack:"
@@ -25,7 +26,8 @@
 		"githubIssues": "Report an issue on GitHub",
 		"githubDiscussions": "Join GitHub discussions",
 		"discord": "Join our Discord community",
-		"customerSupport": "Customer Support"
+		"customerSupport": "Customer Support",
+		"forum": "Report an issue on the forum"
 	},
 	"ui": {
 		"search_placeholder": "Search...",
@@ -85,6 +87,8 @@
 		"deleteWarning": "Deleting this message will delete all subsequent messages in the conversation. Do you want to proceed?",
 		"editMessage": "Edit Message",
 		"editWarning": "Editing this message will delete all subsequent messages in the conversation. Do you want to proceed?",
+		"retryMessage": "Retry Message",
+		"retryWarning": "Retrying this message will delete all subsequent messages in the conversation, revert the files to the previous checkpoint, and resend the user message. Do you want to proceed?",
 		"proceed": "Proceed"
 	},
 	"time_ago": {
@@ -102,5 +106,11 @@
 		"months_ago": "{{count}} months ago",
 		"year_ago": "a year ago",
 		"years_ago": "{{count}} years ago"
+	},
+	"footer": {
+		"reasoning": "Reasoning"
+	},
+	"errors": {
+		"git_not_installed": "Git is required for the checkpoints feature. Please <download>download</download> and install Git and restart VS Code to enable checkpoints."
 	}
 }

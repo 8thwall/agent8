@@ -189,7 +189,7 @@ describe("addCustomInstructions", () => {
 		vi.clearAllMocks()
 	})
 
-	it("should generate correct prompt for architect mode", async () => {
+	it("should generate correct prompt for agent mode", async () => {
 		const prompt = await SYSTEM_PROMPT(
 			mockContext,
 			"/test/path",
@@ -197,7 +197,7 @@ describe("addCustomInstructions", () => {
 			undefined, // mcpHub
 			undefined, // diffStrategy
 			undefined, // browserViewportSize
-			"architect", // mode
+			"agent", // mode
 			undefined, // customModePrompts
 			undefined, // customModes
 			undefined, // globalCustomInstructions
@@ -209,7 +209,7 @@ describe("addCustomInstructions", () => {
 			undefined, // partialReadsEnabled
 		)
 
-		expect(prompt).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/architect-mode-prompt.snap")
+		expect(prompt).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/agent-mode-prompt.snap")
 	})
 
 	it("should generate correct prompt for ask mode", async () => {
@@ -310,19 +310,24 @@ describe("addCustomInstructions", () => {
 		expect(prompt).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/partial-reads-enabled.snap")
 	})
 
-	it("should prioritize mode-specific rules for code mode", async () => {
+	it("should prioritize mode-specific rules for architect mode", async () => {
 		const instructions = await addCustomInstructions("", "", "/test/path", defaultModeSlug)
+		expect(instructions).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/architect-mode-rules.snap")
+	})
+
+	it("should prioritize mode-specific rules for code mode", async () => {
+		const instructions = await addCustomInstructions("", "", "/test/path", modes[1].slug)
 		expect(instructions).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/code-mode-rules.snap")
 	})
 
-	it("should prioritize mode-specific rules for ask mode", async () => {
+	it("should prioritize mode-specific rules for scene mode", async () => {
 		const instructions = await addCustomInstructions("", "", "/test/path", modes[2].slug)
-		expect(instructions).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/ask-mode-rules.snap")
+		expect(instructions).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/scene-mode-rules.snap")
 	})
 
-	it("should prioritize mode-specific rules for architect mode", async () => {
-		const instructions = await addCustomInstructions("", "", "/test/path", modes[1].slug)
-		expect(instructions).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/architect-mode-rules.snap")
+	it("should prioritize mode-specific rules for ask mode", async () => {
+		const instructions = await addCustomInstructions("", "", "/test/path", modes[3].slug)
+		expect(instructions).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/ask-mode-rules.snap")
 	})
 
 	it("should prioritize mode-specific rules for test engineer mode", async () => {

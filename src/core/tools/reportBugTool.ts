@@ -1,7 +1,7 @@
 import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../shared/tools"
 import { Task } from "../task/Task"
 import { checkpointSave } from "../checkpoints"
-import { createAndOpenGitHubIssue } from "../../utils/github-url-utils"
+import { createAndOpen8thWallForumPost } from "../../utils/url-utils"
 import { formatResponse } from "../prompts/responses"
 import * as vscode from "vscode"
 import * as os from "os"
@@ -49,7 +49,7 @@ export async function reportBugTool(
 			// Derive system information values algorithmically
 			const operatingSystem = os.platform() + " " + os.release()
 			const kilocodeVersion =
-				vscode.extensions.getExtension("kilocode.kilo-code")?.packageJSON.version || "Unknown"
+				vscode.extensions.getExtension("8th-wall.8th-wall-agent")?.packageJSON.version || "Unknown"
 			const systemInfo = `VSCode: ${vscode.version}, Node.js: ${process.version}, Architecture: ${os.arch()}`
 			const providerAndModel = `${(await cline.providerRef.deref()?.contextProxy.getGlobalState("apiProvider")) as string} / ${cline.api.getModel().id}`
 
@@ -61,7 +61,7 @@ export async function reportBugTool(
 				provider_and_model: providerAndModel,
 				operating_system: operatingSystem,
 				system_info: systemInfo,
-				kilocode_version: kilocodeVersion,
+				the8thwallagent_version: kilocodeVersion,
 			})
 
 			const { text, images } = await cline.ask("report_bug", bugReportData, false)
@@ -71,26 +71,27 @@ export async function reportBugTool(
 				await cline.say("user_feedback", text ?? "", images)
 				pushToolResult(
 					formatResponse.toolResult(
-						`The user provided feedback on the Github issue generated:\n<feedback>\n${text}\n</feedback>`,
+						`The user provided feedback on the forum post generated:\n<feedback>\n${text}\n</feedback>`,
 						images,
 					),
 				)
 			} else {
 				// If no response, the user accepted the condensed version
-				pushToolResult(formatResponse.toolResult(`The user accepted the creation of the Github issue.`))
+				pushToolResult(formatResponse.toolResult(`The user accepted the creation of the forum post.`))
 
 				try {
-					// Create a Map of parameters for the GitHub issue
+					// Create a Map of parameters for the forum post
 					const params = new Map<string, string>()
+					params.set("category", "ai-agent")
 					params.set("title", title)
 					params.set(
-						"description",
-						`${description}\n\n**System Information:**\n- Provider & Model: ${providerAndModel}\n- Operating System: ${operatingSystem}\n- Kilo Code Version: ${kilocodeVersion}\n- ${systemInfo}`,
+						"body",
+						`${description}\n\n**System Information:**\n- Provider & Model: ${providerAndModel}\n- Operating System: ${operatingSystem}\n- 8th Wall Agent Version: ${kilocodeVersion}\n- ${systemInfo}`,
 					)
 
-					// Use our utility function to create and open the GitHub issue URL
+					// Use our utility function to create and open the 8th Wall forum post URL
 					// This bypasses VS Code's URI handling issues with special characters
-					await createAndOpenGitHubIssue("Kilo-Org", "kilocode", "bug_report.yml", params)
+					await createAndOpen8thWallForumPost(params)
 				} catch (error) {
 					console.error(`An error occurred while attempting to report the bug: ${error}`)
 				}

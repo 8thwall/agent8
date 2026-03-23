@@ -1,6 +1,6 @@
 {
-	"extension.displayName": "Kilo Code AI Agent (поєднані функції Cline / Roo)",
-	"extension.description": "Помічник з кодування AI з відкритим кодом для планування, створення та виправлення коду.",
+	"extension.displayName": "8th Wall Agent Eight",
+	"extension.description": "AI-помічник для створення та кодування проектів 8th Wall.",
 	"views.contextMenu.label": "Kilo Code",
 	"views.terminalMenu.label": "Kilo Code",
 	"views.activitybar.title": "Kilo Code",

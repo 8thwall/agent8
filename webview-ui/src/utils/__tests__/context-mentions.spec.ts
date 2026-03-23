@@ -33,8 +33,8 @@ describe("insertMention", () => {
 	})
 
 	it("should add a space after the inserted mention", () => {
-		const result = insertMention("Hello ", 6, "terminal") // Cursor at the end
-		expect(result.newValue).toBe("Hello @terminal ")
+		const result = insertMention("Hello ", 6, "problems") // Cursor at the end
+		expect(result.newValue).toBe("Hello @problems ")
 		expect(result.mentionIndex).toBe(6)
 	})
 
@@ -238,15 +238,15 @@ describe("getContextMenuOptions", () => {
 
 	it("should return all option types for empty query", () => {
 		const result = getContextMenuOptions("", null, [])
-		expect(result).toHaveLength(7) // kilocode_change: added image option
+		expect(result).toHaveLength(5) // hidden8:gitContext hidden8:terminal
 		expect(result.map((item) => item.type)).toEqual([
 			ContextMenuOptionType.Problems,
-			ContextMenuOptionType.Terminal,
+			// ContextMenuOptionType.Terminal, hidden8:terminal
 			ContextMenuOptionType.URL,
 			ContextMenuOptionType.Folder,
 			ContextMenuOptionType.File,
 			ContextMenuOptionType.Image, // kilocode_change
-			ContextMenuOptionType.Git,
+			// ContextMenuOptionType.Git, hidden8:gitContext
 		])
 	})
 
@@ -259,16 +259,18 @@ describe("getContextMenuOptions", () => {
 		expect(result.map((item) => item.value)).toContain("src/open file.ts")
 	})
 
-	it("should match git commands", () => {
+	// hidden8:gitContext
+	it("should NOT match git commands", () => {
 		const result = getContextMenuOptions("git", null, mockQueryItems)
-		expect(result[0].type).toBe(ContextMenuOptionType.Git)
-		expect(result[0].label).toBe("Git Commits")
+		expect(result[0].type).not.toBe(ContextMenuOptionType.Git)
+		expect(result[0].label).not.toBe("Git Commits")
 	})
 
-	it("should match git commit hashes", () => {
+	// hidden8:gitContext
+	it("should NOT match git commit hashes", () => {
 		const result = getContextMenuOptions("abc1234", null, mockQueryItems)
-		expect(result[0].type).toBe(ContextMenuOptionType.Git)
-		expect(result[0].value).toBe("abc1234")
+		expect(result[0].type).not.toBe(ContextMenuOptionType.Git)
+		expect(result[0].value).not.toBe("abc1234")
 	})
 
 	it("should return NoResults when no matches found", () => {
@@ -316,20 +318,20 @@ describe("getContextMenuOptions", () => {
 			(item) => item.type === ContextMenuOptionType.File && item.value?.includes("/search/"),
 		)
 
-		const gitResults = result.filter((item) => item.type === ContextMenuOptionType.Git)
+		// const gitResults = result.filter((item) => item.type === ContextMenuOptionType.Git) hidden8:gitContext
 
 		// Find the indexes of the first item of each type in the results array
 		const firstFileIndex = result.findIndex((item) => fileResults.some((f) => f === item))
 
 		const firstSearchResultIndex = result.findIndex((item) => searchResults.some((s) => s === item))
 
-		const firstGitResultIndex = result.findIndex((item) => gitResults.some((g) => g === item))
+		// const firstGitResultIndex = result.findIndex((item) => gitResults.some((g) => g === item)) hidden8:gitContext
 
 		// Verify file results come before search results
 		expect(firstFileIndex).toBeLessThan(firstSearchResultIndex)
 
 		// Verify search results appear before git results
-		expect(firstSearchResultIndex).toBeLessThan(firstGitResultIndex)
+		// expect(firstSearchResultIndex).toBeLessThan(firstGitResultIndex) hidden8:gitContext
 	})
 
 	it("should include opened files when dynamic search results exist", () => {
@@ -341,11 +343,12 @@ describe("getContextMenuOptions", () => {
 		expect(result.some((item) => item.value === "/search/result1.ts")).toBe(true)
 	})
 
-	it("should include git results when dynamic search results exist", () => {
+	// hidden8:gitContext
+	it("should NOT include git results when dynamic search results exist", () => {
 		const result = getContextMenuOptions("commit", null, mockQueryItems, mockDynamicSearchResults)
 
 		// Verify git results are included
-		expect(result.some((item) => item.type === ContextMenuOptionType.Git)).toBe(true)
+		expect(result.some((item) => item.type === ContextMenuOptionType.Git)).toBe(false)
 		// Verify dynamic search results are also present
 		expect(result.some((item) => item.value === "/search/result1.ts")).toBe(true)
 	})

@@ -64,7 +64,7 @@ import { MdmService } from "../../services/mdm/MdmService"
 
 import { fileExistsAtPath } from "../../utils/fs"
 import { setTtsEnabled, setTtsSpeed } from "../../utils/tts"
-import { getWorkspaceGitInfo } from "../../utils/git"
+import { checkGitInstalled, getWorkspaceGitInfo } from "../../utils/git"
 import { getWorkspacePath } from "../../utils/path"
 
 import { setPanel } from "../../activate/registerCommands"
@@ -92,6 +92,13 @@ import { OpenRouterHandler } from "../../api/providers"
 import { stringifyError } from "../../shared/kilocode/errorUtils"
 import isWsl from "is-wsl"
 // kilocode_change end
+
+import { StudioUseManager } from "../../integrations/studio-use/studio-use-manager"
+import { WsManager } from "../../integrations/studio-use/websocket-manager-factory"
+import { auth } from "../../integrations/studio-use/auth"
+import { getAppKey } from "../../integrations/studio-use/app-key"
+import { CreditsManager } from "../../integrations/studio-use/credits-manager"
+import { DEBUG_MODE } from "../../integrations/studio-use/constants"
 
 /**
  * https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
@@ -127,6 +134,8 @@ export class ClineProvider
 	public readonly latestAnnouncementId = "jul-29-2025-3-25-0" // Update for v3.25.0 announcement
 	public readonly providerSettingsManager: ProviderSettingsManager
 	public readonly customModesManager: CustomModesManager
+	public readonly studioUseManager: StudioUseManager
+	public readonly creditsManager: CreditsManager
 
 	constructor(
 		readonly context: vscode.ExtensionContext,
@@ -174,6 +183,9 @@ export class ClineProvider
 		this.initializeCloudProfileSync().catch((error) => {
 			this.log(`Failed to initialize cloud profile sync: ${error}`)
 		})
+
+		this.studioUseManager = new StudioUseManager(this)
+		this.creditsManager = new CreditsManager(this)
 	}
 
 	/**
@@ -396,6 +408,8 @@ export class ClineProvider
 		this.mcpHub = undefined
 		this.marketplaceManager?.cleanup()
 		this.customModesManager?.dispose()
+		this.studioUseManager?.dispose()
+		this.creditsManager?.dispose()
 		this.log("Disposed all disposables")
 		ClineProvider.activeInstances.delete(this)
 
@@ -849,7 +863,7 @@ export class ClineProvider
 			`img-src ${webview.cspSource} https://storage.googleapis.com https://img.clerk.com data: https://*.googleusercontent.com https://*.googleapis.com https://*.githubusercontent.com`, // kilocode_change: add https://*.googleusercontent.com and https://*.googleapis.com and https://*.githubusercontent.com
 			`media-src ${webview.cspSource}`,
 			`script-src 'unsafe-eval' ${webview.cspSource} https://* https://*.posthog.com http://${localServerUrl} http://0.0.0.0:${localPort} 'nonce-${nonce}'`,
-			`connect-src ${webview.cspSource} https://* https://*.posthog.com ws://${localServerUrl} ws://0.0.0.0:${localPort} http://${localServerUrl} http://0.0.0.0:${localPort}`,
+			`connect-src ${webview.cspSource} https://* https://*.posthog.com ws://${localServerUrl} ws://0.0.0.0:${localPort} http://${localServerUrl} http://0.0.0.0:${localPort} ws://localhost:8080`,
 		]
 
 		return /*html*/ `
@@ -866,7 +880,7 @@ export class ClineProvider
 						window.AUDIO_BASE_URI = "${audioUri}"
 						window.MATERIAL_ICONS_BASE_URI = "${materialIconsUri}"
 					</script>
-					<title>Kilo Code</title>
+					<title>8th Wall Agent</title>
 				</head>
 				<body>
 					<div id="root"></div>
@@ -940,7 +954,7 @@ export class ClineProvider
 				window.AUDIO_BASE_URI = "${audioUri}"
 				window.MATERIAL_ICONS_BASE_URI = "${materialIconsUri}"
 			</script>
-            <title>Kilo Code</title>
+            <title>8th Wall Agent</title>
           </head>
           <body>
             <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -1213,21 +1227,21 @@ export class ClineProvider
 		// Get platform-specific application data directory
 		let mcpServersDir: string
 		if (process.platform === "win32") {
-			// Windows: %APPDATA%\Kilo-Code\MCP
-			mcpServersDir = path.join(os.homedir(), "AppData", "Roaming", "Kilo-Code", "MCP")
+			// Windows: %APPDATA%\8th-Wall-Agent\MCP
+			mcpServersDir = path.join(os.homedir(), "AppData", "Roaming", "8th-Wall-Agent", "MCP")
 		} else if (process.platform === "darwin") {
-			// macOS: ~/Documents/Kilo-Code/MCP
-			mcpServersDir = path.join(os.homedir(), "Documents", "Kilo-Code", "MCP")
+			// macOS: ~/Documents/8th-Wall-Agent/MCP
+			mcpServersDir = path.join(os.homedir(), "Documents", "8th-Wall-Agent", "MCP")
 		} else {
-			// Linux: ~/.local/share/Kilo-Code/MCP
-			mcpServersDir = path.join(os.homedir(), ".local", "share", "Kilo-Code", "MCP")
+			// Linux: ~/.local/share/8th-Wall-Agent/MCP
+			mcpServersDir = path.join(os.homedir(), ".local", "share", "8th-Wall-Agent", "MCP")
 		}
 
 		try {
 			await fs.mkdir(mcpServersDir, { recursive: true })
 		} catch (error) {
 			// Fallback to a relative path if directory creation fails
-			return path.join(os.homedir(), ".kilocode", "mcp")
+			return path.join(os.homedir(), ".8thwallagent", "mcp")
 		}
 		return mcpServersDir
 	}
@@ -1327,7 +1341,7 @@ export class ClineProvider
 			kilocodeToken: token,
 		})
 
-		vscode.window.showInformationMessage("Kilo Code successfully configured!")
+		vscode.window.showInformationMessage("8th Wall Agent successfully configured!")
 
 		if (this.getCurrentCline()) {
 			this.getCurrentCline()!.api = buildApiHandler({
@@ -1702,6 +1716,14 @@ export class ClineProvider
 			includeDiagnosticMessages,
 			maxDiagnosticMessages,
 			includeTaskHistoryInEnhance,
+			debugMode,
+			websocketConnected,
+			authenticatedStatus,
+			workspacePath,
+			projectAppKey,
+			accountData,
+			is8thWallInstalled,
+			creditsData,
 		} = await this.getState()
 
 		const telemetryKey = process.env.KILOCODE_POSTHOG_API_KEY
@@ -1817,7 +1839,7 @@ export class ClineProvider
 			customCondensingPrompt,
 			codebaseIndexModels: codebaseIndexModels ?? EMBEDDING_MODEL_PROFILES,
 			codebaseIndexConfig: {
-				codebaseIndexEnabled: codebaseIndexConfig?.codebaseIndexEnabled ?? true,
+				codebaseIndexEnabled: codebaseIndexConfig?.codebaseIndexEnabled ?? false, // hideen8:indexing
 				codebaseIndexQdrantUrl: codebaseIndexConfig?.codebaseIndexQdrantUrl ?? "http://localhost:6333",
 				codebaseIndexEmbedderProvider: codebaseIndexConfig?.codebaseIndexEmbedderProvider ?? "openai",
 				codebaseIndexEmbedderBaseUrl: codebaseIndexConfig?.codebaseIndexEmbedderBaseUrl ?? "",
@@ -1838,6 +1860,14 @@ export class ClineProvider
 			includeDiagnosticMessages: includeDiagnosticMessages ?? true,
 			maxDiagnosticMessages: maxDiagnosticMessages ?? 50,
 			includeTaskHistoryInEnhance: includeTaskHistoryInEnhance ?? false,
+			debugMode,
+			websocketConnected,
+			authenticatedStatus,
+			workspacePath,
+			projectAppKey,
+			accountData,
+			is8thWallInstalled,
+			creditsData,
 		}
 	}
 
@@ -1851,16 +1881,9 @@ export class ClineProvider
 		const stateValues = this.contextProxy.getValues()
 		const customModes = await this.customModesManager.getCustomModes()
 
-		// Determine apiProvider with the same logic as before.
-		const apiProvider: ProviderName = stateValues.apiProvider ? stateValues.apiProvider : "kilocode" // kilocode_change: fall back to kilocode
-
 		// Build the apiConfiguration object combining state values and secrets.
 		const providerSettings = this.contextProxy.getProviderSettings()
-
-		// Ensure apiProvider is set properly if not already in state
-		if (!providerSettings.apiProvider) {
-			providerSettings.apiProvider = apiProvider
-		}
+		providerSettings.apiProvider = "ai-api"
 
 		let organizationAllowList = ORGANIZATION_ALLOW_ALL
 
@@ -1921,18 +1944,30 @@ export class ClineProvider
 			lastShownAnnouncementId: stateValues.lastShownAnnouncementId,
 			customInstructions: stateValues.customInstructions,
 			apiModelId: stateValues.apiModelId,
-			alwaysAllowReadOnly: stateValues.alwaysAllowReadOnly ?? true,
-			alwaysAllowReadOnlyOutsideWorkspace: stateValues.alwaysAllowReadOnlyOutsideWorkspace ?? true,
-			alwaysAllowWrite: stateValues.alwaysAllowWrite ?? true,
-			alwaysAllowWriteOutsideWorkspace: stateValues.alwaysAllowWriteOutsideWorkspace ?? true,
-			alwaysAllowWriteProtected: stateValues.alwaysAllowWriteProtected ?? false,
-			alwaysAllowExecute: stateValues.alwaysAllowExecute ?? true,
-			alwaysAllowBrowser: stateValues.alwaysAllowBrowser ?? true,
-			alwaysAllowMcp: stateValues.alwaysAllowMcp ?? true,
-			alwaysAllowModeSwitch: stateValues.alwaysAllowModeSwitch ?? true,
-			alwaysAllowSubtasks: stateValues.alwaysAllowSubtasks ?? true,
-			alwaysAllowFollowupQuestions: stateValues.alwaysAllowFollowupQuestions ?? false,
-			alwaysAllowUpdateTodoList: stateValues.alwaysAllowUpdateTodoList ?? true, // kilocode_change
+			// alwaysAllowReadOnly: stateValues.alwaysAllowReadOnly ?? true,
+			alwaysAllowReadOnly: true, // hidden8:autoApprove
+			// alwaysAllowReadOnlyOutsideWorkspace: stateValues.alwaysAllowReadOnlyOutsideWorkspace ?? true,
+			alwaysAllowReadOnlyOutsideWorkspace: true, // hidden8:autoApprove
+			// alwaysAllowWrite: stateValues.alwaysAllowWrite ?? true,
+			alwaysAllowWrite: true, // hidden8:autoApprove
+			// alwaysAllowWriteOutsideWorkspace: stateValues.alwaysAllowWriteOutsideWorkspace ?? true,
+			alwaysAllowWriteOutsideWorkspace: true, // hidden8:autoApprove
+			// alwaysAllowWriteProtected: stateValues.alwaysAllowWriteProtected ?? false,
+			alwaysAllowWriteProtected: false, // hidden8:autoApprove
+			// alwaysAllowExecute: stateValues.alwaysAllowExecute ?? true,
+			alwaysAllowExecute: false, // hidden8:terminal
+			// alwaysAllowBrowser: stateValues.alwaysAllowBrowser ?? true,
+			alwaysAllowBrowser: false, // hidden8:browser
+			// alwaysAllowMcp: stateValues.alwaysAllowMcp ?? true,
+			alwaysAllowMcp: true, // hidden8:autoApprove
+			// alwaysAllowModeSwitch: stateValues.alwaysAllowModeSwitch ?? true,
+			alwaysAllowModeSwitch: false, // hidden8:modes
+			// alwaysAllowSubtasks: stateValues.alwaysAllowSubtasks ?? true,
+			alwaysAllowSubtasks: false, // hidden8:modes
+			// alwaysAllowFollowupQuestions: stateValues.alwaysAllowFollowupQuestions ?? false,
+			alwaysAllowFollowupQuestions: true, // hidden8:autoApprove
+			// alwaysAllowUpdateTodoList: stateValues.alwaysAllowUpdateTodoList ?? true,
+			alwaysAllowUpdateTodoList: true, // hidden8:autoApprove
 			followupAutoApproveTimeoutMs: stateValues.followupAutoApproveTimeoutMs ?? 60000,
 			diagnosticsEnabled: stateValues.diagnosticsEnabled ?? true,
 			allowedMaxRequests: stateValues.allowedMaxRequests,
@@ -1946,7 +1981,7 @@ export class ClineProvider
 			ttsEnabled: stateValues.ttsEnabled ?? false,
 			ttsSpeed: stateValues.ttsSpeed ?? 1.0,
 			diffEnabled: stateValues.diffEnabled ?? true,
-			enableCheckpoints: stateValues.enableCheckpoints ?? true,
+			enableCheckpoints: await checkGitInstalled(),
 			soundVolume: stateValues.soundVolume,
 			browserViewportSize: stateValues.browserViewportSize ?? "900x600",
 			screenshotQuality: stateValues.screenshotQuality ?? 75,
@@ -1969,10 +2004,14 @@ export class ClineProvider
 			terminalZdotdir: stateValues.terminalZdotdir ?? false,
 			terminalCompressProgressBar: stateValues.terminalCompressProgressBar ?? true,
 			mode: stateValues.mode ?? defaultModeSlug,
-			language: stateValues.language ?? formatLanguage(vscode.env.language),
+			// language: stateValues.language ?? formatLanguage(vscode.env.language),
+			language: "en" as const, // hidden8:language
 			mcpEnabled: true, // kilocode_change: always true
-			enableMcpServerCreation: stateValues.enableMcpServerCreation ?? true,
-			alwaysApproveResubmit: stateValues.alwaysApproveResubmit ?? false,
+			// enableMcpServerCreation: stateValues.enableMcpServerCreation ?? true,
+			enableMcpServerCreation: false, // hidden8:create
+			enableModeCreation: false, // hidden8:create
+			// alwaysApproveResubmit: stateValues.alwaysApproveResubmit ?? false,
+			alwaysApproveResubmit: true, // hidden8:autoApprove
 			requestDelaySeconds: Math.max(5, stateValues.requestDelaySeconds ?? 10),
 			currentApiConfigName: stateValues.currentApiConfigName ?? "default",
 			listApiConfigMeta: stateValues.listApiConfigMeta ?? [],
@@ -1990,17 +2029,20 @@ export class ClineProvider
 			maxOpenTabsContext: stateValues.maxOpenTabsContext ?? 20,
 			maxWorkspaceFiles: stateValues.maxWorkspaceFiles ?? 200,
 			openRouterUseMiddleOutTransform: stateValues.openRouterUseMiddleOutTransform ?? true,
-			browserToolEnabled: stateValues.browserToolEnabled ?? true,
+			// browserToolEnabled: stateValues.browserToolEnabled ?? true,
+			browserToolEnabled: false, // hidden8:browser
 			telemetrySetting: stateValues.telemetrySetting || "unset",
 			showRooIgnoredFiles: stateValues.showRooIgnoredFiles ?? true,
-			showAutoApproveMenu: stateValues.showAutoApproveMenu ?? false, // kilocode_change
+			// showAutoApproveMenu: stateValues.showAutoApproveMenu ?? false,
+			showAutoApproveMenu: true, // hidden8:autoApprove
 			showTaskTimeline: stateValues.showTaskTimeline ?? true, // kilocode_change
 			maxReadFileLine: stateValues.maxReadFileLine ?? -1,
 			maxImageFileSize: stateValues.maxImageFileSize ?? 5,
 			maxTotalImageSize: stateValues.maxTotalImageSize ?? 20,
 			maxConcurrentFileReads: stateValues.maxConcurrentFileReads ?? 5,
 			allowVeryLargeReads: stateValues.allowVeryLargeReads ?? false, // kilocode_change
-			systemNotificationsEnabled: stateValues.systemNotificationsEnabled ?? true, // kilocode_change
+			// systemNotificationsEnabled: stateValues.systemNotificationsEnabled ?? true, // kilocode_change
+			systemNotificationsEnabled: false, // hidden8:notifications
 			dismissedNotificationIds: stateValues.dismissedNotificationIds ?? [], // kilocode_change
 			historyPreviewCollapsed: stateValues.historyPreviewCollapsed ?? false,
 			cloudUserInfo,
@@ -2013,7 +2055,7 @@ export class ClineProvider
 			customCondensingPrompt: stateValues.customCondensingPrompt,
 			codebaseIndexModels: stateValues.codebaseIndexModels ?? EMBEDDING_MODEL_PROFILES,
 			codebaseIndexConfig: {
-				codebaseIndexEnabled: stateValues.codebaseIndexConfig?.codebaseIndexEnabled ?? true,
+				codebaseIndexEnabled: stateValues.codebaseIndexConfig?.codebaseIndexEnabled ?? false, // hideen8:indexing
 				codebaseIndexQdrantUrl:
 					stateValues.codebaseIndexConfig?.codebaseIndexQdrantUrl ?? "http://localhost:6333",
 				codebaseIndexEmbedderProvider:
@@ -2033,6 +2075,14 @@ export class ClineProvider
 			maxDiagnosticMessages: stateValues.maxDiagnosticMessages ?? 50,
 			// Add includeTaskHistoryInEnhance setting
 			includeTaskHistoryInEnhance: stateValues.includeTaskHistoryInEnhance ?? false,
+			debugMode: DEBUG_MODE,
+			websocketConnected: WsManager.getConnectedStatus(),
+			authenticatedStatus: auth.isAuthenticated(),
+			workspacePath: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+			projectAppKey: await getAppKey(),
+			accountData: this.studioUseManager.getAccountData(),
+			is8thWallInstalled: await this.studioUseManager.getIs8thWallInstalled(),
+			creditsData: this.creditsManager.getCreditsData(),
 		}
 	}
 

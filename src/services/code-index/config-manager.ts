@@ -10,7 +10,7 @@ import { getDefaultModelId, getModelDimension, getModelScoreThreshold } from "..
  * Handles loading, validating, and providing access to configuration values.
  */
 export class CodeIndexConfigManager {
-	private codebaseIndexEnabled: boolean = true
+	private codebaseIndexEnabled: boolean = false // hidden8:indexing
 	private embedderProvider: EmbedderProvider = "openai"
 	private modelId?: string
 	private modelDimension?: number
@@ -43,7 +43,7 @@ export class CodeIndexConfigManager {
 	private _loadAndSetConfiguration(): void {
 		// Load configuration from storage
 		const codebaseIndexConfig = this.contextProxy?.getGlobalState("codebaseIndexConfig") ?? {
-			codebaseIndexEnabled: true,
+			codebaseIndexEnabled: false, // hidden8:indexing
 			codebaseIndexQdrantUrl: "http://localhost:6333",
 			codebaseIndexEmbedderProvider: "openai",
 			codebaseIndexEmbedderBaseUrl: "",
@@ -71,7 +71,7 @@ export class CodeIndexConfigManager {
 		const mistralApiKey = this.contextProxy?.getSecret("codebaseIndexMistralApiKey") ?? ""
 
 		// Update instance variables with configuration
-		this.codebaseIndexEnabled = codebaseIndexEnabled ?? true
+		this.codebaseIndexEnabled = codebaseIndexEnabled ?? false // hidden8:indexing
 		this.qdrantUrl = codebaseIndexQdrantUrl
 		this.qdrantApiKey = qdrantApiKey ?? ""
 		this.searchMinScore = codebaseIndexSearchMinScore

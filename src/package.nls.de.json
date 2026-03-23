@@ -1,6 +1,6 @@
 {
-	"extension.displayName": "Kilo Code AI Agent (Cline / Roo features combined)",
-	"extension.description": "Open-Source-KI-Codierungsassistent zum Planen, Erstellen und Korrigieren von Code.",
+	"extension.displayName": "8th Wall Agent Eight",
+	"extension.description": "KI-Assistent zum Erstellen und Programmieren von 8th Wall-Projekten.",
 	"command.newTask.title": "Neue Aufgabe",
 	"command.explainCode.title": "Code Erklären",
 	"command.fixCode.title": "Code Reparieren",

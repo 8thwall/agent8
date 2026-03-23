@@ -54,6 +54,8 @@ import CodebaseSearchResultsDisplay from "./CodebaseSearchResultsDisplay"
 import { cn } from "@/lib/utils"
 import { KiloChatRowUserFeedback } from "../kilocode/chat/KiloChatRowUserFeedback" // kilocode_change
 import { StandardTooltip } from "../ui" // kilocode_change
+import CreditsIcon from "../kilocode/common/Credits"
+import { convertBipsToCredits } from "@roo/cost"
 
 interface ChatRowProps {
 	message: ClineMessage
@@ -199,13 +201,18 @@ export const ChatRowContent = ({
 
 	// kilocode_change: usageMissing
 	const [cost, usageMissing, apiReqCancelReason, apiReqStreamingFailedMessage] = useMemo(() => {
-		if (message.text !== null && message.text !== undefined && message.say === "api_req_started") {
-			const info = safeJsonParse<ClineApiReqInfo>(message.text)
-			return [info?.cost, info?.usageMissing, info?.cancelReason, info?.streamingFailedMessage]
+		if (message.text !== null && message.text !== undefined) {
+			if (message.say === "api_req_started") {
+				const info = safeJsonParse<ClineApiReqInfo>(message.text)
+				return [info?.cost, info?.usageMissing, info?.cancelReason, info?.streamingFailedMessage]
+			} else if (message.ask === "use_mcp_server") {
+				const info = safeJsonParse<ClineAskUseMcpServer>(message.text)
+				return [info?.cost, undefined, undefined, undefined]
+			}
 		}
 
-		return [undefined, undefined, undefined]
-	}, [message.text, message.say])
+		return [undefined, undefined, undefined, undefined]
+	}, [message.text, message.say, message.ask])
 
 	// When resuming task, last wont be api_req_failed but a resume_task
 	// message, so api_req_started will show loading spinner. That's why we just
@@ -369,6 +376,25 @@ export const ChatRowContent = ({
 		}
 		return null
 	}, [message.type, message.ask, message.partial, message.text])
+
+	const renderCost = () => {
+		if (cost) {
+			return (
+				<VSCodeBadge className="whitespace-nowrap">
+					<CreditsIcon className="mr-1"/>
+					{Number(convertBipsToCredits(cost) || 0)?.toFixed(1)}
+				</VSCodeBadge>
+			)
+		}
+		return !cost && usageMissing && (
+			<StandardTooltip content={t("kilocode:pricing.costUnknownDescription")}>
+				<VSCodeBadge className="whitespace-nowrap">
+					<span className="codicon codicon-warning pr-1"></span>
+					{t("kilocode:pricing.costUnknown")}
+				</VSCodeBadge>
+			</StandardTooltip>
+		)
+	}
 
 	if (tool) {
 		const toolIcon = (name: string) => (
@@ -1030,22 +1056,7 @@ export const ChatRowContent = ({
 								<div style={{ display: "flex", alignItems: "center", gap: "10px", flexGrow: 1 }}>
 									{icon}
 									{title}
-									{
-										// kilocode_change start
-										!cost && usageMissing && (
-											<StandardTooltip content={t("kilocode:pricing.costUnknownDescription")}>
-												<VSCodeBadge className="whitespace-nowrap">
-													<span className="codicon codicon-warning pr-1"></span>
-													{t("kilocode:pricing.costUnknown")}
-												</VSCodeBadge>
-											</StandardTooltip>
-										)
-										// kilocode_change end
-									}
-									<VSCodeBadge
-										style={{ opacity: cost !== null && cost !== undefined && cost > 0 ? 1 : 0 }}>
-										${Number(cost || 0)?.toFixed(4)}
-									</VSCodeBadge>
+									{renderCost()}
 								</div>
 								<span className={`codicon codicon-chevron-${isExpanded ? "up" : "down"}`}></span>
 							</div>
@@ -1281,6 +1292,7 @@ export const ChatRowContent = ({
 							<div style={headerStyle}>
 								{icon}
 								{title}
+								{renderCost()}
 							</div>
 							<div className="w-full bg-vscode-editor-background border border-vscode-border rounded-xs p-2 mt-2">
 								{useMcpServer.type === "access_mcp_resource" && (
@@ -1389,7 +1401,7 @@ export const ChatRowContent = ({
 										marginBottom: "-1.5px",
 									}}></span>
 								<span style={{ color: normalColor, fontWeight: "bold" }}>
-									KiloCode wants to create a Github issue:
+									8th Wall Agent wants to create a forum post:
 								</span>
 							</div>
 							<ReportBugPreview data={message.text || ""} />

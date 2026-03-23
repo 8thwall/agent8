@@ -3,7 +3,7 @@ import { useAppTranslation } from "@/i18n/TranslationContext"
 import { Trans } from "react-i18next"
 import { Info, Download, Upload, TriangleAlert } from "lucide-react"
 
-import { VSCodeCheckbox, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 
 import { Package } from "@roo/package"
 import { TelemetrySetting } from "@roo/TelemetrySetting"
@@ -38,7 +38,7 @@ export const About = ({ telemetrySetting, setTelemetrySetting, className, ...pro
 			</SectionHeader>
 
 			<Section>
-				<div>
+				{/* <div> hidden8:telemetry
 					<VSCodeCheckbox
 						checked={telemetrySetting === "enabled"}
 						onChange={(e: any) => {
@@ -51,19 +51,18 @@ export const About = ({ telemetrySetting, setTelemetrySetting, className, ...pro
 						<Trans
 							i18nKey="settings:footer.telemetry.description"
 							components={{
-								privacyLink: <VSCodeLink href="https://kilocode.ai/privacy" />,
+								privacyLink: <VSCodeLink href="https://8thwall.com/privacy" />,
 							}}
 						/>
 					</p>
-				</div>
+				</div> */}
 
 				<div>
 					<Trans
 						i18nKey="settings:footer.feedback"
 						components={{
-							githubLink: <VSCodeLink href="https://github.com/Kilo-Org/kilocode" />,
-							redditLink: <VSCodeLink href="https://reddit.com/r/kilocode" />,
-							discordLink: <VSCodeLink href="https://kilocode.ai/discord" />,
+							forumLink: <VSCodeLink href="https://8th.io/agentforum" />,
+							discordLink: <VSCodeLink href="https://8th.io/discord" />,
 						}}
 					/>
 				</div>
@@ -73,7 +72,7 @@ export const About = ({ telemetrySetting, setTelemetrySetting, className, ...pro
 					<Trans
 						i18nKey="settings:footer.support"
 						components={{
-							supportLink: <VSCodeLink href="https://kilocode.ai/support" />,
+							supportLink: <VSCodeLink href="https://8th.io/agentforum" />,
 						}}
 					/>
 				</div>

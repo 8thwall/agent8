@@ -166,7 +166,7 @@ export const CodeIndexPopover: React.FC<CodeIndexPopoverProps> = ({
 
 	// Default settings template
 	const getDefaultSettings = (): LocalCodeIndexSettings => ({
-		codebaseIndexEnabled: true,
+		codebaseIndexEnabled: false, // hidden8:indexing
 		codebaseIndexQdrantUrl: "",
 		codebaseIndexEmbedderProvider: "openai",
 		codebaseIndexEmbedderBaseUrl: "",

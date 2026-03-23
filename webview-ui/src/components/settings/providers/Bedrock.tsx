@@ -35,6 +35,18 @@ export const Bedrock = ({ apiConfiguration, setApiConfigurationField, selectedMo
 		[setApiConfigurationField],
 	)
 
+	useEffect(() => {
+		if (!apiConfiguration?.awsRegion) {
+			setApiConfigurationField("awsRegion", "us-west-2")
+		}
+		if (!apiConfiguration?.awsUsePromptCache) {
+			setApiConfigurationField("awsUsePromptCache", true)
+		}
+		if (!apiConfiguration?.awsUseCrossRegionInference) {
+			setApiConfigurationField("awsUseCrossRegionInference", true)
+		}
+	}, [setApiConfigurationField, apiConfiguration])
+
 	return (
 		<>
 			<div>
@@ -135,14 +147,16 @@ export const Bedrock = ({ apiConfiguration, setApiConfigurationField, selectedMo
 				</Select>
 			</div>
 			<Checkbox
-				checked={apiConfiguration?.awsUseCrossRegionInference || false}
+				checked
+				disabled
 				onChange={handleInputChange("awsUseCrossRegionInference", noTransform)}>
 				{t("settings:providers.awsCrossRegion")}
 			</Checkbox>
 			{selectedModelInfo?.supportsPromptCache && (
 				<>
 					<Checkbox
-						checked={apiConfiguration?.awsUsePromptCache || false}
+						checked
+						disabled
 						onChange={handleInputChange("awsUsePromptCache", noTransform)}>
 						<div className="flex items-center gap-1">
 							<span>{t("settings:providers.enablePromptCaching")}</span>

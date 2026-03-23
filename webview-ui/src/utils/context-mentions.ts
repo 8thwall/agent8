@@ -252,57 +252,58 @@ export function getContextMenuOptions(
 
 		return [
 			{ type: ContextMenuOptionType.Problems },
-			{ type: ContextMenuOptionType.Terminal },
+			// { type: ContextMenuOptionType.Terminal }, // hidden8:terminal
 			{ type: ContextMenuOptionType.URL },
 			{ type: ContextMenuOptionType.Folder },
 			{ type: ContextMenuOptionType.File },
 			{ type: ContextMenuOptionType.Image }, // kilocode_change
-			{ type: ContextMenuOptionType.Git },
+			// { type: ContextMenuOptionType.Git }, // hidden8:gitContext
 		]
 	}
 
 	const lowerQuery = query.toLowerCase()
 	const suggestions: ContextMenuQueryItem[] = []
 
-	// Check for top-level option matches
-	if ("git".startsWith(lowerQuery)) {
-		suggestions.push({
-			type: ContextMenuOptionType.Git,
-			label: "Git Commits",
-			description: "Search repository history",
-			icon: "$(git-commit)",
-		})
-	} else if ("git-changes".startsWith(lowerQuery)) {
-		suggestions.push(workingChanges)
-	}
+	// Check for top-level option matches hidden8:gitContext
+	// if ("git".startsWith(lowerQuery)) {
+	// 	suggestions.push({
+	// 		type: ContextMenuOptionType.Git,
+	// 		label: "Git Commits",
+	// 		description: "Search repository history",
+	// 		icon: "$(git-commit)",
+	// 	})
+	// } else if ("git-changes".startsWith(lowerQuery)) {
+	// 	suggestions.push(workingChanges)
+	// }
 	if ("problems".startsWith(lowerQuery)) {
 		suggestions.push({ type: ContextMenuOptionType.Problems })
 	}
-	if ("terminal".startsWith(lowerQuery)) {
-		suggestions.push({ type: ContextMenuOptionType.Terminal })
-	}
+	// hidden8:terminal
+	// if ("terminal".startsWith(lowerQuery)) {
+	// 	suggestions.push({ type: ContextMenuOptionType.Terminal })
+	// }
 	if (query.startsWith("http")) {
 		suggestions.push({ type: ContextMenuOptionType.URL, value: query })
 	}
 
-	// Add exact SHA matches to suggestions
-	if (/^[a-f0-9]{7,40}$/i.test(lowerQuery)) {
-		const exactMatches = queryItems.filter(
-			(item) => item.type === ContextMenuOptionType.Git && item.value?.toLowerCase() === lowerQuery,
-		)
-		if (exactMatches.length > 0) {
-			suggestions.push(...exactMatches)
-		} else {
-			// If no exact match but valid SHA format, add as option
-			suggestions.push({
-				type: ContextMenuOptionType.Git,
-				value: lowerQuery,
-				label: `Commit ${lowerQuery}`,
-				description: "Git commit hash",
-				icon: "$(git-commit)",
-			})
-		}
-	}
+	// Add exact SHA matches to suggestions hidden8:gitContext
+	// if (/^[a-f0-9]{7,40}$/i.test(lowerQuery)) {
+	// 	const exactMatches = queryItems.filter(
+	// 		(item) => item.type === ContextMenuOptionType.Git && item.value?.toLowerCase() === lowerQuery,
+	// 	)
+	// 	if (exactMatches.length > 0) {
+	// 		suggestions.push(...exactMatches)
+	// 	} else {
+	// 		// If no exact match but valid SHA format, add as option
+	// 		suggestions.push({
+	// 			type: ContextMenuOptionType.Git,
+	// 			value: lowerQuery,
+	// 			label: `Commit ${lowerQuery}`,
+	// 			description: "Git commit hash",
+	// 			icon: "$(git-commit)",
+	// 		})
+	// 	}
+	// }
 
 	const searchableItems = queryItems.map((item) => ({
 		original: item,
@@ -361,6 +362,7 @@ export function getContextMenuOptions(
 		}
 		if (seen.has(key)) return false
 		seen.add(key)
+		if (item.type === ContextMenuOptionType.Git) return false // hidden8:gitContext
 		return true
 	})
 

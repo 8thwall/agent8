@@ -1,7 +1,9 @@
-# Debug mode
+# Ask Agent to Write Code or Modify Your Scene
+With your project open in both **VS Code** and **8th Wall Desktop**, you’re ready to start prompting.
 
-  <img src="images/unknown_error_stripe_rb.png" alt="Fixing an Unknown Error" />
+- Click the ➕ icon to begin a new task
+- Use the text input to describe what you want to build
 
-Running into errors? Switch to Debug mode and describe the problem. Kilo Code will analyze the code, find the issue, and apply a fix.
+<img src="images/ask-agent.gif" alt="Prompt the 8th Wall Agent" />
 
-You can paste error messages or point to a file. Kilo Code will take it from there.
+_Example: Create a component to control the player with WASD with smooth motionSste_

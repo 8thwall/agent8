@@ -145,7 +145,7 @@ export async function writeToFileTool(
 				// Use more specific error message for line_count that provides guidance based on the situation
 				await cline.say(
 					"error",
-					`Kilo Code tried to use write_to_file${
+					`8th Wall Agent tried to use write_to_file${
 						relPath ? ` for '${relPath.toPosix()}'` : ""
 					} but the required parameter 'line_count' was missing or truncated after ${actualLineCount} lines of content were written. Retrying...`,
 				)
@@ -187,11 +187,11 @@ export async function writeToFileTool(
 					} else {
 						vscode.window
 							.showWarningMessage(
-								"Potential code truncation detected. cline happens when the AI reaches its max output limit.",
-								"Follow cline guide to fix the issue",
+								"Potential code truncation detected. This happens when the AI reaches its max output limit.",
+								"Follow this guide to fix the issue",
 							)
 							.then((selection) => {
-								if (selection === "Follow cline guide to fix the issue") {
+								if (selection === "Follow this guide to fix the issue") {
 									vscode.env.openExternal(
 										vscode.Uri.parse(
 											"https://github.com/cline/cline/wiki/Troubleshooting-%E2%80%90-Cline-Deleting-Code-with-%22Rest-of-Code-Here%22-Comments",
@@ -260,11 +260,11 @@ export async function writeToFileTool(
 					} else {
 						vscode.window
 							.showWarningMessage(
-								"Potential code truncation detected. cline happens when the AI reaches its max output limit.",
-								"Follow cline guide to fix the issue",
+								"Potential code truncation detected. This happens when the AI reaches its max output limit.",
+								"Follow this guide to fix the issue",
 							)
 							.then((selection) => {
-								if (selection === "Follow cline guide to fix the issue") {
+								if (selection === "Follow this guide to fix the issue") {
 									vscode.env.openExternal(
 										vscode.Uri.parse(
 											"https://github.com/cline/cline/wiki/Troubleshooting-%E2%80%90-Cline-Deleting-Code-with-%22Rest-of-Code-Here%22-Comments",

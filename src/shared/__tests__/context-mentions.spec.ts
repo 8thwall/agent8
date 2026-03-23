@@ -20,19 +20,19 @@ describe("mentionRegex and mentionRegexGlobal", () => {
 
 		// Other mentions
 		{ input: "@problems", expected: ["@problems"] },
-		{ input: "@git-changes", expected: ["@git-changes"] },
-		{ input: "@terminal", expected: ["@terminal"] },
-		{ input: "@a1b2c3d", expected: ["@a1b2c3d"] }, // Git commit hash (short)
-		{ input: "@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0", expected: ["@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"] }, // Git commit hash (long)
+		{ input: "@git-changes", expected: null }, // hidden8:gitContext
+		{ input: "@terminal", expected: null }, // hidden8:terminal
+		{ input: "@a1b2c3d", expected: null }, // Git commit hash (short) hidden8:gitContext
+		{ input: "@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0", expected: null }, // Git commit hash (long) hidden8:gitContext
 
 		// Mentions within text
 		{
 			input: "Check file @/path/to/file\\ with\\ spaces.txt for details.",
 			expected: ["@/path/to/file\\ with\\ spaces.txt"],
 		},
-		{ input: "See @problems and @terminal output.", expected: ["@problems", "@terminal"] },
+		{ input: "See @problems and @terminal output.", expected: ["@problems"] }, // hidden8:terminal
 		{ input: "URL: @https://example.com.", expected: ["@https://example.com"] }, // Trailing punctuation
-		{ input: "Commit @a1b2c3d, then check @/file.txt", expected: ["@a1b2c3d", "@/file.txt"] },
+		{ input: "Commit @a1b2c3d, then check @/file.txt", expected: ["@/file.txt"] }, // hidden8:gitContext
 
 		// Negative cases (should not match or match partially)
 		{ input: "@/path/with unescaped space.txt", expected: ["@/path/with"] }, // Unescaped space
@@ -46,7 +46,7 @@ describe("mentionRegex and mentionRegexGlobal", () => {
 		{ input: "Escaped \\@problems word", expected: null },
 		{ input: "Text with \\@https://example.com", expected: null },
 		{ input: "Another \\@a1b2c3d hash", expected: null },
-		{ input: "Not escaped @terminal", expected: ["@terminal"] }, // Ensure non-escaped still works nearby
+		{ input: "Not escaped @terminal", expected: null }, // Ensure non-escaped still works nearby hidden8:terminal
 		{ input: "Double escape \\\\@/should/match", expected: null }, // Double backslash escapes the backslash, currently incorrectly fails to match
 		{ input: "Text with \\@/escaped/path\\ with\\ spaces.txt", expected: null }, // Escaped mention with escaped spaces within the path part
 	]

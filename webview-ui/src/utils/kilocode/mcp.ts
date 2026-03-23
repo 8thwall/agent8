@@ -1,4 +1,5 @@
 // kilocode_change: imported from Cline
+import { McpErrorEntry, McpServer } from "@roo/mcp"
 import { McpMarketplaceCatalog } from "../../../../src/shared/kilocode/mcp"
 
 /**
@@ -13,4 +14,21 @@ export function getMcpServerDisplayName(serverName: string, mcpMarketplaceCatalo
 
 	// Return display name if found, otherwise return original server name
 	return catalogItem?.name || serverName
+}
+
+const SUPPRESSED_ERRORS = [
+	" Warning: ",
+	" ExperimentalWarning: ",
+]
+
+/**
+ * Returns a filtered list of visible MCP errors for a given server.
+ * @param server The MCP server to retrieve errors from
+ * @returns An array of visible MCP error entries, or undefined if no errors are present
+ */
+export function getVisibleMcpErrors(server: McpServer, debugMode?: boolean): McpErrorEntry[] | undefined {
+	if (server.source !== "builtin" || debugMode) {
+		return server.errorHistory
+	}
+	return server.errorHistory?.filter((error) => !SUPPRESSED_ERRORS.some((msg) => error.message.includes(msg)))
 }

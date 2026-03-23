@@ -246,6 +246,18 @@ vi.mock("@vscode/webview-ui-toolkit/react", () => ({
 	VSCodeLink: function MockVSCodeLink({ children, href }: { children: React.ReactNode; href?: string }) {
 		return <a href={href}>{children}</a>
 	},
+	VSCodeCheckbox: ({ checked, onChange, children, "data-testid": dataTestId, ...props }: any) => (
+		<label data-testid={dataTestId} {...props}>
+			<input
+				type="checkbox"
+				role="checkbox"
+				checked={checked || false}
+				aria-checked={checked || false}
+				onChange={(e: any) => onChange?.({ target: { checked: e.target.checked } })}
+			/>
+			{children}
+		</label>
+	),
 }))
 
 // Mock window.postMessage to trigger state hydration

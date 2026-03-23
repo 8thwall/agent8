@@ -12,23 +12,23 @@ type SettingsFooterProps = HTMLAttributes<HTMLDivElement> & {
 export const SettingsFooter = ({ version, className, ...props }: SettingsFooterProps) => (
 	<div className={cn("text-vscode-descriptionForeground p-5", className)} {...props}>
 		<p style={{ wordWrap: "break-word", margin: 0, padding: 0 }}>
-			If you have any questions or feedback, feel free to open an issue at{" "}
-			<VSCodeLink href="https://github.com/Kilo-Org/kilocode" style={{ display: "inline" }}>
-				github.com/Kilo-Org/kilocode
+			If you have any questions or feedback, feel free to create a topic at{" "}
+			<VSCodeLink href="https://8th.io/agentforum" style={{ display: "inline" }}>
+				8th.io/agentforum
 			</VSCodeLink>{" "}
 			or join{" "}
-			<VSCodeLink href="https://www.reddit.com/r/KiloCode/" style={{ display: "inline" }}>
-				reddit.com/r/KiloCode
+			<VSCodeLink href="https://8th.io/discord" style={{ display: "inline" }}>
+				8th.io/discord
 			</VSCodeLink>
 			.
 		</p>
 		<p style={{ wordWrap: "break-word", margin: 0, padding: 0 }}>
 			Regarding financial questions, please contact Customer Service at{" "}
-			<VSCodeLink href="mail:hi@kilocode.ai" style={{ display: "inline" }}>
-				hi@kilocode.ai
+			<VSCodeLink href="mail:support@8thwall.com" style={{ display: "inline" }}>
+				support@8thwall.com
 			</VSCodeLink>{" "}
 		</p>
-		<p className="italic">Kilo Code v{version}</p>
+		<p className="italic">8th Wall Agent v{version}</p>
 		<div className="flex justify-between items-center gap-3">
 			<p>Reset all global state and secret storage in the extension.</p>
 			<VSCodeButton

@@ -15,12 +15,12 @@ Tool uses are formatted using XML-style tags. The tool name itself becomes the X
 ...
 </actual_tool_name>
 
-For example, to use the new_task tool:
+For example, to use the list_files tool:
 
-<new_task>
-<mode>code</mode>
-<message>Implement a new feature for the application.</message>
-</new_task>
+<list_files>
+<path>src/enemies</path>
+<recursive>true</recursive>
+</list_files>
 
 Always use the actual tool name as the XML tag name for proper parsing and execution.`
 }

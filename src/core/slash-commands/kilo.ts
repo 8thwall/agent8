@@ -5,10 +5,12 @@ import fs from "fs/promises"
 import path from "path"
 import {
 	newTaskToolResponse,
-	newRuleToolResponse,
+	// newRuleToolResponse, hidden8:newrule
 	reportBugToolResponse,
-	condenseToolResponse,
+	// condenseToolResponse, hidden8:smol
 } from "../prompts/commands"
+
+const WORKFLOWS_ENABLED = false // hidden8:workflows
 
 function enabledWorkflowToggles(workflowToggles: ClineRulesToggles) {
 	return Object.entries(workflowToggles)
@@ -29,10 +31,10 @@ export async function parseKiloSlashCommands(
 	globalWorkflowToggles: ClineRulesToggles,
 ): Promise<{ processedText: string; needsRulesFileCheck: boolean }> {
 	const commandReplacements: Record<string, ((userInput: string) => string) | undefined> = {
-		newtask: newTaskToolResponse,
-		newrule: newRuleToolResponse,
+		// newtask: newTaskToolResponse, hidden8:newtask
+		// newrule: newRuleToolResponse, hidden8:newrule
 		reportbug: reportBugToolResponse,
-		smol: condenseToolResponse,
+		// smol: condenseToolResponse, hidden8:smol
 	}
 
 	// this currently allows matching prepended whitespace prior to /slash-command
@@ -79,7 +81,7 @@ export async function parseKiloSlashCommands(
 				...enabledWorkflowToggles(globalWorkflowToggles),
 			].find((workflow) => workflow.fileName === commandName)
 
-			if (matchingWorkflow) {
+			if (matchingWorkflow && WORKFLOWS_ENABLED) {
 				try {
 					// Read workflow file content from the full path
 					const workflowContent = (await fs.readFile(matchingWorkflow.fullPath, "utf8")).trim()

@@ -5,8 +5,8 @@ import { VSCodeCheckbox, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { vscode } from "@src/utils/vscode"
 import { useExtensionState } from "@src/context/ExtensionStateContext"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
-import { AutoApproveToggle, AutoApproveSetting, autoApproveSettingsConfig } from "../settings/AutoApproveToggle"
-import { MaxRequestsInput } from "../settings/MaxRequestsInput" // kilocode_change
+import { AutoApproveSetting, autoApproveSettingsConfig } from "../settings/AutoApproveToggle"
+// import { MaxRequestsInput } from "../settings/MaxRequestsInput" // hidden8:autoApprove
 import { StandardTooltip } from "@src/components/ui"
 import { useAutoApprovalState } from "@src/hooks/useAutoApprovalState"
 import { useAutoApprovalToggles } from "@src/hooks/useAutoApprovalToggles"
@@ -22,7 +22,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 		autoApprovalEnabled,
 		setAutoApprovalEnabled,
 		alwaysApproveResubmit,
-		allowedMaxRequests, // kilocode_change
+		// allowedMaxRequests, // hidden8:autoApprove
 		setAlwaysAllowReadOnly,
 		setAlwaysAllowWrite,
 		setAlwaysAllowExecute,
@@ -33,7 +33,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 		setAlwaysApproveResubmit,
 		setAlwaysAllowFollowupQuestions,
 		setAlwaysAllowUpdateTodoList,
-		setAllowedMaxRequests, // kilocode_change
+		// setAllowedMaxRequests, // hidden8:autoApprove
 	} = useExtensionState()
 
 	const { t } = useAppTranslation()
@@ -51,7 +51,8 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 
 	const { hasEnabledOptions, effectiveAutoApprovalEnabled } = useAutoApprovalState(toggles, autoApprovalEnabled)
 
-	const onAutoApproveToggle = useCallback(
+	// hidden8:autoApprove
+	const _onAutoApproveToggle = useCallback(
 		(key: AutoApproveSetting, value: boolean) => {
 			vscode.postMessage({ type: key, bool: value })
 
@@ -126,7 +127,8 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 		],
 	)
 
-	const toggleExpanded = useCallback(() => {
+	// hidden8:autoApprove
+	const _toggleExpanded = useCallback(() => {
 		setIsExpanded((prev) => !prev)
 	}, [])
 
@@ -135,8 +137,8 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 		.map(([key]) => t(autoApproveSettingsConfig[key as AutoApproveSetting].labelKey))
 		.join(", ")
 
-	// Update displayed text logic
-	const displayText = useMemo(() => {
+	// Update displayed text logic hidden8:autoApprove
+	const _displayText = useMemo(() => {
 		if (!effectiveAutoApprovalEnabled || !hasEnabledOptions) {
 			return t("chat:autoApprove.none")
 		}
@@ -148,6 +150,15 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 			window.postMessage({ type: "action", action: "settingsButtonClicked", values: { section: "autoApprove" } }),
 		[],
 	)
+
+	const toggleAutoApprove = () => {
+		if (hasEnabledOptions) {
+			const newValue = !(autoApprovalEnabled ?? false)
+			setAutoApprovalEnabled(newValue)
+			vscode.postMessage({ type: "autoApprovalEnabled", bool: newValue })
+		}
+		// If no options enabled, do nothing
+	}
 
 	return (
 		<div
@@ -168,7 +179,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 					padding: isExpanded ? "8px 0" : "2px 0 0 0",
 					cursor: "pointer",
 				}}
-				onClick={toggleExpanded}>
+				onClick={toggleAutoApprove}>
 				<div onClick={(e) => e.stopPropagation()}>
 					<StandardTooltip
 						content={!hasEnabledOptions ? t("chat:autoApprove.selectOptionsFirst") : undefined}>
@@ -180,14 +191,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 									? t("chat:autoApprove.toggleAriaLabel")
 									: t("chat:autoApprove.disabledAriaLabel")
 							}
-							onChange={() => {
-								if (hasEnabledOptions) {
-									const newValue = !(autoApprovalEnabled ?? false)
-									setAutoApprovalEnabled(newValue)
-									vscode.postMessage({ type: "autoApprovalEnabled", bool: newValue })
-								}
-								// If no options enabled, do nothing
-							}}
+							onChange={toggleAutoApprove}
 						/>
 					</StandardTooltip>
 				</div>
@@ -206,7 +210,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 						}}>
 						{t("chat:autoApprove.title")}
 					</span>
-					<span
+					{/* <span hidden8:autoApprove
 						style={{
 							color: "var(--vscode-descriptionForeground)",
 							overflow: "hidden",
@@ -217,13 +221,13 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 						}}>
 						{displayText}
 					</span>
-					<span
+					<span hidden8:autoApprove
 						className={`codicon codicon-chevron-${isExpanded ? "down" : "right"}`}
 						style={{
 							flexShrink: 0,
 							marginLeft: isExpanded ? "2px" : "-2px",
 						}}
-					/>
+					/> */}
 				</div>
 			</div>
 
@@ -242,14 +246,14 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 						/>
 					</div>
 
-					<AutoApproveToggle {...toggles} onToggle={onAutoApproveToggle} />
+					{/* <AutoApproveToggle {...toggles} onToggle={onAutoApproveToggle} /> hidden8:autoApprove */}
 
-					{/* kilocode_change start */}
+					{/* hidden8:autoApprove
 					<MaxRequestsInput
 						allowedMaxRequests={allowedMaxRequests ?? undefined}
 						onValueChange={(value) => setAllowedMaxRequests(value)}
 					/>
-					{/* kilocode_change end */}
+					*/}
 				</div>
 			)}
 		</div>

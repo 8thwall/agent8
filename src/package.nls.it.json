@@ -1,6 +1,6 @@
 {
-	"extension.displayName": "Kilo Code AI Agent (Cline / Roo features combined)",
-	"extension.description": "Assistente di programmazione AI open source per la pianificazione, la creazione e la correzione del codice.",
+	"extension.displayName": "8th Wall Agent Eight",
+	"extension.description": "Assistente AI per costruire e programmare progetti 8th Wall.",
 	"command.newTask.title": "Nuovo Task",
 	"command.explainCode.title": "Spiega Codice",
 	"command.fixCode.title": "Correggi Codice",

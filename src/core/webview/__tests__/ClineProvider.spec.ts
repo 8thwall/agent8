@@ -340,6 +340,16 @@ vi.mock("@roo-code/cloud", () => ({
 	getRooCodeApiUrl: vi.fn().mockReturnValue("https://app.roocode.com"),
 }))
 
+vi.mock("../../../integrations/studio-use/websocket-manager-factory", () => ({
+	WsManager: {
+		send: vi.fn(),
+		getConnectedStatus: vi.fn().mockReturnValue(true),
+		onAction: vi.fn(),
+		offAction: vi.fn(),
+		onAnyAction: vi.fn(),
+	},
+}))
+
 afterAll(() => {
 	vi.restoreAllMocks()
 })
@@ -764,7 +774,8 @@ describe("ClineProvider", () => {
 		expect(state).toHaveProperty("writeDelayMs")
 	})
 
-	test("language is set to VSCode language", async () => {
+	// hidden8:language
+	test.skip("language is set to VSCode language", async () => {
 		// Mock VSCode language as Spanish
 		;(vscode.env as any).language = "pt-BR"
 
@@ -845,12 +856,13 @@ describe("ClineProvider", () => {
 		expect(state.requestDelaySeconds).toBe(10)
 	})
 
-	test("alwaysApproveResubmit defaults to false", async () => {
+	// hidden8:alwaysApprove
+	test("alwaysApproveResubmit defaults to TRUE", async () => {
 		// Mock globalState.get to return undefined for alwaysApproveResubmit
 		;(mockContext.globalState.get as any).mockReturnValue(undefined)
 
 		const state = await provider.getState()
-		expect(state.alwaysApproveResubmit).toBe(false)
+		expect(state.alwaysApproveResubmit).toBe(true)
 	})
 
 	test("autoCondenseContext defaults to true", async () => {
@@ -1000,7 +1012,7 @@ describe("ClineProvider", () => {
 		// Verify state includes browserToolEnabled
 		const state = await provider.getState()
 		expect(state).toHaveProperty("browserToolEnabled")
-		expect(state.browserToolEnabled).toBe(true) // Default value should be true
+		expect(state.browserToolEnabled).toBe(false) // Default value should be false hidden8:browser
 	})
 
 	test("handles showRooIgnoredFiles setting", async () => {
@@ -1709,7 +1721,7 @@ describe("ClineProvider", () => {
 					slug: "code",
 					name: "Code Mode",
 					roleDefinition: "You are a code assistant",
-					groups: ["read", "edit", "browser"],
+					groups: ["read", "edit"], // hidden8:browser
 				}) // Subsequent calls return default mode
 
 			// Mock provider settings manager
@@ -1908,7 +1920,7 @@ describe("ClineProvider", () => {
 				slug: "code",
 				name: "Code Mode",
 				roleDefinition: "You are a code assistant",
-				groups: ["read", "edit", "browser"],
+				groups: ["read", "edit"], // hidden8:browser
 			})
 
 			// Mock provider settings manager to throw error
@@ -2327,13 +2339,13 @@ describe("Project MCP Settings", () => {
 		})
 
 		// Check that fs.mkdir was called with the correct path
-		expect(mockedFs.mkdir).toHaveBeenCalledWith("/test/workspace/.kilocode", { recursive: true })
+		expect(mockedFs.mkdir).toHaveBeenCalledWith("/test/workspace/.8thwallagent", { recursive: true })
 
 		// Verify file was created with default content
-		expect(safeWriteJson).toHaveBeenCalledWith("/test/workspace/.roo/mcp.json", { mcpServers: {} })
+		expect(safeWriteJson).toHaveBeenCalledWith("/test/workspace/.8thwallagent/mcp.json", { mcpServers: {} })
 
 		// Check that openFile was called
-		expect(openFileSpy).toHaveBeenCalledWith("/test/workspace/.kilocode/mcp.json")
+		expect(openFileSpy).toHaveBeenCalledWith("/test/workspace/.8thwallagent/mcp.json")
 	})
 
 	test("handles openProjectMcpSettings when workspace is not open", async () => {
@@ -2369,7 +2381,7 @@ describe("Project MCP Settings", () => {
 		// Verify error message was shown
 		expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
 			// kilocode_change
-			expect.stringContaining("Failed to create or open .kilocode/mcp.json"),
+			expect.stringContaining("Failed to create or open .8thwallagent/mcp.json"),
 		)
 	})
 })

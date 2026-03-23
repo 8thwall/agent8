@@ -90,6 +90,18 @@ vi.mock("../ChatTextArea", () => {
 vi.mock("@vscode/webview-ui-toolkit/react", () => ({
 	VSCodeButton: ({ children, onClick }: any) => <button onClick={onClick}>{children}</button>,
 	VSCodeLink: ({ children, href }: any) => <a href={href}>{children}</a>,
+	VSCodeCheckbox: ({ checked, onChange, children, "data-testid": dataTestId, ...props }: any) => (
+		<label data-testid={dataTestId} {...props}>
+			<input
+				type="checkbox"
+				role="checkbox"
+				checked={checked || false}
+				aria-checked={checked || false}
+				onChange={(e: any) => onChange?.({ target: { checked: e.target.checked } })}
+			/>
+			{children}
+		</label>
+	),
 }))
 
 // Mock window.postMessage to trigger state hydration

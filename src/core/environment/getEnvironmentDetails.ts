@@ -197,15 +197,15 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 		details += terminalDetails
 	}
 
+	// hidden8:environment-details: Current Time section - not needed in finalUserContent context
 	// Add current time information with timezone.
-	const now = new Date()
-
-	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-	const timeZoneOffset = -now.getTimezoneOffset() / 60 // Convert to hours and invert sign to match conventional notation
-	const timeZoneOffsetHours = Math.floor(Math.abs(timeZoneOffset))
-	const timeZoneOffsetMinutes = Math.abs(Math.round((Math.abs(timeZoneOffset) - timeZoneOffsetHours) * 60))
-	const timeZoneOffsetStr = `${timeZoneOffset >= 0 ? "+" : "-"}${timeZoneOffsetHours}:${timeZoneOffsetMinutes.toString().padStart(2, "0")}`
-	details += `\n\n# Current Time\nCurrent time in ISO 8601 UTC format: ${now.toISOString()}\nUser time zone: ${timeZone}, UTC${timeZoneOffsetStr}`
+	// const now = new Date()
+	// const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+	// const timeZoneOffset = -now.getTimezoneOffset() / 60 // Convert to hours and invert sign to match conventional notation
+	// const timeZoneOffsetHours = Math.floor(Math.abs(timeZoneOffset))
+	// const timeZoneOffsetMinutes = Math.abs(Math.round((Math.abs(timeZoneOffset) - timeZoneOffsetHours) * 60))
+	// const timeZoneOffsetStr = `${timeZoneOffset >= 0 ? "+" : "-"}${timeZoneOffsetHours}:${timeZoneOffsetMinutes.toString().padStart(2, "0")}`
+	// details += `\n\n# Current Time\nCurrent time in ISO 8601 UTC format: ${now.toISOString()}\nUser time zone: ${timeZone}, UTC${timeZoneOffsetStr}`
 
 	// Add context tokens information.
 	const { contextTokens, totalCost } = getApiMetrics(cline.clineMessages)
@@ -228,9 +228,10 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 
 	const { id: modelId, info: modelInfo } = cline.api.getModel()
 
-	details += `\n\n# Current Cost\n${totalCost !== null ? `$${totalCost.toFixed(2)}` : "(Not available)"}`
+	// hidden8:environment-details Current Cost section - not needed in finalUserContent context
+	// details += `\n\n# Current Cost\n${totalCost !== null ? `$${totalCost.toFixed(2)}` : "(Not available)"}`
 
-	// Add current mode and any mode-specific warnings.
+	// Add current mode information.
 	const {
 		mode,
 		customModes,
@@ -251,7 +252,8 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 	details += `\n\n# Current Mode\n`
 	details += `<slug>${currentMode}</slug>\n`
 	details += `<name>${modeDetails.name}</name>\n`
-	details += `<model>${modelId}</model>\n`
+	// hidden8:environment-details: Model information - not needed in finalUserContent context
+	// details += `<model>${modelId}</model>\n`
 
 	if (Experiments.isEnabled(experiments ?? {}, EXPERIMENT_IDS.POWER_STEERING)) {
 		details += `<role>${modeDetails.roleDefinition}</role>\n`

@@ -63,6 +63,7 @@ async function generatePrompt(
 	diffEnabled?: boolean,
 	experiments?: Record<string, boolean>,
 	enableMcpServerCreation?: boolean,
+	enableModeCreation?: boolean,
 	language?: string,
 	rooIgnoreInstructions?: string,
 	partialReadsEnabled?: boolean,
@@ -86,7 +87,7 @@ async function generatePrompt(
 	const shouldIncludeMcp = hasMcpGroup && hasMcpServers
 
 	const [modesSection, mcpServersSection] = await Promise.all([
-		getModesSection(context),
+		getModesSection(context, enableModeCreation),
 		shouldIncludeMcp
 			? getMcpServersSection(mcpHub, effectiveDiffStrategy, enableMcpServerCreation)
 			: Promise.resolve(""),
@@ -113,6 +114,7 @@ ${getToolDescriptionsForMode(
 	partialReadsEnabled,
 	settings,
 	enableMcpServerCreation,
+	enableModeCreation,
 )}
 
 ${getToolUseGuidelinesSection(codeIndexManager)}
@@ -159,6 +161,7 @@ export const SYSTEM_PROMPT = async (
 	partialReadsEnabled?: boolean,
 	settings?: SystemPromptSettings,
 	todoList?: TodoItem[],
+	enableModeCreation = true,
 ): Promise<string> => {
 	if (!context) {
 		throw new Error("Extension context is required for generating system prompt")
@@ -228,6 +231,7 @@ ${getMorphInstructions(experiments) /* kilocode_change: Morph fast apply */}${cu
 		diffEnabled,
 		experiments,
 		enableMcpServerCreation,
+		enableModeCreation,
 		language,
 		rooIgnoreInstructions,
 		partialReadsEnabled,

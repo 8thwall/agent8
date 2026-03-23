@@ -25,6 +25,8 @@ import { mentionRegexGlobal } from "@roo/context-mentions"
 
 import { vscode } from "@/utils/vscode"
 import { TodoListDisplay } from "../chat/TodoListDisplay"
+import CreditsIcon from "./common/Credits"
+import { convertBipsToCredits } from "@roo/cost"
 
 export interface TaskHeaderProps {
 	task: ClineMessage
@@ -140,7 +142,8 @@ const KiloTaskHeader = ({
 							/>
 							{condenseButton}
 							<ShareButton item={currentTaskItem} disabled={buttonsDisabled} />
-							{!!totalCost && <span>${totalCost.toFixed(2)}</span>}
+							<CreditsIcon />
+							{typeof totalCost === "number" && <span>{convertBipsToCredits(totalCost).toFixed(1)}</span>}
 						</div>
 					</div>
 				)}
@@ -238,7 +241,8 @@ const KiloTaskHeader = ({
 								<div className="flex justify-between items-center h-[20px]">
 									<div className="flex items-center gap-1">
 										<span className="font-bold">{t("chat:task.apiCost")}</span>
-										<span>${totalCost?.toFixed(2)}</span>
+										<CreditsIcon />
+										<span>{convertBipsToCredits(totalCost).toFixed(1)}</span>
 									</div>
 									<TaskActions item={currentTaskItem} buttonsDisabled={buttonsDisabled} />
 								</div>

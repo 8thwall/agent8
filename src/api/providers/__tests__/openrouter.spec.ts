@@ -61,10 +61,10 @@ describe("OpenRouterHandler", () => {
 			baseURL: "https://openrouter.ai/api/v1",
 			apiKey: mockOptions.openRouterApiKey,
 			defaultHeaders: {
-				"HTTP-Referer": "https://kilocode.ai",
-				"X-Title": "Kilo Code",
-				"X-KiloCode-Version": Package.version,
-				"User-Agent": `Kilo-Code/${Package.version}`,
+				"HTTP-Referer": "https://8thwall.com",
+				"X-Title": "8th Wall Agent",
+				"X-8thWallAgent-Version": Package.version,
+				"User-Agent": `8th-wall-agent/${Package.version}`,
 			},
 		})
 	})

@@ -115,7 +115,7 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 			await git.init()
 			await git.addConfig("core.worktree", this.workspaceDir) // Sets the working tree to the current workspace.
 			await git.addConfig("commit.gpgSign", "false") // Disable commit signing for shadow repo.
-			await git.addConfig("user.name", "Kilo Code")
+			await git.addConfig("user.name", "8th Wall Agent")
 			await git.addConfig("user.email", "noreply@example.com")
 			await this.writeExcludeFile()
 			await this.stageAll(git)
@@ -259,7 +259,7 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 
 	public async restoreCheckpoint(commitHash: string) {
 		try {
-			this.log(`[${this.constructor.name}#restoreCheckpoint] starting checkpoint restore`)
+			this.log(`[${this.constructor.name}#restoreCheckpoint] starting checkpoint revert`)
 
 			if (!this.git) {
 				throw new Error("Shadow git repo not initialized")
@@ -278,10 +278,10 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 
 			const duration = Date.now() - start
 			this.emit("restore", { type: "restore", commitHash, duration })
-			this.log(`[${this.constructor.name}#restoreCheckpoint] restored checkpoint ${commitHash} in ${duration}ms`)
+			this.log(`[${this.constructor.name}#restoreCheckpoint] reverted to checkpoint ${commitHash} in ${duration}ms`)
 		} catch (e) {
 			const error = e instanceof Error ? e : new Error(String(e))
-			this.log(`[${this.constructor.name}#restoreCheckpoint] failed to restore checkpoint: ${error.message}`)
+			this.log(`[${this.constructor.name}#restoreCheckpoint] failed to revert to checkpoint: ${error.message}`)
 			this.emit("error", { type: "error", error })
 			throw error
 		}

@@ -101,7 +101,7 @@ This will:
 To install your built extension:
 
 ```bash
-code --install-extension "$(ls -1v bin/kilo-code-*.vsix | tail -n1)"
+code --install-extension "$(ls -1v bin/8th-wall-agent-*.vsix | tail -n1)"
 ```
 
 Replace `[version]` with the current version number.

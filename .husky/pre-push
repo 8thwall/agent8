@@ -5,25 +5,5 @@ if [ "$branch" = "main" ]; then
   exit 1
 fi
 
-# Detect if running on Windows and use pnpm.cmd, otherwise use pnpm.
-if [ "$OS" = "Windows_NT" ]; then
-  pnpm_cmd="pnpm.cmd"
-else
-  if command -v pnpm >/dev/null 2>&1; then
-    pnpm_cmd="pnpm"
-  else
-    pnpm_cmd="npx pnpm"
-  fi
-fi
-
-$pnpm_cmd run check-types
-
-# Check for new changesets.
-NEW_CHANGESETS=$(find .changeset -name "*.md" ! -name "README.md" | wc -l | tr -d ' ')
-echo "Changeset files: $NEW_CHANGESETS"
-
-if [ "$NEW_CHANGESETS" = "0" ]; then
-  echo "-------------------------------------------------------------------------------------"
-  echo "Changes detected. Please run 'pnpm changeset' to create a changeset if applicable."
-  echo "-------------------------------------------------------------------------------------"
-fi
+command -v git-lfs >/dev/null 2>&1 || { printf >&2 "\n%s\n\n" "This repository is configured for Git LFS but 'git-lfs' was not found on your path. If you no longer wish to use Git LFS, remove this hook by deleting the 'pre-push' file in the hooks directory (set by 'core.hookspath'; usually '.git/hooks')."; exit 2; }
+git lfs pre-push "$@"

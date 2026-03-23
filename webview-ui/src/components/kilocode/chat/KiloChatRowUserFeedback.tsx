@@ -22,7 +22,7 @@ export const KiloChatRowUserFeedback = ({ message, isStreaming, onChatReset }: K
 		setIsEditing(false)
 	}
 
-	const handleResend = () => {
+	const _handleResend = () => {
 		vscode.postMessage({ type: "editMessage", values: { ts: message.ts, text: editedText } })
 		setIsEditing(false)
 		if (onChatReset) {
@@ -56,11 +56,13 @@ export const KiloChatRowUserFeedback = ({ message, isStreaming, onChatReset }: K
 					<Button onClick={handleCancel} variant="ghost">
 						{t("kilocode:userFeedback:editCancel")}
 					</Button>
+					{/*
 					<Button variant="secondary" onClick={handleResend} disabled={editedText === message.text}>
 						{t("kilocode:userFeedback:send")}
 					</Button>
-					<Button onClick={handleRevertAndResend} disabled={editedText === message.text}>
-						{t("kilocode:userFeedback:restoreAndSend")}
+					*/}
+					<Button onClick={handleRevertAndResend}>
+						{editedText === message.text ? t("kilocode:userFeedback:restoreAndRetry") : t("kilocode:userFeedback:restoreAndSend")}
 					</Button>
 				</div>
 			</div>
@@ -92,9 +94,9 @@ export const KiloChatRowUserFeedback = ({ message, isStreaming, onChatReset }: K
 						disabled={isStreaming}
 						onClick={(e) => {
 							e.stopPropagation()
-							vscode.postMessage({ type: "deleteMessage", value: message.ts })
+							vscode.postMessage({ type: "retryMessage", value: message.ts, text: message.text, images: message.images })
 						}}>
-						<span className="codicon codicon-trash" />
+						<span className="codicon codicon-debug-restart" />
 					</Button>
 				</div>
 			</div>

@@ -23,5 +23,6 @@ export * from "./type-fu.js"
 export * from "./vscode.js"
 export * from "./kilocode.js" // kilocode_change
 export * from "./usage-tracker.js" // kilocode_change
+export * from "./icon.js"
 
 export * from "./providers/index.js"

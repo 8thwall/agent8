@@ -10,7 +10,14 @@ import type {
 } from "@roo-code/types"
 import { marketplaceItemSchema } from "@roo-code/types"
 
-import { Mode } from "./modes"
+import { Mode, ModeSource } from "./modes"
+import { McpServerSource } from "./mcp"
+
+export type StudioUsePayload = {
+    action: string
+    webviewId: string
+	parameters?: Record<string, any>
+}
 
 export type ClineAskResponse =
 	| "yesButtonClicked"
@@ -125,6 +132,7 @@ export interface WebviewMessage {
 		| "draggedImages"
 		| "deleteMessage"
 		| "deleteMessageConfirm"
+		| "retryMessage"
 		| "submitEditedMessage"
 		| "editMessageConfirm"
 		| "terminalOutputLineLimit"
@@ -196,6 +204,7 @@ export interface WebviewMessage {
 		| "showAutoApproveMenu" // kilocode_change
 		| "reportBug" // kilocode_change
 		| "profileButtonClicked" // kilocode_change
+		| "authButtonClicked"
 		| "fetchProfileDataRequest" // kilocode_change
 		| "profileDataResponse" // kilocode_change
 		| "fetchBalanceDataRequest" // kilocode_change
@@ -259,6 +268,9 @@ export interface WebviewMessage {
 		| "deleteCommand"
 		| "createCommand"
 		| "insertTextIntoTextarea"
+		| "websocketMessageEvent"	
+		| "openStudioApp"
+		| "openFolder" 
 	text?: string
 	editedMessageContent?: string
 	tab?: "settings" | "history" | "mcp" | "modes" | "chat" | "marketplace" | "account"
@@ -304,7 +316,8 @@ export interface WebviewMessage {
 	modeConfig?: ModeConfig
 	timeout?: number
 	payload?: WebViewMessagePayload
-	source?: "global" | "project"
+	mcpSource?: McpServerSource
+	modeSource?: ModeSource
 	requestId?: string
 	ids?: string[]
 	hasSystemPromptOverride?: boolean
@@ -338,6 +351,7 @@ export interface WebviewMessage {
 		codebaseIndexGeminiApiKey?: string
 		codebaseIndexMistralApiKey?: string
 	}
+	studioUsePayload?: StudioUsePayload
 }
 
 // kilocode_change begin

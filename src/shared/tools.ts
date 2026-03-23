@@ -187,6 +187,7 @@ export interface EditFileToolUse extends ToolUse {
 export type ToolGroupConfig = {
 	tools: readonly string[]
 	alwaysAvailable?: boolean // Whether this group is always available and shouldn't show in prompts view
+	disabled?: boolean // hidden8
 }
 
 export const TOOL_DISPLAY_NAMES: Record<ToolName, string> = {
@@ -220,7 +221,7 @@ export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 	read: {
 		tools: [
 			"read_file",
-			"fetch_instructions",
+			// "fetch_instructions", hidden8:create
 			"search_files",
 			"list_files",
 			"list_code_definition_names",
@@ -234,14 +235,16 @@ export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 			"write_to_file",
 			"insert_content",
 			"search_and_replace",
-			"new_rule",
+			// "new_rule", hidden8:create
 		],
 	},
 	browser: {
 		tools: ["browser_action"],
+		disabled: true, // hidden8:browser
 	},
 	command: {
 		tools: ["execute_command"],
+		disabled: true, // hidden8:terminal
 	},
 	mcp: {
 		tools: ["use_mcp_tool", "access_mcp_resource"],
@@ -249,6 +252,7 @@ export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 	modes: {
 		tools: ["switch_mode", "new_task"],
 		alwaysAvailable: true,
+		disabled: true, // hidden8:modes hidden8:newtask
 	},
 }
 
@@ -256,8 +260,8 @@ export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 export const ALWAYS_AVAILABLE_TOOLS: ToolName[] = [
 	"ask_followup_question",
 	"attempt_completion",
-	"switch_mode",
-	"new_task",
+	// "switch_mode", hidden8:modes
+	// "new_task", hidden8:modes
 	"report_bug",
 	"condense", // kilocode_Change
 	"update_todo_list",

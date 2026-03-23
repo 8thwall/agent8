@@ -3,8 +3,6 @@ run-name: Changeset Release ${{ github.actor != 'kilocode-bot' && '- Create PR' 
 
 on:
     workflow_dispatch:
-    pull_request:
-        types: [closed, opened, labeled]
 
 env:
     REPO_PATH: ${{ github.repository }}

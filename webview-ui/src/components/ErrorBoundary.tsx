@@ -71,8 +71,8 @@ class ErrorBoundary extends Component<ErrorProps, ErrorState> {
 				</h2>
 				<p className="mb-4">
 					{t("errorBoundary.reportText")}{" "}
-					<a href="https://github.com/Kilo-Org/kilocode/issues" target="_blank" rel="noreferrer">
-						{t("errorBoundary.githubText")}
+					<a href="https://8th.io/agentforum" target="_blank" rel="noreferrer">
+						{t("errorBoundary.forumText")}
 					</a>
 				</p>
 				<p className="mb-2">{t("errorBoundary.copyInstructions")}</p>

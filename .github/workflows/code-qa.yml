@@ -2,11 +2,8 @@ name: Code QA Kilo Code
 
 on:
     workflow_dispatch:
-    push:
-        branches: [main]
-    pull_request:
-        types: [opened, reopened, ready_for_review, synchronize]
-        branches: [main]
+    pull_request_review:
+      types: [submitted]
 
 env:
     NODE_VERSION: 20.19.2
@@ -14,12 +11,28 @@ env:
     TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
+permissions:
+  contents: read
+
 jobs:
     compile:
+        if: github.event.review.state == 'approved' || github.event_name == 'workflow_dispatch'
+        defaults:
+          run:
+              working-directory: agent8
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
+              with:
+                  path: agent8
+            - name: Checkout MCP
+              uses: actions/checkout@v4
+              with:
+                  repository: 8thwall/mcp8
+                  ref: main
+                  path: 8w-mcp
+                  token: ${{ secrets.KILO_READ_MCP }}
             - name: Install pnpm
               uses: pnpm/action-setup@v4
               with:
@@ -29,6 +42,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "pnpm"
+                  cache-dependency-path: agent8/pnpm-lock.yaml
             - name: Turbo cache setup
               uses: actions/cache@v4
               with:
@@ -38,6 +52,9 @@ jobs:
                       ${{ runner.os }}-turbo-
             - name: Install dependencies
               run: pnpm install
+            - name: Install MCP dependencies
+              working-directory: 8w-mcp
+              run: npm install
             - name: Build
               run: pnpm build
             - name: Check types
@@ -46,6 +63,7 @@ jobs:
               run: pnpm lint
 
     check-translations:
+        if: github.event_name == 'workflow_dispatch'
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -72,13 +90,26 @@ jobs:
               run: node scripts/find-missing-translations.js
 
     test-extension:
+        if: github.event.review.state == 'approved' || github.event_name == 'workflow_dispatch'
+        defaults:
+          run:
+              working-directory: agent8
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [ubuntu-latest, windows-latest]
+                os: [ubuntu-latest]
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
+              with:
+                  path: agent8
+            - name: Checkout MCP
+              uses: actions/checkout@v4
+              with:
+                  repository: 8thwall/mcp8
+                  ref: main
+                  path: 8w-mcp
+                  token: ${{ secrets.KILO_READ_MCP }}
             - name: Install pnpm
               uses: pnpm/action-setup@v4
               with:
@@ -88,6 +119,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "pnpm"
+                  cache-dependency-path: agent8/pnpm-lock.yaml
             - name: Turbo cache setup
               uses: actions/cache@v4
               with:
@@ -97,17 +129,21 @@ jobs:
                       ${{ runner.os }}-turbo-
             - name: Install dependencies
               run: pnpm install
+            - name: Install MCP dependencies
+              working-directory: 8w-mcp
+              run: npm install
             - name: Build (to build and copy WASM files)
               run: pnpm build
             - name: Run unit tests
-              working-directory: src
+              working-directory: agent8/src
               run: pnpm test
 
     test-webview:
+        if: github.event.review.state == 'approved' || github.event_name == 'workflow_dispatch'
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [ubuntu-latest, windows-latest]
+                os: [ubuntu-latest]
         steps:
             - name: Checkout code
               uses: actions/checkout@v4

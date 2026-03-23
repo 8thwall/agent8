@@ -41,7 +41,7 @@ async function generateTempSystemPrompt(options: ClaudeCodeOptions): Promise<str
 		return undefined
 	}
 	const uniqueId = crypto.randomUUID()
-	const tempFilePath = path.join(os.tmpdir(), `kilocode-system-prompt-${uniqueId}.txt`)
+	const tempFilePath = path.join(os.tmpdir(), `8thwallagent-system-prompt-${uniqueId}.txt`)
 	await fs.writeFile(tempFilePath, options.systemPrompt, "utf8")
 	return tempFilePath
 }

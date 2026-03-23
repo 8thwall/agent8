@@ -10,32 +10,22 @@ describe("RooProtectedController", () => {
 	})
 
 	describe("isWriteProtected", () => {
-		it("should protect .rooignore file", () => {
-			expect(controller.isWriteProtected(".rooignore")).toBe(true)
+		it("should protect .8thwallagentignore file", () => {
+			expect(controller.isWriteProtected(".8thwallagentignore")).toBe(true)
 		})
 
-		it("should protect files in .roo directory", () => {
-			expect(controller.isWriteProtected(".roo/config.json")).toBe(true)
-			expect(controller.isWriteProtected(".roo/settings/user.json")).toBe(true)
-			expect(controller.isWriteProtected(".roo/modes/custom.json")).toBe(true)
+		it("should protect files in .8thwallagent directory", () => {
+			expect(controller.isWriteProtected(".8thwallagent/config.json")).toBe(true)
+			expect(controller.isWriteProtected(".8thwallagent/settings/user.json")).toBe(true)
+			expect(controller.isWriteProtected(".8thwallagent/modes/custom.json")).toBe(true)
 		})
 
-		it("should protect .rooprotected file", () => {
-			expect(controller.isWriteProtected(".rooprotected")).toBe(true)
+		it("should protect .8thwallagentprotected file", () => {
+			expect(controller.isWriteProtected(".8thwallagentprotected")).toBe(true)
 		})
 
-		it("should protect .roomodes files", () => {
-			expect(controller.isWriteProtected(".roomodes")).toBe(true)
-		})
-
-		it("should protect .roorules* files", () => {
-			expect(controller.isWriteProtected(".roorules")).toBe(true)
-			expect(controller.isWriteProtected(".roorules.md")).toBe(true)
-		})
-
-		it("should protect .clinerules* files", () => {
-			expect(controller.isWriteProtected(".clinerules")).toBe(true)
-			expect(controller.isWriteProtected(".clinerules.md")).toBe(true)
+		it("should protect .8thwallagentmodes files", () => {
+			expect(controller.isWriteProtected(".8thwallagentmodes")).toBe(true)
 		})
 
 		it("should protect files in .vscode directory", () => {
@@ -48,9 +38,9 @@ describe("RooProtectedController", () => {
 			expect(controller.isWriteProtected("AGENTS.md")).toBe(true)
 		})
 
-		it("should not protect other files starting with .roo", () => {
-			expect(controller.isWriteProtected(".roosettings")).toBe(false)
-			expect(controller.isWriteProtected(".rooconfig")).toBe(false)
+		it("should not protect other files starting with .8thwallagent", () => {
+			expect(controller.isWriteProtected(".8thwallagentsettings")).toBe(false)
+			expect(controller.isWriteProtected(".8thwallagentconfig")).toBe(false)
 		})
 
 		it("should not protect regular files", () => {
@@ -59,36 +49,35 @@ describe("RooProtectedController", () => {
 			expect(controller.isWriteProtected("README.md")).toBe(false)
 		})
 
-		it("should not protect files that contain 'roo' but don't start with .roo", () => {
-			expect(controller.isWriteProtected("src/roo-utils.ts")).toBe(false)
-			expect(controller.isWriteProtected("config/roo.config.js")).toBe(false)
+		it("should not protect files that contain '8thwallagent' but don't start with .8thwallagent", () => {
+			expect(controller.isWriteProtected("src/8thwallagent-utils.ts")).toBe(false)
+			expect(controller.isWriteProtected("config/8thwallagent.config.js")).toBe(false)
 		})
 
 		it("should handle nested paths correctly", () => {
-			expect(controller.isWriteProtected(".roo/config.json")).toBe(true) // .roo/** matches at root
-			expect(controller.isWriteProtected("nested/.rooignore")).toBe(true) // .rooignore matches anywhere by default
-			expect(controller.isWriteProtected("nested/.roomodes")).toBe(true) // .roomodes matches anywhere by default
-			expect(controller.isWriteProtected("nested/.roorules.md")).toBe(true) // .roorules* matches anywhere by default
+			expect(controller.isWriteProtected(".8thwallagent/config.json")).toBe(true) // .8thwallagent/** matches at root
+			expect(controller.isWriteProtected("nested/.8thwallagentignore")).toBe(true) // .8thwallagentignore matches anywhere by default
+			expect(controller.isWriteProtected("nested/.8thwallagentmodes")).toBe(true) // .8thwallagentmodes matches anywhere by default
 		})
 
 		it("should handle absolute paths by converting to relative", () => {
-			const absolutePath = path.join(TEST_CWD, ".rooignore")
+			const absolutePath = path.join(TEST_CWD, ".8thwallagentignore")
 			expect(controller.isWriteProtected(absolutePath)).toBe(true)
 		})
 
 		it("should handle paths with different separators", () => {
-			expect(controller.isWriteProtected(".roo\\config.json")).toBe(true)
-			expect(controller.isWriteProtected(".roo/config.json")).toBe(true)
+			expect(controller.isWriteProtected(".8thwallagent\\config.json")).toBe(true)
+			expect(controller.isWriteProtected(".8thwallagent/config.json")).toBe(true)
 		})
 	})
 
 	describe("getProtectedFiles", () => {
 		it("should return set of protected files from a list", () => {
-			const files = ["src/index.ts", ".rooignore", "package.json", ".roo/config.json", "README.md"]
+			const files = ["src/index.ts", ".8thwallagentignore", "package.json", ".8thwallagent/config.json", "README.md"]
 
 			const protectedFiles = controller.getProtectedFiles(files)
 
-			expect(protectedFiles).toEqual(new Set([".rooignore", ".roo/config.json"]))
+			expect(protectedFiles).toEqual(new Set([".8thwallagentignore", ".8thwallagent/config.json"]))
 		})
 
 		it("should return empty set when no files are protected", () => {
@@ -102,14 +91,14 @@ describe("RooProtectedController", () => {
 
 	describe("annotatePathsWithProtection", () => {
 		it("should annotate paths with protection status", () => {
-			const files = ["src/index.ts", ".rooignore", ".roo/config.json", "package.json"]
+			const files = ["src/index.ts", ".8thwallagentignore", ".8thwallagent/config.json", "package.json"]
 
 			const annotated = controller.annotatePathsWithProtection(files)
 
 			expect(annotated).toEqual([
 				{ path: "src/index.ts", isProtected: false },
-				{ path: ".rooignore", isProtected: true },
-				{ path: ".roo/config.json", isProtected: true },
+				{ path: ".8thwallagentignore", isProtected: true },
+				{ path: ".8thwallagent/config.json", isProtected: true },
 				{ path: "package.json", isProtected: false },
 			])
 		})
@@ -118,7 +107,7 @@ describe("RooProtectedController", () => {
 	describe("getProtectionMessage", () => {
 		it("should return appropriate protection message", () => {
 			const message = controller.getProtectionMessage()
-			expect(message).toBe("This is a Kilo Code configuration file and requires approval for modifications")
+			expect(message).toBe("This is a 8th Wall Agent configuration file and requires approval for modifications")
 		})
 	})
 
@@ -128,8 +117,8 @@ describe("RooProtectedController", () => {
 
 			expect(instructions).toContain("# Protected Files")
 			expect(instructions).toContain("write-protected")
-			expect(instructions).toContain(".rooignore")
-			expect(instructions).toContain(".roo/**")
+			expect(instructions).toContain(".8thwallagentignore")
+			expect(instructions).toContain(".8thwallagent/**")
 			expect(instructions).toContain("\u{1F6E1}") // Shield symbol
 		})
 	})
@@ -139,18 +128,12 @@ describe("RooProtectedController", () => {
 			const patterns = RooProtectedController.getProtectedPatterns()
 
 			expect(patterns).toEqual([
-				".kilocodeignore",
-				".kilocodemodes",
-				".kilocoderules",
-				".kilocode/**",
-				".kilocodeprotected",
-				".rooignore",
-				".roomodes",
-				".roorules*",
-				".clinerules*",
-				".roo/**",
+				".8thwallagentignore",
+				".8thwallagentmodes",
+				".8thwallagentrules",
+				".8thwallagent/**",
+				".8thwallagentprotected",
 				".vscode/**",
-				".rooprotected",
 				"AGENTS.md",
 			])
 		})

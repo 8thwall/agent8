@@ -1,5 +1,5 @@
 import { Task } from "../task/Task"
-import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../shared/tools"
+import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag, TOOL_GROUPS } from "../../shared/tools"
 import { formatResponse } from "../prompts/responses"
 import { parseXml } from "../../utils/xml"
 
@@ -65,7 +65,7 @@ export async function askFollowupQuestionTool(
 					} else {
 						// XML object with text content and optional mode attribute
 						const result: Suggest = { answer: sug["#text"] }
-						if (sug["@_mode"]) {
+						if (sug["@_mode"] && !TOOL_GROUPS.modes.disabled) {
 							result.mode = sug["@_mode"]
 						}
 						return result

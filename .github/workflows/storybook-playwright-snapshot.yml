@@ -2,11 +2,6 @@ name: Storybook Playwright Snapshot
 
 on:
     workflow_dispatch:
-    push:
-        branches: [main]
-    pull_request:
-        types: [opened, reopened, ready_for_review, synchronize]
-        branches: [main]
 
 # Cancel in-progress jobs when new workflow is triggered
 concurrency:

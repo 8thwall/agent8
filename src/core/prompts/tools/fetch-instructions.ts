@@ -3,12 +3,18 @@
  * @param enableMcpServerCreation - Whether to include MCP server creation task.
  *                                  Defaults to true when undefined.
  */
-export function getFetchInstructionsDescription(enableMcpServerCreation?: boolean): string {
-	const tasks =
-		enableMcpServerCreation !== false
-			? `  create_mcp_server
-  create_mode`
-			: `  create_mode`
+export function getFetchInstructionsDescription(enableMcpServerCreation?: boolean, enableModeCreation?: boolean): string {
+	if (enableMcpServerCreation === false && enableModeCreation === false) {
+		return ''
+	}
+	
+	let tasks = ''
+	if (enableMcpServerCreation) {
+		tasks += '  create_mcp_server\n'
+	}
+	if (enableModeCreation) {
+		tasks += '  create_mode'
+	}
 
 	const example =
 		enableMcpServerCreation !== false

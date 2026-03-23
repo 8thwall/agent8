@@ -6,6 +6,7 @@ import { Button, StandardTooltip } from "@/components/ui"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { useExtensionState } from "@src/context/ExtensionStateContext"
 import { SuggestionItem } from "@roo-code/types"
+import { TOOL_GROUPS } from "@roo/tools"
 
 const DEFAULT_FOLLOWUP_TIMEOUT_MS = 60000
 const COUNTDOWN_INTERVAL_MS = 1000
@@ -123,7 +124,7 @@ export const FollowUpSuggest = ({
 								</span>
 							)}
 						</Button>
-						{suggestion.mode && (
+						{suggestion.mode && !TOOL_GROUPS.modes.disabled && (
 							<div className="absolute bottom-0 right-0 text-[10px] bg-vscode-badge-background text-vscode-badge-foreground px-1 py-0.5 border border-vscode-badge-background flex items-center gap-0.5">
 								<span className="codicon codicon-arrow-right" style={{ fontSize: "8px" }} />
 								{suggestion.mode}

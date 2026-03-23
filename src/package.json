@@ -1,10 +1,10 @@
 {
-	"name": "kilo-code",
+	"name": "8th-wall-agent",
 	"displayName": "%extension.displayName%",
 	"description": "%extension.description%",
-	"publisher": "kilocode",
-	"version": "4.79.0",
-	"icon": "assets/icons/logo-outline-black.png",
+	"publisher": "8th-wall",
+	"version": "0.7.4",
+	"icon": "assets/icons/infin8-purple.png",
 	"galleryBanner": {
 		"color": "#FFFFFF",
 		"theme": "light"
@@ -14,13 +14,9 @@
 		"node": "20.19.2"
 	},
 	"author": {
-		"name": "Kilo Code"
+		"name": "8th Wall"
 	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Kilo-Org/kilocode"
-	},
-	"homepage": "https://kilocode.ai",
+	"homepage": "https://8thwall.com",
 	"categories": [
 		"AI",
 		"Chat",
@@ -55,22 +51,22 @@
 	"contributes": {
 		"walkthroughs": [
 			{
-				"id": "kiloCodeWalkthrough",
-				"title": "5 ways Kilo Code helps you code",
-				"description": "You now have a personal AI coding assistant.",
+				"id": "8thWallAgentWalkthrough",
+				"title": "Get Started with 8th Wall Agent",
+				"description": "The Game Engine for the AI Era",
 				"steps": [
 					{
-						"id": "welcome",
-						"title": "Write code for you",
-						"description": "Describe what you want to build. Kilo Code will write it from scratch, generate the files, and run them for you.",
+						"id": "desktop",
+						"title": "Open Your Project",
+						"description": "The same 8th Wall Studio you know and love, now available for Desktop. Faster builds, local files, totally free to develop and host.",
 						"media": {
 							"markdown": "./dist/walkthrough/step1.md"
 						}
 					},
 					{
-						"id": "getting-started",
-						"title": "Understand your codebase",
-						"description": "Need clarity on how something works? Ask Kilo Code about any part of your files and get a clear explanation.",
+						"id": "project",
+						"title": "Open a project",
+						"description": "From 8th Wall Desktop, open an existing project or create a new one. Then open the same project in VS Code by clicking **Open Externally**.",
 						"media": {
 							"markdown": "./dist/walkthrough/step2.md"
 						},
@@ -79,27 +75,19 @@
 						}
 					},
 					{
-						"id": "modes",
-						"title": "Get things working again",
-						"description": "Stuck on an error? Kilo Code can find the issue, fix it, and get your code running.",
+						"id": "prompt",
+						"title": "Ask Agent to Write Code or Modify Your Scene",
+						"description": "Use natural language to describe what you want to build, and 8th Wall Agent will write code files and create scene entities as needed to fulfill your request.",
 						"media": {
 							"markdown": "./dist/walkthrough/step3.md"
 						}
 					},
 					{
-						"id": "code-actions",
-						"title": "Plan your logic",
-						"description": "Not sure where to start? Map out your logic and structure before writing a single line of code.",
+						"id": "modes",
+						"title": "8th Wall Agent Modes",
+						"description": "Choose a mode depending on your task.",
 						"media": {
 							"markdown": "./dist/walkthrough/step4.md"
-						}
-					},
-					{
-						"id": "advanced-features",
-						"title": "And more",
-						"description": "Improve your prompt, add context, or create your own custom modes.",
-						"media": {
-							"markdown": "./dist/walkthrough/step5.md"
 						}
 					}
 				]
@@ -108,469 +96,134 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "kilo-code-ActivityBar",
+					"id": "8th-wall-agent-ActivityBar",
 					"title": "%views.activitybar.title%",
-					"icon": "assets/icons/kilo.png",
-					"darkIcon": "assets/icons/kilo-dark.png",
+					"icon": "assets/icons/infin8-black.png",
+					"darkIcon": "assets/icons/infin8-white.png",
 					"when": "isMac"
 				}
 			]
 		},
 		"views": {
-			"kilo-code-ActivityBar": [
+			"8th-wall-agent-ActivityBar": [
 				{
 					"type": "webview",
-					"id": "kilo-code.SidebarProvider",
-					"name": "%views.sidebar.name%"
+					"id": "8th-wall-agent.SidebarProvider",
+					"name": "%views.sidebar.name%",
+					"icon": "assets/icons/infin8-black.png",
+					"darkIcon": "assets/icons/infin8-white.png"
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "kilo-code.plusButtonClicked",
+				"command": "8th-wall-agent.plusButtonClicked",
 				"title": "%command.newTask.title%",
 				"icon": "$(add)"
 			},
 			{
-				"command": "kilo-code.mcpButtonClicked",
-				"title": "%command.mcpServers.title%",
-				"icon": "$(server)"
-			},
-			{
-				"command": "kilo-code.importSettings",
-				"title": "%command.importSettings.title%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.exportSettings",
-				"title": "Export Settings",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.promptsButtonClicked",
-				"title": "%command.prompts.title%",
-				"icon": "$(organization)"
-			},
-			{
-				"command": "kilo-code.historyButtonClicked",
+				"command": "8th-wall-agent.historyButtonClicked",
 				"title": "%command.history.title%",
 				"icon": "$(history)"
 			},
 			{
-				"command": "kilo-code.marketplaceButtonClicked",
-				"title": "%command.marketplace.title%",
-				"icon": "$(extensions)"
-			},
-			{
-				"command": "kilo-code.popoutButtonClicked",
-				"title": "%command.openInEditor.title%",
-				"icon": "$(link-external)"
-			},
-			{
-				"command": "kilo-code.settingsButtonClicked",
+				"command": "8th-wall-agent.settingsButtonClicked",
 				"title": "%command.settings.title%",
 				"icon": "$(settings-gear)"
 			},
 			{
-				"command": "kilo-code.helpButtonClicked",
-				"title": "%command.documentation.title%",
-				"icon": "$(question)"
-			},
-			{
-				"command": "kilo-code.openInNewTab",
-				"title": "%command.openInNewTab.title%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.explainCode",
+				"command": "8th-wall-agent.explainCode",
 				"title": "%command.explainCode.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "kilo-code.fixCode",
+				"command": "8th-wall-agent.fixCode",
 				"title": "%command.fixCode.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "kilo-code.improveCode",
+				"command": "8th-wall-agent.improveCode",
 				"title": "%command.improveCode.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "kilo-code.addToContext",
+				"command": "8th-wall-agent.addToContext",
 				"title": "%command.addToContext.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "kilo-code.newTask",
+				"command": "8th-wall-agent.newTask",
 				"title": "%command.newTask.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "kilo-code.terminalAddToContext",
-				"title": "%command.terminal.addToContext.title%",
-				"category": "%extension.displayName%"
-			},
-			{
-				"command": "kilo-code.terminalFixCommand",
-				"title": "%command.terminal.fixCommand.title%",
-				"category": "%extension.displayName%"
-			},
-			{
-				"command": "kilo-code.terminalExplainCommand",
-				"title": "%command.terminal.explainCommand.title%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.generateTerminalCommand",
-				"title": "%command.terminal.generateCommand.title%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.setCustomStoragePath",
-				"title": "%command.setCustomStoragePath.title%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.focusChatInput",
+				"command": "8th-wall-agent.focusChatInput",
 				"title": "%command.focusInput.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "kilo-code.acceptInput",
+				"command": "8th-wall-agent.acceptInput",
 				"title": "%command.acceptInput.title%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.profileButtonClicked",
-				"title": "%command.profile.title%",
-				"icon": "$(account)",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.generateCommitMessage",
-				"title": "%command.generateCommitMessage.title%",
-				"icon": {
-					"light": "assets/icons/kilo-light.svg",
-					"dark": "assets/icons/kilo-dark.svg"
-				},
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.ghost.generateSuggestions",
-				"title": "%ghost.commands.generateSuggestions%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.ghost.cancelSuggestions",
-				"title": "%ghost.commands.cancelSuggestions%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.ghost.applyCurrentSuggestions",
-				"title": "%ghost.commands.applyCurrentSuggestion%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.ghost.applyAllSuggestions",
-				"title": "%ghost.commands.applyAllSuggestions%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.ghost.promptCodeSuggestion",
-				"title": "%ghost.commands.promptCodeSuggestion%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.ghost.goToNextSuggestion",
-				"title": "%ghost.commands.goToNextSuggestion%",
-				"category": "%configuration.title%"
-			},
-			{
-				"command": "kilo-code.ghost.goToPreviousSuggestion",
-				"title": "%ghost.commands.goToPreviousSuggestion%",
 				"category": "%configuration.title%"
 			}
 		],
 		"keybindings": [
 			{
-				"command": "kilo-code.focusChatInput",
+				"command": "8th-wall-agent.focusChatInput",
 				"key": "ctrl+shift+a",
 				"mac": "cmd+shift+a",
 				"when": "true"
-			},
-			{
-				"command": "editor.action.inlineSuggest.commit",
-				"key": "tab",
-				"when": "inlineSuggestionVisible && editorTextFocus && !editorTabMovesFocus && !inSnippetMode && !suggestWidgetVisible && editorLangId != 'markdown'"
-			},
-			{
-				"command": "kilo-code.ghost.applyAllSuggestions",
-				"key": "shift+tab",
-				"when": "editorTextFocus && !editorTabMovesFocus && !inSnippetMode && kilocode.ghost.hasSuggestions"
-			},
-			{
-				"command": "kilo-code.ghost.applyCurrentSuggestions",
-				"key": "tab",
-				"when": "editorTextFocus && !editorTabMovesFocus && !inSnippetMode && kilocode.ghost.hasSuggestions"
-			},
-			{
-				"command": "kilo-code.ghost.cancelRequest",
-				"key": "escape",
-				"when": "editorTextFocus && !editorTabMovesFocus && !inSnippetMode && kilocode.ghost.isProcessing"
-			},
-			{
-				"command": "kilo-code.ghost.cancelSuggestions",
-				"key": "escape",
-				"when": "editorTextFocus && !editorTabMovesFocus && !inSnippetMode && kilocode.ghost.hasSuggestions"
-			},
-			{
-				"command": "kilo-code.ghost.goToNextSuggestion",
-				"key": "down",
-				"when": "editorTextFocus && !editorTabMovesFocus && !inSnippetMode && kilocode.ghost.hasSuggestions"
-			},
-			{
-				"command": "kilo-code.ghost.goToPreviousSuggestion",
-				"key": "up",
-				"when": "editorTextFocus && !editorTabMovesFocus && !inSnippetMode && kilocode.ghost.hasSuggestions"
-			},
-			{
-				"command": "kilo-code.ghost.promptCodeSuggestion",
-				"key": "ctrl+i",
-				"mac": "cmd+i",
-				"when": "editorTextFocus && !editorTabMovesFocus && !inSnippetMode && kilocode.ghost.enableQuickInlineTaskKeybinding && !github.copilot.completions.enabled"
-			},
-			{
-				"command": "kilo-code.ghost.generateSuggestions",
-				"key": "ctrl+l",
-				"mac": "cmd+l",
-				"when": "editorTextFocus && !editorTabMovesFocus && !inSnippetMode && kilocode.ghost.enableSmartInlineTaskKeybinding && !github.copilot.completions.enabled"
-			},
-			{
-				"command": "kilo-code.ghost.showIncompatibilityExtensionPopup",
-				"key": "ctrl+l",
-				"mac": "cmd+l",
-				"when": "editorTextFocus && !editorTabMovesFocus && !inSnippetMode && kilocode.ghost.enableSmartInlineTaskKeybinding && github.copilot.completions.enabled"
-			},
-			{
-				"command": "kilo-code.ghost.showIncompatibilityExtensionPopup",
-				"key": "ctrl+i",
-				"mac": "cmd+i",
-				"when": "editorTextFocus && !editorTabMovesFocus && !inSnippetMode && kilocode.ghost.enableQuickInlineTaskKeybinding && github.copilot.completions.enabled"
-			},
-			{
-				"command": "kilo-code.generateTerminalCommand",
-				"key": "ctrl+shift+g",
-				"mac": "cmd+shift+g"
 			}
 		],
 		"menus": {
 			"editor/context": [
 				{
-					"submenu": "kilo-code.contextMenu",
+					"submenu": "8th-wall-agent.contextMenu",
 					"group": "navigation"
 				}
 			],
-			"kilo-code.contextMenu": [
+			"8th-wall-agent.contextMenu": [
 				{
-					"command": "kilo-code.explainCode",
+					"command": "8th-wall-agent.explainCode",
 					"group": "1_actions@1"
 				},
 				{
-					"command": "kilo-code.fixCode",
+					"command": "8th-wall-agent.fixCode",
 					"group": "1_actions@2"
 				},
 				{
-					"command": "kilo-code.improveCode",
+					"command": "8th-wall-agent.improveCode",
 					"group": "1_actions@3"
 				},
 				{
-					"command": "kilo-code.addToContext",
+					"command": "8th-wall-agent.addToContext",
 					"group": "1_actions@4"
-				}
-			],
-			"terminal/context": [
-				{
-					"submenu": "kilo-code.terminalMenu",
-					"group": "navigation"
-				}
-			],
-			"kilo-code.terminalMenu": [
-				{
-					"command": "kilo-code.terminalAddToContext",
-					"group": "1_actions@1"
-				},
-				{
-					"command": "kilo-code.terminalFixCommand",
-					"group": "1_actions@2"
-				},
-				{
-					"command": "kilo-code.terminalExplainCommand",
-					"group": "1_actions@3"
 				}
 			],
 			"view/title": [
 				{
-					"command": "kilo-code.plusButtonClicked",
+					"command": "8th-wall-agent.settingsButtonClicked",
 					"group": "navigation@1",
-					"when": "view == kilo-code.SidebarProvider"
+					"when": "view == 8th-wall-agent.SidebarProvider"
 				},
 				{
-					"command": "kilo-code.mcpButtonClicked",
+					"command": "8th-wall-agent.historyButtonClicked",
 					"group": "navigation@2",
-					"when": "view == kilo-code.SidebarProvider"
+					"when": "view == 8th-wall-agent.SidebarProvider"
 				},
 				{
-					"command": "kilo-code.historyButtonClicked",
+					"command": "8th-wall-agent.plusButtonClicked",
 					"group": "navigation@3",
-					"when": "view == kilo-code.SidebarProvider"
-				},
-				{
-					"command": "kilo-code.profileButtonClicked",
-					"group": "navigation@4",
-					"when": "view == kilo-code.SidebarProvider"
-				},
-				{
-					"command": "kilo-code.settingsButtonClicked",
-					"group": "navigation@5",
-					"when": "view == kilo-code.SidebarProvider"
-				},
-				{
-					"command": "kilo-code.popoutButtonClicked",
-					"group": "navigation@6",
-					"when": "view == kilo-code.SidebarProvider"
-				},
-				{
-					"command": "kilo-code.helpButtonClicked",
-					"group": "navigation@8",
-					"when": "false && view == kilo-code.SidebarProvider"
-				}
-			],
-			"editor/title": [
-				{
-					"command": "kilo-code.plusButtonClicked",
-					"group": "navigation@1",
-					"when": "activeWebviewPanelId == kilo-code.TabPanelProvider"
-				},
-				{
-					"command": "kilo-code.mcpButtonClicked",
-					"group": "navigation@2",
-					"when": "activeWebviewPanelId == kilo-code.TabPanelProvider"
-				},
-				{
-					"command": "kilo-code.historyButtonClicked",
-					"group": "navigation@3",
-					"when": "activeWebviewPanelId == kilo-code.TabPanelProvider"
-				},
-				{
-					"command": "kilo-code.popoutButtonClicked",
-					"group": "navigation@4",
-					"when": "activeWebviewPanelId == kilo-code.TabPanelProvider"
-				},
-				{
-					"command": "kilo-code.settingsButtonClicked",
-					"group": "navigation@5",
-					"when": "activeWebviewPanelId == kilo-code.TabPanelProvider"
-				},
-				{
-					"command": "kilo-code.helpButtonClicked",
-					"group": "navigation@6",
-					"when": "activeWebviewPanelId == kilo-code.TabPanelProvider"
-				}
-			],
-			"scm/input": [
-				{
-					"command": "kilo-code.generateCommitMessage",
-					"group": "navigation"
-				}
-			],
-			"scm/title": [
-				{
-					"command": "kilo-code.generateCommitMessage",
-					"when": "scmProvider == git",
-					"group": "navigation"
+					"when": "view == 8th-wall-agent.SidebarProvider"
 				}
 			]
 		},
 		"submenus": [
 			{
-				"id": "kilo-code.contextMenu",
+				"id": "8th-wall-agent.contextMenu",
 				"label": "%views.contextMenu.label%"
-			},
-			{
-				"id": "kilo-code.terminalMenu",
-				"label": "%views.terminalMenu.label%"
 			}
 		],
-		"configuration": {
-			"title": "%configuration.title%",
-			"properties": {
-				"kilo-code.allowedCommands": {
-					"type": "array",
-					"items": {
-						"type": "string"
-					},
-					"default": [
-						"npm test",
-						"npm install",
-						"tsc",
-						"git log",
-						"git diff",
-						"git show"
-					],
-					"description": "%commands.allowedCommands.description%"
-				},
-				"kilo-code.deniedCommands": {
-					"type": "array",
-					"items": {
-						"type": "string"
-					},
-					"default": [],
-					"description": "%commands.deniedCommands.description%"
-				},
-				"kilo-code.commandExecutionTimeout": {
-					"type": "number",
-					"default": 0,
-					"minimum": 0,
-					"maximum": 600,
-					"description": "%commands.commandExecutionTimeout.description%"
-				},
-				"kilo-code.vsCodeLmModelSelector": {
-					"type": "object",
-					"properties": {
-						"vendor": {
-							"type": "string",
-							"description": "%settings.vsCodeLmModelSelector.vendor.description%"
-						},
-						"family": {
-							"type": "string",
-							"description": "%settings.vsCodeLmModelSelector.family.description%"
-						}
-					},
-					"description": "%settings.vsCodeLmModelSelector.description%"
-				},
-				"kilo-code.customStoragePath": {
-					"type": "string",
-					"default": "",
-					"description": "%settings.customStoragePath.description%"
-				},
-				"kilo-code.enableCodeActions": {
-					"type": "boolean",
-					"default": true,
-					"description": "%settings.enableCodeActions.description%"
-				},
-				"kilo-code.autoImportSettingsPath": {
-					"type": "string",
-					"default": "",
-					"description": "%settings.autoImportSettingsPath.description%"
-				},
-				"kilo-code.useAgentRules": {
-					"type": "boolean",
-					"default": true,
-					"description": "%settings.useAgentRules.description%"
-				}
-			}
-		},
 		"codeActions": [
 			{
 				"languages": [
@@ -590,7 +243,7 @@
 		"format": "prettier --write .",
 		"bundle": "node esbuild.mjs",
 		"vscode:prepublish": "pnpm bundle --production",
-		"vsix": "mkdirp ../bin && vsce package --no-dependencies --out ../bin",
+		"vsix": "mkdirp ../bin && vsce package --no-dependencies --out ../bin --allow-missing-repository",
 		"publish:marketplace": "vsce publish --no-dependencies && ovsx publish --no-dependencies",
 		"watch:bundle": "pnpm bundle --watch",
 		"watch:tsc": "cd .. && tsc --noEmit --watch --project src/tsconfig.json",
@@ -623,6 +276,8 @@
 		"delay": "^6.0.0",
 		"diff": "^5.2.0",
 		"diff-match-patch": "^1.0.5",
+		"eventsource-client": "^1.2.0",
+		"eventsource-parser": "^3.0.6",
 		"exceljs": "^4.4.0",
 		"fast-deep-equal": "^3.1.3",
 		"fast-xml-parser": "^5.0.0",
@@ -636,6 +291,7 @@
 		"ignore": "^7.0.3",
 		"is-wsl": "^3.1.0",
 		"isbinaryfile": "^5.0.2",
+		"jwt-decode": "^4.0.0",
 		"lodash.debounce": "^4.0.8",
 		"lru-cache": "^11.1.0",
 		"mammoth": "^1.9.1",
@@ -674,6 +330,7 @@
 		"vscode-material-icons": "^0.1.1",
 		"web-tree-sitter": "^0.25.6",
 		"workerpool": "^9.2.0",
+		"ws": "^8.18.3",
 		"yaml": "^2.8.0",
 		"zod": "^3.25.61"
 	},
@@ -697,6 +354,7 @@
 		"@types/tmp": "^0.2.6",
 		"@types/turndown": "^5.0.5",
 		"@types/vscode": "^1.84.0",
+		"@types/ws": "^8.18.1",
 		"@vscode/test-electron": "^2.5.2",
 		"@vscode/vsce": "3.3.2",
 		"esbuild": "^0.25.0",

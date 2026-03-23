@@ -9,20 +9,9 @@ export const CheckpointWarning = () => {
 				<Trans
 					i18nKey="chat:checkpoint.initializingWarning"
 					components={{
-						settingsLink: (
-							<VSCodeLink
-								href="#"
-								onClick={(e) => {
-									e.preventDefault()
-									window.postMessage(
-										{
-											type: "action",
-											action: "settingsButtonClicked",
-											values: { section: "checkpoints" },
-										},
-										"*",
-									)
-								}}
+						forumLink: (
+							<VSCodeLink // hidden8:checkpoints
+								href="https://8th.io/agentforum"
 								className="inline px-0.5"
 							/>
 						),

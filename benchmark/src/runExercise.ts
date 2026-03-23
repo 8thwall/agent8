@@ -28,7 +28,7 @@ export async function run() {
 	 * Activate the extension.
 	 */
 
-	const extension = vscode.extensions.getExtension<RooCodeAPI>("kilocode.Kilo-Code")
+	const extension = vscode.extensions.getExtension<RooCodeAPI>("8th-wall.8th-wall-agent")
 
 	if (!extension) {
 		throw new Error("Extension not found.")
@@ -67,7 +67,7 @@ export async function run() {
 	})
 
 	await vscode.workspace
-		.getConfiguration("kilo-code")
+		.getConfiguration("8th-wall-agent")
 		.update("allowedCommands", ["*"], vscode.ConfigurationTarget.Global)
 
 	await sleep(2_000)

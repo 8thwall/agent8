@@ -40,7 +40,8 @@ vi.mock("fs/promises", () => ({
 vi.mock("../../../utils/fs")
 vi.mock("../../../utils/path")
 
-describe("CustomModesManager", () => {
+// hidden8:customModes
+describe.skip("CustomModesManager", () => {
 	let manager: CustomModesManager
 	let mockContext: vscode.ExtensionContext
 	let mockOnUpdate: Mock
@@ -50,7 +51,7 @@ describe("CustomModesManager", () => {
 	const mockStoragePath = `${path.sep}mock${path.sep}settings`
 	const mockSettingsPath = path.join(mockStoragePath, "settings", GlobalFileNames.customModes)
 	const mockWorkspacePath = path.resolve("/mock/workspace")
-	const mockRoomodes = path.join(mockWorkspacePath, ".kilocodemodes")
+	const mockRoomodes = path.join(mockWorkspacePath, ".8thwallagentmodes")
 
 	beforeEach(() => {
 		mockOnUpdate = vi.fn()
@@ -95,7 +96,7 @@ describe("CustomModesManager", () => {
 	})
 
 	describe("getCustomModes", () => {
-		it("should handle valid YAML in .roomodes file and JSON for global customModes", async () => {
+		it("should handle valid YAML in .8thwallagentmodes file and JSON for global customModes", async () => {
 			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
 
 			const roomodesModes = [{ slug: "mode2", name: "Mode 2", roleDefinition: "Role 2", groups: ["read"] }]
@@ -115,7 +116,7 @@ describe("CustomModesManager", () => {
 			expect(modes).toHaveLength(2)
 		})
 
-		it("should merge modes with .kilocodemodes taking precedence", async () => {
+		it("should merge modes with .8thwallagentmodes taking precedence", async () => {
 			const settingsModes = [
 				{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] },
 				{ slug: "mode2", name: "Mode 2", roleDefinition: "Role 2", groups: ["read"] },
@@ -142,13 +143,13 @@ describe("CustomModesManager", () => {
 			expect(modes).toHaveLength(3)
 			expect(modes.map((m) => m.slug)).toEqual(["mode2", "mode3", "mode1"])
 
-			// mode2 should come from .kilocodemodes since it takes precedence
+			// mode2 should come from .8thwallagentmodes since it takes precedence
 			const mode2 = modes.find((m) => m.slug === "mode2")
 			expect(mode2?.name).toBe("Mode 2 Override")
 			expect(mode2?.roleDefinition).toBe("Role 2 Override")
 		})
 
-		it("should handle missing .kilocodemodes file", async () => {
+		it("should handle missing .8thwallagentmodes file", async () => {
 			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
 
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
@@ -167,7 +168,7 @@ describe("CustomModesManager", () => {
 			expect(modes[0].slug).toBe("mode1")
 		})
 
-		it("should handle invalid YAML in .kilocodemodes", async () => {
+		it("should handle invalid YAML in .8thwallagentmodes", async () => {
 			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
 
 			;(fs.readFile as Mock).mockImplementation(async (path: string) => {
@@ -182,7 +183,7 @@ describe("CustomModesManager", () => {
 
 			const modes = await manager.getCustomModes()
 
-			// Should fall back to settings modes when .kilocodemodes is invalid
+			// Should fall back to settings modes when .8thwallagentmodes is invalid
 			expect(modes).toHaveLength(1)
 			expect(modes[0].slug).toBe("mode1")
 		})
@@ -440,7 +441,7 @@ describe("CustomModesManager", () => {
 	})
 
 	describe("updateCustomMode", () => {
-		it("should update mode in settings file while preserving .kilocodemodes precedence", async () => {
+		it("should update mode in settings file while preserving .8thwallagentmodes precedence", async () => {
 			const newMode: ModeConfig = {
 				slug: "mode1",
 				name: "Updated Mode 1",
@@ -452,7 +453,7 @@ describe("CustomModesManager", () => {
 			const roomodesModes = [
 				{
 					slug: "mode1",
-					name: "Roomodes Mode 1",
+					name: "8thwallagentmodes Mode 1",
 					roleDefinition: "Role 1",
 					groups: ["read"],
 					source: "project",
@@ -502,13 +503,13 @@ describe("CustomModesManager", () => {
 				}),
 			)
 
-			// Should update global state with merged modes where .kilocodemodes takes precedence
+			// Should update global state with merged modes where .8thwallagentmodes takes precedence
 			expect(mockContext.globalState.update).toHaveBeenCalledWith(
 				"customModes",
 				expect.arrayContaining([
 					expect.objectContaining({
 						slug: "mode1",
-						name: "Roomodes Mode 1", // .kilocodemodes version should take precedence
+						name: "8thwallagentmodes Mode 1", // .8thwallagentmodes version should take precedence
 						source: "project",
 					}),
 				]),
@@ -518,7 +519,7 @@ describe("CustomModesManager", () => {
 			expect(mockOnUpdate).toHaveBeenCalled()
 		})
 
-		it("creates .kilocodemodes file when adding project-specific mode", async () => {
+		it("creates .8thwallagentmodes file when adding project-specific mode", async () => {
 			const projectMode: ModeConfig = {
 				slug: "project-mode",
 				name: "Project Mode",
@@ -527,7 +528,7 @@ describe("CustomModesManager", () => {
 				source: "project",
 			}
 
-			// Mock .kilocodemodes to not exist initially
+			// Mock .8thwallagentmodes to not exist initially
 			let roomodesContent: any = null
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 				return path === mockSettingsPath
@@ -553,7 +554,7 @@ describe("CustomModesManager", () => {
 
 			await manager.updateCustomMode("project-mode", projectMode)
 
-			// Verify .kilocodemodes was created with the project mode
+			// Verify .8thwallagentmodes was created with the project mode
 			expect(fs.writeFile).toHaveBeenCalledWith(
 				expect.any(String), // Don't check exact path as it may have different separators on different platforms
 				expect.stringContaining("project-mode"),
@@ -564,7 +565,7 @@ describe("CustomModesManager", () => {
 			const writeCall = (fs.writeFile as Mock).mock.calls[0]
 			expect(path.normalize(writeCall[0])).toBe(path.normalize(mockRoomodes))
 
-			// Verify the content written to .kilocodemodes
+			// Verify the content written to .8thwallagentmodes
 			expect(roomodesContent).toEqual({
 				customModes: [
 					expect.objectContaining({
@@ -872,7 +873,7 @@ describe("CustomModesManager", () => {
 
 				expect(result.success).toBe(true)
 				expect(fs.writeFile).toHaveBeenCalledWith(
-					expect.stringContaining(".kilocodemodes"),
+					expect.stringContaining(".8thwallagentmodes"),
 					expect.stringContaining("imported-mode"),
 					"utf-8",
 				)
@@ -927,7 +928,7 @@ describe("CustomModesManager", () => {
 
 				// Verify mode was imported
 				expect(fs.writeFile).toHaveBeenCalledWith(
-					expect.stringContaining(".kilocodemodes"),
+					expect.stringContaining(".8thwallagentmodes"),
 					expect.stringContaining("imported-mode"),
 					"utf-8",
 				)
@@ -1029,7 +1030,7 @@ describe("CustomModesManager", () => {
 				// Mock fs.mkdir to fail when creating rules directory
 				;(fs.mkdir as Mock).mockRejectedValue(new Error("Permission denied"))
 
-				// Mock fs.writeFile to work normally for .roomodes but we won't get there
+				// Mock fs.writeFile to work normally for .8thwallagentmodes but we won't get there
 				;(fs.writeFile as Mock).mockResolvedValue(undefined)
 
 				const result = await manager.importModeWithRules(importYaml)
@@ -1081,9 +1082,9 @@ describe("CustomModesManager", () => {
 
 				expect(result.success).toBe(true)
 
-				// Verify that no files were written outside the .roo directory
+				// Verify that no files were written outside the .8thwallagent directory
 				const mockWorkspacePath = path.resolve("/mock/workspace")
-				const writtenRuleFiles = writtenFiles.filter((p) => !p.includes(".kilocodemodes"))
+				const writtenRuleFiles = writtenFiles.filter((p) => !p.includes(".8thwallagentmodes"))
 				writtenRuleFiles.forEach((filePath) => {
 					const normalizedPath = path.normalize(filePath)
 					const expectedBasePath = path.normalize(
@@ -1168,14 +1169,14 @@ describe("CustomModesManager", () => {
 				expect(result.success).toBe(true)
 
 				// Verify that fs.rm was called to remove the existing rules folder
-				expect(fs.rm).toHaveBeenCalledWith(expect.stringContaining(path.join(".kilocode", "rules-test-mode")), {
+				expect(fs.rm).toHaveBeenCalledWith(expect.stringContaining(path.join(".8thwallagent", "rules-test-mode")), {
 					recursive: true,
 					force: true,
 				})
 
 				// Verify mode was imported
 				expect(fs.writeFile).toHaveBeenCalledWith(
-					expect.stringContaining(".kilocodemodes"),
+					expect.stringContaining(".8thwallagentmodes"),
 					expect.stringContaining("test-mode"),
 					"utf-8",
 				)
@@ -1226,7 +1227,7 @@ describe("CustomModesManager", () => {
 				expect(result.success).toBe(true)
 
 				// Verify that fs.rm was called to remove the existing rules folder
-				expect(fs.rm).toHaveBeenCalledWith(expect.stringContaining(path.join(".kilocode", "rules-test-mode")), {
+				expect(fs.rm).toHaveBeenCalledWith(expect.stringContaining(path.join(".8thwallagent", "rules-test-mode")), {
 					recursive: true,
 					force: true,
 				})
@@ -1250,7 +1251,7 @@ describe("CustomModesManager", () => {
 			expect(result).toBe(false)
 		})
 
-		it("should return false when mode is not in .roomodes file", async () => {
+		it("should return false when mode is not in .8thwallagentmodes file", async () => {
 			const roomodesContent = { customModes: [{ slug: "other-mode", name: "Other Mode" }] }
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 				return path === mockRoomodes
@@ -1267,7 +1268,7 @@ describe("CustomModesManager", () => {
 			expect(result).toBe(false)
 		})
 
-		it("should return false when .roomodes doesn't exist and mode is not a custom mode", async () => {
+		it("should return false when .8thwallagentmodes doesn't exist and mode is not a custom mode", async () => {
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 				return path === mockSettingsPath
 			})
@@ -1336,7 +1337,7 @@ describe("CustomModesManager", () => {
 			})
 			;(fs.stat as Mock).mockResolvedValue({ isDirectory: () => true })
 			;(fs.readdir as Mock).mockResolvedValue([
-				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.roo/rules-test-mode" },
+				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.8thwallagent/rules-test-mode" },
 			])
 
 			const result = await manager.checkRulesDirectoryHasContent("test-mode")
@@ -1344,7 +1345,7 @@ describe("CustomModesManager", () => {
 			expect(result).toBe(true)
 		})
 
-		it("should work with global custom modes when .roomodes doesn't exist", async () => {
+		it("should work with global custom modes when .8thwallagentmodes doesn't exist", async () => {
 			const settingsContent = {
 				customModes: [{ slug: "test-mode", name: "Test Mode", groups: ["read"], roleDefinition: "Test Role" }],
 			}
@@ -1353,7 +1354,7 @@ describe("CustomModesManager", () => {
 			const freshManager = new CustomModesManager(mockContext, mockOnUpdate)
 
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
-				return path === mockSettingsPath // .roomodes doesn't exist
+				return path === mockSettingsPath // .8thwallagentmodes doesn't exist
 			})
 			;(fs.readFile as Mock).mockImplementation(async (path: string) => {
 				if (path === mockSettingsPath) {
@@ -1366,7 +1367,7 @@ describe("CustomModesManager", () => {
 			})
 			;(fs.stat as Mock).mockResolvedValue({ isDirectory: () => true })
 			;(fs.readdir as Mock).mockResolvedValue([
-				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.kilocode/rules-test-mode" },
+				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.8thwallagent/rules-test-mode" },
 			])
 
 			const result = await freshManager.checkRulesDirectoryHasContent("test-mode")
@@ -1458,7 +1459,7 @@ describe("CustomModesManager", () => {
 			expect(result.yaml).toContain("test-mode")
 		})
 
-		it("should successfully export mode with rules for a custom mode in .roomodes", async () => {
+		it("should successfully export mode with rules for a custom mode in .8thwallagentmodes", async () => {
 			const roomodesContent = {
 				customModes: [
 					{
@@ -1485,7 +1486,7 @@ describe("CustomModesManager", () => {
 			})
 			;(fs.stat as Mock).mockResolvedValue({ isDirectory: () => true })
 			;(fs.readdir as Mock).mockResolvedValue([
-				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.kilocode/rules-test-mode" },
+				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.8thwallagent/rules-test-mode" },
 			])
 
 			const result = await manager.exportModeWithRules("test-mode")
@@ -1498,7 +1499,7 @@ describe("CustomModesManager", () => {
 			expect(fs.rm).not.toHaveBeenCalled()
 		})
 
-		it("should successfully export mode with rules for a built-in mode customized in .roomodes", async () => {
+		it("should successfully export mode with rules for a built-in mode customized in .8thwallagentmodes", async () => {
 			const roomodesContent = {
 				customModes: [
 					{
@@ -1527,7 +1528,7 @@ describe("CustomModesManager", () => {
 			})
 			;(fs.stat as Mock).mockResolvedValue({ isDirectory: () => true })
 			;(fs.readdir as Mock).mockResolvedValue([
-				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.kilocode/rules-code" },
+				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.8thwallagent/rules-code" },
 			])
 
 			const result = await manager.exportModeWithRules("code")
@@ -1565,7 +1566,7 @@ describe("CustomModesManager", () => {
 			})
 			;(fs.stat as Mock).mockResolvedValue({ isDirectory: () => true })
 			;(fs.readdir as Mock).mockResolvedValue([
-				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.kilocode/rules-test-mode" },
+				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.8thwallagent/rules-test-mode" },
 			])
 
 			const result = await manager.exportModeWithRules("test-mode")
@@ -1575,7 +1576,7 @@ describe("CustomModesManager", () => {
 			expect(result.yaml).toContain("test-mode")
 		})
 
-		it("should successfully export global mode with rules from global .roo directory", async () => {
+		it("should successfully export global mode with rules from global .8thwallagent directory", async () => {
 			// Mock a global mode
 			const globalMode = {
 				slug: "global-test-mode",

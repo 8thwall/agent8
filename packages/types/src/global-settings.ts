@@ -162,6 +162,7 @@ export const globalSettingsSchema = z.object({
 	hasOpenedModeSelector: z.boolean().optional(),
 	lastModeExportPath: z.string().optional(),
 	lastModeImportPath: z.string().optional(),
+	firstInstallCompleted: z.boolean().optional(),
 })
 
 export type GlobalSettings = z.infer<typeof globalSettingsSchema>

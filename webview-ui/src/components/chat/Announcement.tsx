@@ -95,7 +95,7 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 					</ul>
 					<Trans
 						i18nKey="chat:announcement.detailsDiscussLinks"
-						components={{ discordLink: <DiscordLink />, redditLink: <RedditLink /> }}
+						components={{ discordLink: <DiscordLink />, forumLink: <ForumLink /> }}
 					/>
 				</div>
 			</DialogContent>
@@ -105,11 +105,11 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 
 const DiscordLink = () => (
 	<VSCodeLink
-		href="https://discord.gg/roocode"
+		href="https://8th.io/discord"
 		onClick={(e) => {
 			e.preventDefault()
 			window.postMessage(
-				{ type: "action", action: "openExternal", data: { url: "https://discord.gg/roocode" } },
+				{ type: "action", action: "openExternal", data: { url: "https://8th.io/discord" } },
 				"*",
 			)
 		}}>
@@ -117,17 +117,17 @@ const DiscordLink = () => (
 	</VSCodeLink>
 )
 
-const RedditLink = () => (
+const ForumLink = () => (
 	<VSCodeLink
-		href="https://reddit.com/r/kilocode"
+		href="https://8th.io/agentforum"
 		onClick={(e) => {
 			e.preventDefault()
 			window.postMessage(
-				{ type: "action", action: "openExternal", data: { url: "https://reddit.com/r/kilocode" } },
+				{ type: "action", action: "openExternal", data: { url: "https://8th.io/agentforum" } },
 				"*",
 			)
 		}}>
-		Reddit
+		Forum
 	</VSCodeLink>
 )
 
